@@ -1,0 +1,131 @@
+﻿<sf:ChromelessWindow
+    x:Class="WhatIfF1.UI.Windows.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:WhatIfF1"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:sf="http://schemas.syncfusion.com/wpf"
+    xmlns:sfskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
+    sfskin:SfSkinManager.Theme="{sfskin:SkinManagerExtension ThemeName=MaterialDark,
+                                                             FluentHoverEffectMode=BackgroundAndBorder,
+                                                             FluentPressedEffectMode=Reveal}"
+    Icon="Icons/favicon.png"
+    KeyDown="MainWindow_KeyDown"
+    Loaded="MainWindow_Loaded"
+    ResizeBorderThickness="0"
+    ResizeMode="CanResizeWithGrip"
+    ShowIcon="False"
+    TitleBarBackground="{StaticResource mainColor}"
+    TitleBarForeground="White"
+    UseNativeChrome="True"
+    mc:Ignorable="d">
+
+    <Grid>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50" />
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="30" />
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*" />
+        </Grid.ColumnDefinitions>
+
+        <Grid
+            Grid.Row="0"
+            Grid.Column="0"
+            DataContext="{Binding ActiveScenario}">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*" />
+            </Grid.RowDefinitions>
+
+            <TextBlock
+                Grid.Row="0"
+                Grid.Column="0"
+                Margin="{StaticResource defaultMargin}"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                Text="{Binding EventCode}" />
+
+            <Rectangle
+                Grid.Row="0"
+                Grid.Column="0"
+                Height="2"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Bottom"
+                Fill="{Binding Color, UpdateSourceTrigger=PropertyChanged, FallbackValue={StaticResource mainColor}, Converter={StaticResource colorToBrushConverter}}" />
+
+        </Grid>
+
+        <Grid Grid.Row="1" Grid.Column="0">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*" />
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="250" MinWidth="250" />
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="1*" MinWidth="400" />
+            </Grid.ColumnDefinitions>
+
+            <sf:SfAccordion
+                Grid.Row="0"
+                Grid.Column="0"
+                HorizontalAlignment="Stretch"
+                SelectionMode="OneOrMore">
+
+                <sf:SfAccordionItem Header="Load Scenario">
+                    <ListView
+                        x:Name="ScenarioListView"
+                        HorizontalContentAlignment="Stretch"
+                        ItemTemplate="{StaticResource scenarioItemTemplate}"
+                        ItemsSource="{Binding Scenarios}"
+                        SelectedItem="{Binding ActiveScenario, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+                </sf:SfAccordionItem>
+
+            </sf:SfAccordion>
+
+            <sf:SfGridSplitter
+                Grid.Row="0"
+                Grid.Column="1"
+                Width="10"
+                HorizontalAlignment="Stretch"
+                EnableCollapseButton="True"
+                ResizeBehavior="PreviousAndNext" />
+
+            <Grid
+                x:Name="ScenarioGrid"
+                DataContext="{Binding ActiveScenario, UpdateSourceTrigger=PropertyChanged}"
+                IsEnabled="{Binding ActiveScenario, Converter={StaticResource isNotNullConverter}}" />
+
+        </Grid>
+
+        <Grid
+            x:Name="LogBarGrid"
+            Grid.Row="2"
+            Grid.Column="0"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            Background="{Binding CurrentColor, UpdateSourceTrigger=PropertyChanged, FallbackValue=LightGray, Converter={StaticResource colorToBrushConverter}}">
+
+            <TextBlock
+                Margin="{StaticResource defaultMargin}"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                Text="{Binding CurrentMessage, UpdateSourceTrigger=PropertyChanged}" />
+
+        </Grid>
+
+    </Grid>
+
+
+
+</sf:ChromelessWindow>

@@ -8,7 +8,7 @@ using System.Windows;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("WhatIfF1")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("WhatIF1 is a Formula 1 post race strategy tool which allows alternate tyre strategies and scenarios to be modelled and analysed")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("WhatIfF1")]
@@ -51,5 +51,8 @@ using System.Windows;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyVersion("0.0.0.1")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
+
+// Register log4net config
+[assembly: log4net.Config.XmlConfigurator(Watch = true)]
