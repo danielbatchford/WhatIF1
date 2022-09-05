@@ -81,6 +81,7 @@
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -112,7 +113,9 @@
     <Compile Include="UI\Converters\IsNotNullConverter.cs" />
     <Compile Include="UI\Converters\IsNotNullToVisConverter.cs" />
     <Compile Include="Util\CommandHandler.cs" />
+    <Compile Include="Util\Enumerables\ObservableRangeCollection.cs" />
     <Compile Include="Util\Extensions\ColorExtensions.cs" />
+    <Compile Include="Util\Extensions\ImageExtensions.cs" />
     <Compile Include="Util\Extensions\StringExtensions.cs" />
     <Compile Include="Util\PropertyChangedWrapper.cs" />
     <Page Include="UI\Windows\MainWindow.xaml">
@@ -163,7 +166,8 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Resources\Flags\" />
+    <Resource Include="UI\Windows\Icons\Copy.png" />
+    <Resource Include="UI\Windows\Icons\Cross.png" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.8">
@@ -182,6 +186,29 @@
   </ItemGroup>
   <ItemGroup>
     <SplashScreen Include="Resources\SplashScreen.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Flags\Australia.png" />
+    <Resource Include="Resources\Flags\Austria.png" />
+    <Resource Include="Resources\Flags\Azerbaijan.png" />
+    <Resource Include="Resources\Flags\Bahrain.png" />
+    <Resource Include="Resources\Flags\Belgium.png" />
+    <Resource Include="Resources\Flags\Brazil.png" />
+    <Resource Include="Resources\Flags\Canada.png" />
+    <Resource Include="Resources\Flags\Default.png" />
+    <Resource Include="Resources\Flags\France.png" />
+    <Resource Include="Resources\Flags\Hungary.png" />
+    <Resource Include="Resources\Flags\Italy.png" />
+    <Resource Include="Resources\Flags\Japan.png" />
+    <Resource Include="Resources\Flags\Mexico.png" />
+    <Resource Include="Resources\Flags\Monaco.png" />
+    <Resource Include="Resources\Flags\Netherlands.png" />
+    <Resource Include="Resources\Flags\Saudi Arabia.png" />
+    <Resource Include="Resources\Flags\Singapore.png" />
+    <Resource Include="Resources\Flags\Spain.png" />
+    <Resource Include="Resources\Flags\UAE.png" />
+    <Resource Include="Resources\Flags\UK.png" />
+    <Resource Include="Resources\Flags\USA.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -19,6 +19,7 @@
     TitleBarBackground="{StaticResource mainColor}"
     TitleBarForeground="White"
     UseNativeChrome="True"
+    WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
 
     <Grid>
@@ -36,7 +37,7 @@
         <Grid
             Grid.Row="0"
             Grid.Column="0"
-            DataContext="{Binding ActiveScenario}">
+            DataContext="{Binding ActiveScenario, UpdateSourceTrigger=PropertyChanged}">
 
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*" />
@@ -170,6 +171,8 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="150" />
                         <ColumnDefinition Width="150" />
+                        <ColumnDefinition Width="50" />
+                        <ColumnDefinition Width="50" />
                     </Grid.ColumnDefinitions>
 
                     <Grid.RowDefinitions>
@@ -200,6 +203,40 @@
                         FontSize="15"
                         IsEnabled="{Binding IsLoading, Converter={StaticResource inverseBoolConverter}}" />
 
+                    <Button
+                        Grid.Row="0"
+                        Grid.Column="2"
+                        Margin="{StaticResource defaultMargin}"
+                        Background="{StaticResource lightColor}"
+                        Command="{Binding CloneScenarioCommand}"
+                        FontSize="15">
+                        <Button.Content>
+                            <Image
+                                Width="15"
+                                Height="15"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Source="Icons/Copy.png" />
+                        </Button.Content>
+                    </Button>
+
+                    <Button
+                        Grid.Row="0"
+                        Grid.Column="3"
+                        Margin="{StaticResource defaultMargin}"
+                        Background="{StaticResource lightColor}"
+                        Command="{Binding RemoveScenarioCommand}"
+                        FontSize="15">
+                        <Button.Content>
+                            <Image
+                                Width="15"
+                                Height="15"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Source="Icons/Cross.png" />
+                        </Button.Content>
+                    </Button>
+
                 </Grid>
 
             </Grid>
@@ -210,7 +247,7 @@
                 Height="2"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Bottom"
-                Fill="{Binding Color, UpdateSourceTrigger=PropertyChanged, FallbackValue={StaticResource mainColor}, Converter={StaticResource colorToBrushConverter}}" />
+                Fill="{Binding PrimaryColor, UpdateSourceTrigger=PropertyChanged, FallbackValue={StaticResource mainColor}, Converter={StaticResource colorToBrushConverter}}" />
 
         </Grid>
 
@@ -230,7 +267,8 @@
                 Grid.Row="0"
                 Grid.Column="0"
                 HorizontalAlignment="Stretch"
-                SelectionMode="OneOrMore">
+                SelectedIndex="0"
+                SelectionMode="ZeroOrMore">
 
                 <sf:SfAccordion.HeaderTemplate>
                     <DataTemplate>
@@ -241,15 +279,25 @@
                     </DataTemplate>
                 </sf:SfAccordion.HeaderTemplate>
 
-
                 <sf:SfAccordionItem Header="Browse Scenarios">
-                    <ListView
-                        x:Name="ScenarioListView"
-                        HorizontalContentAlignment="Stretch"
-                        ItemTemplate="{StaticResource scenarioItemTemplate}"
-                        ItemsSource="{Binding Scenarios}"
-                        SelectedItem="{Binding ActiveScenario, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+
+                    <Grid>
+
+                        <ListView
+                            x:Name="ScenariosListView"
+                            HorizontalContentAlignment="Stretch"
+                            ItemTemplate="{StaticResource scenarioItemTemplate}"
+                            ItemsSource="{Binding Scenarios, UpdateSourceTrigger=PropertyChanged}"
+                            ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                            SelectedItem="{Binding ActiveScenario, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+
+                    </Grid>
+
                 </sf:SfAccordionItem>
+
+                <sf:SfAccordionItem Header="Manage Scenario" />
+
+
 
             </sf:SfAccordion>
 
@@ -264,7 +312,7 @@
             <Grid
                 x:Name="ScenarioGrid"
                 DataContext="{Binding ActiveScenario, UpdateSourceTrigger=PropertyChanged}"
-                IsEnabled="{Binding ActiveScenario, Converter={StaticResource isNotNullConverter}}" />
+                IsEnabled="{Binding Path=., Converter={StaticResource isNotNullConverter}}" />
 
         </Grid>
 
@@ -281,7 +329,7 @@
             Grid.Column="0"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch"
-            Background="{Binding CurrentColor, UpdateSourceTrigger=PropertyChanged, FallbackValue=LightGray, Converter={StaticResource colorToBrushConverter}}">
+            Background="{Binding CurrentColor, UpdateSourceTrigger=PropertyChanged, FallbackValue=Transparent, Converter={StaticResource colorToBrushConverter}}">
 
             <TextBlock
                 Margin="{StaticResource defaultMargin}"

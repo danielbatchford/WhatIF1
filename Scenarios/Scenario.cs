@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media;
 using WhatIfF1.Logging;
@@ -11,24 +13,39 @@ using WhatIfF1.Util.Extensions;
 
 namespace WhatIfF1.Scenarios
 {
-    public class Scenario : PropertyChangedWrapper, ICloneable
+    public class Scenario : PropertyChangedWrapper, ICloneable, IEquatable<Scenario>
     {
+        /// <summary>
+        /// Used for equality checks
+        /// </summary>
+        public Guid Id { get; }
         public string EventName { get; }
         public Track Track { get; }
         public DateTime EventDate { get; }
-
         public string WikipediaLink { get; }
 
         public int Round { get; }
 
-        private Color _color;
+        private Color _primaryColor;
 
-        public Color Color
+        public Color PrimaryColor
         {
-            get => _color;
+            get => _primaryColor;
             set
             {
-                _color = value;
+                _primaryColor = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private Color _secondaryColor;
+
+        public Color SecondaryColor
+        {
+            get => _secondaryColor;
+            set
+            {
+                _secondaryColor = value;
                 OnPropertyChanged();
             }
         }
@@ -77,6 +94,52 @@ namespace WhatIfF1.Scenarios
             }
         }
 
+        private ICommand _removeScenarioCommand;
+
+        public ICommand RemoveScenarioCommand
+        {
+            get
+            {
+                if (_removeScenarioCommand is null)
+                {
+                    _removeScenarioCommand = new CommandHandler(() => 
+                    {
+                        ScenarioStore.Instance.RemoveScenario(this);
+                    }, () => true);
+                }
+
+                return _removeScenarioCommand;
+            }
+            set
+            {
+                _removeScenarioCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private ICommand _cloneScenarioCommand;
+
+        public ICommand CloneScenarioCommand
+        {
+            get
+            {
+                if(_cloneScenarioCommand is null)
+                {
+                    _cloneScenarioCommand = new CommandHandler(() =>
+                    {
+                        ScenarioStore.Instance.CloneScenario(this);
+                    }, () => true);
+                }
+
+                return _cloneScenarioCommand;
+            }
+            set
+            {
+                _removeScenarioCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         private ICommand _aboutRaceCommand;
 
         public ICommand AboutRaceCommand
@@ -102,6 +165,8 @@ namespace WhatIfF1.Scenarios
 
         public Scenario(JObject eventJson)
         {
+            Id = Guid.NewGuid();
+
             Round = eventJson["round"].Value<int>();
             WikipediaLink = eventJson["url"].Value<string>();
             EventName = eventJson["raceName"].Value<string>();
@@ -114,7 +179,23 @@ namespace WhatIfF1.Scenarios
             // Build track object from inner Json
             Track = new Track(eventJson["Circuit"].ToObject<JObject>());
 
-            Color = ColorExtensions.GetRandomColor();
+            // Extract color from flag color
+            using(System.Drawing.Image flag = System.Drawing.Image.FromFile(Track.FlagFilePath))
+            {
+                IList<Color> sortedColors = flag.GetDominantColors().ToList();
+
+                PrimaryColor = sortedColors[0];
+
+                // Case where flag only has one color
+                if (sortedColors.Count == 1)
+                {
+                    SecondaryColor = PrimaryColor;
+                }
+                else
+                {
+                    SecondaryColor = sortedColors[1];
+                }
+            }
         }
 
         private void LoadRaceFromAPI()
@@ -141,5 +222,15 @@ namespace WhatIfF1.Scenarios
         {
             throw new NotImplementedException();
         }
+        public bool Equals(Scenario other)
+        {
+            return Guid.Equals(Id, other.Id);
+        }
+
+        public override string ToString()
+        {
+            return EventName;
+        }
+
     }
 }

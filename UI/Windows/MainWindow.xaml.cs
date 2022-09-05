@@ -39,15 +39,14 @@ namespace WhatIfF1.UI.Windows
 
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-
-            // Set window data context
-            DataContext = await ScenarioStore.Instance;
-
             // Set log bar data context
             LogBarGrid.DataContext = Logger.Instance;
+
+            // Initialise scenario store and assign window context to the store
+            DataContext = await ScenarioStore.InitialiseASync();
         }
 
-        private void MainWindow_KeyDown(object sender, KeyEventArgs e)
+        private async void MainWindow_KeyDown(object sender, KeyEventArgs e)
         {
 #if DEBUG
             if (e.Key != Key.D0)
@@ -55,8 +54,8 @@ namespace WhatIfF1.UI.Windows
                 return;
             }
 
-            TestClass.RunTestCode();
-            Logger.Instance.Info("Test ran");
+            await TestClass.RunTestCode();
+            Logger.Instance.Info("Test Ran");
 #endif
         }
     }

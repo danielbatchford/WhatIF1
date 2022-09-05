@@ -5,9 +5,11 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using WhatIfF1.Adapters;
 using WhatIfF1.Scenarios.Exceptions;
 using WhatIfF1.Util;
+using WhatIfF1.Util.Enumerables;
 
 namespace WhatIfF1.Scenarios
 {
@@ -15,35 +17,24 @@ namespace WhatIfF1.Scenarios
     {
         private static readonly int _year = 2022;
 
-        #region LazyInitialization
+        #region StaticInitialization
 
-        private static readonly Task<ScenarioStore> _getInstanceTask = GetScenarioStoreASync(_year);
-        public static Task<ScenarioStore> Instance => _getInstanceTask;
+        private static readonly Lazy<Task<ScenarioStore>> _getStoreASync = new Lazy<Task<ScenarioStore>>(() => InitialiseASync());
 
-        #endregion LazyInitialization
+        public static ScenarioStore Instance { get; private set; }
 
-        public ObservableCollection<Scenario> Scenarios { get; }
-
-        private Scenario _activeScenario;
-
-        public Scenario ActiveScenario
+        public static async Task<ScenarioStore> InitialiseASync()
         {
-            get => _activeScenario;
-            set 
+            if (Instance != null)
             {
-                _activeScenario = value;
-                OnPropertyChanged();
+                throw new ScenarioLoadException($"{nameof(ScenarioStore)} singleton has already been initialised");
             }
-        }
-
-        private static async Task<ScenarioStore> GetScenarioStoreASync(int year)
-        {
 
             APIResult result = await APIAdapter.GetFromF1API(_year.ToString());
 
             if (!result.Success)
             {
-                throw new ScenarioLoadException($"Failed to load scenarios from {year} as the API call failed");
+                throw new ScenarioLoadException($"Failed to load scenarios from {_year} as the API call failed");
             }
 
             JObject rawJson = result.Data;
@@ -58,12 +49,47 @@ namespace WhatIfF1.Scenarios
                 scenarios.Add(new Scenario(raceJson));
             }
 
-            return new ScenarioStore(scenarios);
+            Instance = new ScenarioStore(scenarios);
+
+            return Instance;
+        }
+
+        #endregion StaticInitialization
+
+        public ObservableRangeCollection<Scenario> Scenarios { get; }
+
+        private Scenario _activeScenario;
+
+        public Scenario ActiveScenario
+        {
+            get => _activeScenario;
+            set
+            {
+                Console.WriteLine(value);
+                _activeScenario = value;
+                OnPropertyChanged();
+            }
         }
 
         private ScenarioStore(IEnumerable<Scenario> scenarios)
         {
-            Scenarios = new ObservableCollection<Scenario>(scenarios);
+            Scenarios = new ObservableRangeCollection<Scenario>(scenarios);
+
+            // Auto select the first scenario
+            if (Scenarios.Count > 0)
+            {
+                ActiveScenario = Scenarios[0];
+            }
+        }
+
+        public void RemoveScenario(Scenario scenario)
+        {
+            Scenarios.Remove(scenario);
+        }
+
+        public void CloneScenario(Scenario original) 
+        {
+            Scenarios.Add((Scenario)original.Clone());
         }
     }
 }
