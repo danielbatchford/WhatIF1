@@ -1,10 +1,12 @@
 ﻿using Syncfusion.Windows.Shared;
+using System;
 using System.Configuration;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using WhatIfF1.Logging;
 using WhatIfF1.Scenarios;
-using WhatIfF1.UI.Exceptions;
 
 namespace WhatIfF1.UI.Windows
 {
@@ -33,16 +35,16 @@ namespace WhatIfF1.UI.Windows
             Height = height;
 
             InitializeComponent();
+        }
+
+        private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
 
             // Set window data context
-            DataContext = ScenarioStore.Instance;
+            DataContext = await ScenarioStore.Instance;
 
             // Set log bar data context
             LogBarGrid.DataContext = Logger.Instance;
-        }
-
-        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
-        {
         }
 
         private void MainWindow_KeyDown(object sender, KeyEventArgs e)

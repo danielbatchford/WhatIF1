@@ -24,7 +24,7 @@
     <Grid>
 
         <Grid.RowDefinitions>
-            <RowDefinition Height="50" />
+            <RowDefinition Height="100" />
             <RowDefinition Height="1*" />
             <RowDefinition Height="30" />
         </Grid.RowDefinitions>
@@ -44,18 +44,168 @@
 
             <Grid.RowDefinitions>
                 <RowDefinition Height="1*" />
+                <RowDefinition Height="2" />
             </Grid.RowDefinitions>
 
-            <TextBlock
+            <Grid
                 Grid.Row="0"
                 Grid.Column="0"
-                Margin="{StaticResource defaultMargin}"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Center"
-                Text="{Binding EventCode}" />
+                Visibility="{Binding Path=., Converter={StaticResource isNotNullToVisConverter}}">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="150" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="auto" />
+                </Grid.ColumnDefinitions>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*" />
+                </Grid.RowDefinitions>
+
+                <Image
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    Width="130"
+                    Margin="10,10,0,10"
+                    HorizontalAlignment="Left"
+                    Source="{Binding Track.FlagFilePath}" />
+
+                <Grid Grid.Row="0" Grid.Column="1">
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Margin="10,5,0,0"
+                        FontFamily="{StaticResource boldFont}"
+                        FontSize="30"
+                        Text="{Binding EventName}" />
+
+                    <TextBlock
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        Margin="10,0,0,0"
+                        FontFamily="{StaticResource regularFont}"
+                        FontSize="20"
+                        Text="{Binding Track.TrackName}" />
+
+                    <Grid Grid.Row="2" Grid.Column="0">
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*" />
+                        </Grid.RowDefinitions>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            Margin="10,5,0,0"
+                            FontFamily="{StaticResource boldFont}"
+                            FontSize="15"
+                            FontStyle="Italic"
+                            Text="{Binding EventDate.Year}" />
+
+                        <TextBlock
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            Margin="0,5,0,0"
+                            FontFamily="{StaticResource regularFont}"
+                            FontSize="15"
+                            Text="  |  " />
+
+                        <TextBlock
+                            Grid.Row="0"
+                            Grid.Column="2"
+                            Margin="0,5,0,0"
+                            FontFamily="{StaticResource regularFont}"
+                            FontSize="15"
+                            Text="{Binding Track.LocationName}" />
+
+                        <TextBlock
+                            Grid.Row="0"
+                            Grid.Column="3"
+                            Margin="0,5,0,0"
+                            FontFamily="{StaticResource regularFont}"
+                            FontSize="15"
+                            Text="  |  Round" />
+
+
+                        <TextBlock
+                            Grid.Row="0"
+                            Grid.Column="4"
+                            Margin="5"
+                            FontFamily="{StaticResource boldFont}"
+                            FontSize="15"
+                            FontStyle="Italic"
+                            Text="{Binding Round}" />
+
+                    </Grid>
+
+                </Grid>
+
+                <Grid
+                    Grid.Row="0"
+                    Grid.Column="2"
+                    Height="50"
+                    Margin="0,0,10,0"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150" />
+                        <ColumnDefinition Width="150" />
+                    </Grid.ColumnDefinitions>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="50" />
+                    </Grid.RowDefinitions>
+
+
+                    <Button
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Margin="{StaticResource defaultMargin}"
+                        Background="{StaticResource mainColor}"
+                        Command="{Binding AboutRaceCommand}"
+                        Content="About Race"
+                        FontFamily="{StaticResource boldFont}"
+                        FontSize="15"
+                        IsEnabled="{Binding WikipediaLink, Converter={StaticResource isNotNullConverter}}" />
+
+
+                    <Button
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        Margin="{StaticResource defaultMargin}"
+                        Background="{StaticResource mainColor}"
+                        Command="{Binding LoadRaceCommand}"
+                        Content="Load Race"
+                        FontFamily="{StaticResource boldFont}"
+                        FontSize="15"
+                        IsEnabled="{Binding IsLoading, Converter={StaticResource inverseBoolConverter}}" />
+
+                </Grid>
+
+            </Grid>
 
             <Rectangle
-                Grid.Row="0"
+                Grid.Row="1"
                 Grid.Column="0"
                 Height="2"
                 HorizontalAlignment="Stretch"
@@ -82,7 +232,17 @@
                 HorizontalAlignment="Stretch"
                 SelectionMode="OneOrMore">
 
-                <sf:SfAccordionItem Header="Load Scenario">
+                <sf:SfAccordion.HeaderTemplate>
+                    <DataTemplate>
+                        <TextBlock
+                            FontFamily="{StaticResource boldFont}"
+                            Foreground="White"
+                            Text="{Binding}" />
+                    </DataTemplate>
+                </sf:SfAccordion.HeaderTemplate>
+
+
+                <sf:SfAccordionItem Header="Browse Scenarios">
                     <ListView
                         x:Name="ScenarioListView"
                         HorizontalContentAlignment="Stretch"
@@ -108,6 +268,13 @@
 
         </Grid>
 
+        <Rectangle
+            Grid.Row="2"
+            Grid.Column="0"
+            Height="2"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Top"
+            Fill="{StaticResource mainColor}" />
         <Grid
             x:Name="LogBarGrid"
             Grid.Row="2"

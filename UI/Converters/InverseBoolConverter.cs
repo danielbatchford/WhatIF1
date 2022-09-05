@@ -4,7 +4,7 @@ using System.Windows.Data;
 
 namespace WhatIfF1.UI.Converters
 {
-    public class IsNotNullConverter : IValueConverter
+    public class InverseBoolConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
@@ -13,7 +13,7 @@ namespace WhatIfF1.UI.Converters
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            throw new NotImplementedException();
+            return !(bool)value;
         }
     }
 }

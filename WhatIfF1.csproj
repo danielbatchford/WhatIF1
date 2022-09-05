@@ -57,6 +57,9 @@
     <Reference Include="log4net, Version=2.0.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>packages\log4net.2.0.15\lib\net45\log4net.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="Syncfusion.Licensing, Version=20.2460.0.46, Culture=neutral, PublicKeyToken=632609b4d040f6b4, processorArchitecture=MSIL">
       <HintPath>packages\Syncfusion.Licensing.20.2.0.46\lib\net46\Syncfusion.Licensing.dll</HintPath>
     </Reference>
@@ -97,12 +100,20 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Adapters\APIAdapter.cs" />
+    <Compile Include="Adapters\APIResult.cs" />
+    <Compile Include="Adapters\FileAdapter.cs" />
     <Compile Include="Logging\Logger.cs" />
-    <Compile Include="Scenarios\Exceptions\ScenarioException.cs" />
+    <Compile Include="Modelling\Tracks\TrackException.cs" />
+    <Compile Include="Scenarios\Exceptions\ScenarioLoadException.cs" />
     <Compile Include="TestClass.cs" />
     <Compile Include="UI\Converters\ColorToBrushConverter.cs" />
+    <Compile Include="UI\Converters\InverseBoolConverter.cs" />
     <Compile Include="UI\Converters\IsNotNullConverter.cs" />
+    <Compile Include="UI\Converters\IsNotNullToVisConverter.cs" />
+    <Compile Include="Util\CommandHandler.cs" />
     <Compile Include="Util\Extensions\ColorExtensions.cs" />
+    <Compile Include="Util\Extensions\StringExtensions.cs" />
     <Compile Include="Util\PropertyChangedWrapper.cs" />
     <Page Include="UI\Windows\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -112,10 +123,10 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Modelling\Track.cs" />
+    <Compile Include="Modelling\Tracks\Track.cs" />
     <Compile Include="Scenarios\Scenario.cs" />
     <Compile Include="Scenarios\ScenarioStore.cs" />
-    <Compile Include="UI\Exceptions\WindowIntiializationException.cs" />
+    <Compile Include="UI\Windows\WindowIntiializationException.cs" />
     <Compile Include="UI\Windows\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -144,11 +155,16 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <Resource Include="Resources\Fonts\Formula1-Bold.otf" />
+    <Resource Include="Resources\Fonts\Formula1-Regular.otf" />
+    <Resource Include="Resources\Fonts\Formula1-Wide.otf" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Resources\Flags\" />
+  </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.8">
       <Visible>False</Visible>

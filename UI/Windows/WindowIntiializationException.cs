@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WhatIfF1.UI.Exceptions
+namespace WhatIfF1.UI.Windows
 {
     public class WindowIntiializationException : Exception
     {

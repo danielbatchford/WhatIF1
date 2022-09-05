@@ -1,25 +1,32 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
+using System.Globalization;
+using System.Windows.Input;
 using System.Windows.Media;
-using WhatIfF1.Modelling;
+using WhatIfF1.Logging;
+using WhatIfF1.Modelling.Tracks;
 using WhatIfF1.Scenarios.Exceptions;
 using WhatIfF1.Util;
 using WhatIfF1.Util.Extensions;
 
 namespace WhatIfF1.Scenarios
 {
-    public class Scenario : PropertyChangedWrapper
+    public class Scenario : PropertyChangedWrapper, ICloneable
     {
-        public string EventCode { get; }
+        public string EventName { get; }
         public Track Track { get; }
         public DateTime EventDate { get; }
-        public DateTime RetrieveDate { get; }
+
+        public string WikipediaLink { get; }
+
+        public int Round { get; }
 
         private Color _color;
 
         public Color Color
         {
             get => _color;
-            set 
+            set
             {
                 _color = value;
                 OnPropertyChanged();
@@ -31,44 +38,108 @@ namespace WhatIfF1.Scenarios
         public bool IsLoading
         {
             get => _isLoading;
-            set 
+            private set
             {
                 _isLoading = value;
                 OnPropertyChanged();
             }
         }
 
+        private bool _isLoaded;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="eventName">The name of the event (e.g Bahrain)</param>
-        /// <param name="yearCode">The year code (e.g 2022)</param>
-        public Scenario(string eventName, int yearCode)
+        public bool IsLoaded
         {
-            if(yearCode > DateTime.Now.Year)
+            get => _isLoaded;
+            private set
             {
-                throw new ScenarioException($"Provided year code exceeded the current year (Got year code {yearCode}");
-            };
-
-            if(Track.TryGetTrackFromEvent(eventName, out Track track))
-            {
-                Track = track;
+                _isLoaded = value;
             }
-            else
+        }
+
+        private ICommand _loadRaceCommand;
+
+        public ICommand LoadRaceCommand
+        {
+            get
             {
-                throw new ScenarioException($"Failed to retrieve a track from the provided event (Got event name {eventName}");
+                if(_loadRaceCommand is null)
+                {
+                    bool canExecute = !IsLoading && !IsLoaded;
+                    _loadRaceCommand = new CommandHandler(() => LoadRaceFromAPI(), () => canExecute);
+                }
+
+                return _loadRaceCommand;
             }
+                set 
+            {
+                _loadRaceCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
-            EventCode = $"{eventName} {yearCode}";
+        private ICommand _aboutRaceCommand;
 
-            // TODO - event date
-            EventDate = DateTime.Now;
+        public ICommand AboutRaceCommand
+        {
+            get
+            {
+                if (_aboutRaceCommand is null)
+                {
+                    bool canExecute = !string.IsNullOrEmpty(WikipediaLink);
+                    _aboutRaceCommand = new CommandHandler(() => WikipediaLink.OpenInBrowser(), () => canExecute);
+                }
 
-            RetrieveDate = DateTime.Now;
+                return _aboutRaceCommand;
+            }
+            set 
+            {
+                _aboutRaceCommand = value;
+                OnPropertyChanged();
+            }
+        }
 
-            // Initialise scenario color as a random color
+
+
+        public Scenario(JObject eventJson)
+        {
+            Round = eventJson["round"].Value<int>();
+            WikipediaLink = eventJson["url"].Value<string>();
+            EventName = eventJson["raceName"].Value<string>();
+
+            string eventDate = eventJson["date"].Value<string>();
+            string eventTime = eventJson["time"].Value<string>();
+
+            EventDate = DateTime.ParseExact($"{eventDate}-{eventTime}", "yyyy-MM-dd-HH:mm:ssZ", CultureInfo.InvariantCulture);
+
+            // Build track object from inner Json
+            Track = new Track(eventJson["Circuit"].ToObject<JObject>());
+
             Color = ColorExtensions.GetRandomColor();
+        }
+
+        private void LoadRaceFromAPI()
+        {
+            Logger.Instance.Info($"Loading race data for the {EventName}");
+            IsLoading = true;
+
+            try
+            {
+                Logger.Instance.Info($"Loaded race data for the {EventName}");
+                IsLoaded = true;
+            }
+            catch (ScenarioLoadException e)
+            {
+                Logger.Instance.Exception(e);
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        public object Clone()
+        {
+            throw new NotImplementedException();
         }
     }
 }
