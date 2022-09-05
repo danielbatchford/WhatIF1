@@ -5,7 +5,10 @@ using System.Globalization;
 using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media;
+using WhatIfF1.Adapters;
 using WhatIfF1.Logging;
+using WhatIfF1.Modelling.Events;
+using WhatIfF1.Modelling.Events.Drivers;
 using WhatIfF1.Modelling.Tracks;
 using WhatIfF1.Scenarios.Exceptions;
 using WhatIfF1.Util;
@@ -25,6 +28,24 @@ namespace WhatIfF1.Scenarios
         public string WikipediaLink { get; }
 
         public int Round { get; }
+
+        private int _numLaps;
+
+        public int NumLaps
+        {
+            get => _numLaps;
+            set 
+            {
+                if(value <= 0)
+                {
+                    throw new ScenarioLoadException($"Invalid number of laps provided. Got {value} laps");
+                }
+
+                _numLaps = value;
+                OnPropertyChanged();
+            }
+        }
+
 
         private Color _primaryColor;
 
@@ -161,7 +182,7 @@ namespace WhatIfF1.Scenarios
             }
         }
 
-
+        public EventModel Model { get; private set; }
 
         public Scenario(JObject eventJson)
         {
@@ -198,15 +219,31 @@ namespace WhatIfF1.Scenarios
             }
         }
 
-        private void LoadRaceFromAPI()
+        private async void LoadRaceFromAPI()
         {
             Logger.Instance.Info($"Loading race data for the {EventName}");
             IsLoading = true;
 
             try
             {
-                Logger.Instance.Info($"Loaded race data for the {EventName}");
+                int year = EventDate.Year;
+
+                // Fetch driver data for the event
+                APIResult result = await APIAdapter.GetFromF1API($"{year}/{Round}/results");
+
+                if (result.Equals(APIResult.Fail))
+                {
+                    throw new ScenarioLoadException($"Failed to fetch event data for {this}");
+                }
+                JArray driversJson = result.Data["MRData"]["RaceTable"]["Races"][0]["Results"].ToObject<JArray>();
+
+                Model = new EventModel(Track, EventDate.Year, driversJson);
+
+                // Assign current number of laps to match model
+                NumLaps = Model.NumLaps;
+
                 IsLoaded = true;
+                Logger.Instance.Info($"Loaded race data for the {EventName}");
             }
             catch (ScenarioLoadException e)
             {

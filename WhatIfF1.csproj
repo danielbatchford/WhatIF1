@@ -105,6 +105,9 @@
     <Compile Include="Adapters\APIResult.cs" />
     <Compile Include="Adapters\FileAdapter.cs" />
     <Compile Include="Logging\Logger.cs" />
+    <Compile Include="Modelling\Events\Drivers\Driver.cs" />
+    <Compile Include="Modelling\Events\Drivers\DriverModel.cs" />
+    <Compile Include="Modelling\Events\EventModel.cs" />
     <Compile Include="Modelling\Tracks\TrackException.cs" />
     <Compile Include="Scenarios\Exceptions\ScenarioLoadException.cs" />
     <Compile Include="TestClass.cs" />
@@ -210,5 +213,6 @@
     <Resource Include="Resources\Flags\UK.png" />
     <Resource Include="Resources\Flags\USA.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
