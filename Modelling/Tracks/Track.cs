@@ -50,11 +50,12 @@ namespace WhatIfF1.Modelling.Tracks
             FlagFilePath = flagFilePath;
 
             string tracksFolder = FileAdapter.Instance.TrackLayoutsRoot;
-            TrackFilePath = Path.Combine(tracksFolder, $"{TrackName}.jpg");
+            TrackFilePath = Path.Combine(tracksFolder, $"{TrackName}.png");
 
             if (!File.Exists(TrackFilePath))
             {
-                Logger.Instance.Error($"Could not find the track file at \"{TrackFilePath}\"");
+                Logger.Instance.Error($"Could not find the track file at \"{TrackFilePath}\". Using default");
+                TrackFilePath = Path.Combine(tracksFolder, $"default.png");
             }
 
             // TODO - this

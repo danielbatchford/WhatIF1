@@ -387,6 +387,25 @@
 
                 </Grid>
 
+                <Rectangle
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    Grid.ColumnSpan="2"
+                    Height="2"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Bottom"
+                    Fill="{StaticResource lightColor}" />
+
+                <Canvas
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    Margin="300,50,50,50"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    Visibility="{Binding IsModelLoaded, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolToHiddenVisConverter}}">
+                    <Image Source="{Binding Track.TrackFilePath}" Stretch="UniformToFill" />
+                </Canvas>
+
                 <Grid
                     Grid.Row="1"
                     Grid.Column="0"
@@ -431,15 +450,6 @@
                         FontStyle="Italic"
                         Text="{Binding RacePosition, UpdateSourceTrigger=PropertyChanged, StringFormat=P{0}}" />
                 </Grid>
-
-                <Rectangle
-                    Grid.Row="0"
-                    Grid.Column="0"
-                    Grid.ColumnSpan="2"
-                    Height="2"
-                    HorizontalAlignment="Stretch"
-                    VerticalAlignment="Bottom"
-                    Fill="{StaticResource lightColor}" />
 
                 <Grid
                     Grid.Row="1"
