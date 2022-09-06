@@ -116,6 +116,7 @@
     <Compile Include="Scenarios\ScenarioType.cs" />
     <Compile Include="TestClass.cs" />
     <Compile Include="UI\Controller\DriverStanding.cs" />
+    <Compile Include="UI\Controller\TrackMaps\TrackMapProvider.cs" />
     <Compile Include="UI\Converters\BoolToCollapsedVisConverter.cs" />
     <Compile Include="UI\Converters\BoolToHiddenVisConverter.cs" />
     <Compile Include="UI\Converters\ColorToBrushConverter.cs" />

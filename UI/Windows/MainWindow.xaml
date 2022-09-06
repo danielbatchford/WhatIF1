@@ -309,108 +309,132 @@
                     <ColumnDefinition Width="1*" />
                 </Grid.ColumnDefinitions>
 
-                <Border
-                    Grid.Row="0"
-                    Grid.Column="0"
-                    Height="700"
-                    Margin="50,50,0,0"
-                    HorizontalAlignment="Stretch"
-                    VerticalAlignment="Top"
-                    BorderBrush="{StaticResource mainColor}"
-                    BorderThickness="10,10,0,0"
-                    CornerRadius="15,0,0,0">
-                    <Border.OpacityMask>
-                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                            <LinearGradientBrush.GradientStops>
-                                <GradientStop Offset="0" Color="Black" />
-                                <GradientStop Offset="1.2" Color="Transparent" />
-                            </LinearGradientBrush.GradientStops>
-                        </LinearGradientBrush>
-                    </Border.OpacityMask>
-                </Border>
-
-                <Grid
-                    Grid.Row="0"
-                    Grid.Column="0"
-                    Margin="60,60,0,0"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Top"
-                    Panel.ZIndex="1">
-
+                <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition Width="250" />
+                        <ColumnDefinition Width="1*" />
                     </Grid.ColumnDefinitions>
 
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="auto" />
                         <RowDefinition Height="1*" />
                     </Grid.RowDefinitions>
+
+                    <Border
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Width="210"
+                        Height="700"
+                        Margin="50,50,0,0"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Top"
+                        BorderBrush="{StaticResource mainColor}"
+                        BorderThickness="10,10,0,0"
+                        CornerRadius="15,0,0,0">
+                        <Border.OpacityMask>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                <LinearGradientBrush.GradientStops>
+                                    <GradientStop Offset="0" Color="Black" />
+                                    <GradientStop Offset="1.2" Color="Transparent" />
+                                </LinearGradientBrush.GradientStops>
+                            </LinearGradientBrush>
+                        </Border.OpacityMask>
+                    </Border>
 
                     <Grid
                         Grid.Row="0"
                         Grid.Column="0"
-                        Margin="10">
+                        Margin="60,60,0,0"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Top"
+                        Panel.ZIndex="1">
 
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="auto" />
                             <ColumnDefinition Width="auto" />
                         </Grid.ColumnDefinitions>
 
                         <Grid.RowDefinitions>
                             <RowDefinition Height="auto" />
+                            <RowDefinition Height="1*" />
                         </Grid.RowDefinitions>
 
-                        <Image
+                        <Grid
                             Grid.Row="0"
                             Grid.Column="0"
-                            Width="70"
-                            Source="pack://application:,,,/Resources/F1Logo.png" />
+                            Margin="10">
 
-                        <TextBlock
-                            Grid.Row="0"
-                            Grid.Column="1"
-                            Margin="5,0,0,0"
-                            FontFamily="{StaticResource wideFont}"
-                            FontSize="20"
-                            Foreground="{StaticResource lightColor}"
-                            Text="{Binding ScenarioType, Converter={StaticResource scenarioTypeToStringConverter}}" />
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto" />
+                                <ColumnDefinition Width="auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto" />
+                            </Grid.RowDefinitions>
+
+                            <Image
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Width="70"
+                                Source="pack://application:,,,/Resources/F1Logo.png" />
+
+                            <TextBlock
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Margin="5,0,0,0"
+                                FontFamily="{StaticResource wideFont}"
+                                FontSize="20"
+                                Foreground="{StaticResource lightColor}"
+                                Text="{Binding ScenarioType, Converter={StaticResource scenarioTypeToStringConverter}}" />
+
+                        </Grid>
+
+                        <ListView
+                            x:Name="DriverOrderGrid"
+                            Grid.Row="1"
+                            Grid.Column="0"
+                            ItemTemplate="{StaticResource driverStandingsTemplate}"
+                            ItemsSource="{Binding EventController.Standings}"
+                            ScrollViewer.HorizontalScrollBarVisibility="Hidden" />
 
                     </Grid>
 
-                    <ListView
-                        x:Name="DriverOrderGrid"
-                        Grid.Row="1"
-                        Grid.Column="0"
-                        ItemTemplate="{StaticResource driverStandingsTemplate}"
-                        ItemsSource="{Binding EventController.Standings}"
-                        ScrollViewer.HorizontalScrollBarVisibility="Hidden" />
+                    <Grid
+                        x:Name="TrackMapGrid"
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        Margin="50"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch">
+
+                        <Polygon
+                            Width="{Binding ActualWidth, ElementName=TrackMapGrid}"
+                            Height="{Binding ActualHeight, ElementName=TrackMapGrid}"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Top"
+                            Fill="Transparent"
+                            Points="{Binding EventController.MapProvider.TrackPoints}"
+                            Stretch="Uniform"
+                            Stroke="White"
+                            StrokeThickness="12" />
+                    </Grid>
 
                 </Grid>
 
                 <Rectangle
-                    Grid.Row="0"
+                    Grid.Row="1"
                     Grid.Column="0"
                     Grid.ColumnSpan="2"
                     Height="2"
                     HorizontalAlignment="Stretch"
-                    VerticalAlignment="Bottom"
+                    VerticalAlignment="Top"
                     Fill="{StaticResource lightColor}" />
-
-                <Canvas
-                    Grid.Row="0"
-                    Grid.Column="0"
-                    Margin="300,50,50,50"
-                    HorizontalAlignment="Stretch"
-                    VerticalAlignment="Stretch"
-                    Visibility="{Binding IsModelLoaded, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolToHiddenVisConverter}}">
-                    <Image Source="{Binding Track.TrackFilePath}" Stretch="UniformToFill" />
-                </Canvas>
 
                 <Grid
                     Grid.Row="1"
                     Grid.Column="0"
                     Margin="50,0,0,0"
-                    DataContext="{Binding ElementName=DriverOrderGrid, Path=SelectedItem}">
+                    DataContext="{Binding ElementName=DriverOrderGrid, Path=SelectedItem}"
+                    Visibility="{Binding Path=., Converter={StaticResource isNotNullToVisConverter}}">
 
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="auto" />

@@ -253,7 +253,7 @@ namespace WhatIfF1.Scenarios
                 EventModel model = new EventModel(modelName, Track.TrackLength, year, driversJson, lapTimesJson);
 
                 // Create a new EventController using the event model
-                EventController = new EventController(model);
+                EventController = new EventController(Track, model);
 
                 IsModelLoaded = true;
                 Logger.Instance.Info($"Loaded race data for the {EventName}");

@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Text;
+using System.Linq;
 
 namespace WhatIfF1.Adapters
 {
@@ -48,6 +51,20 @@ namespace WhatIfF1.Adapters
             }
 
             return fullPath;
+        }
+
+        public static IEnumerable<string> ReadLines(string path, bool ignoreEmptyLines = false)
+        {
+            IEnumerable<string> lines = File.ReadAllLines(path, Encoding.UTF8);
+
+            if (ignoreEmptyLines)
+            {
+                return lines.Where(line => !string.IsNullOrEmpty(line));
+            }
+            else
+            {
+                return lines;
+            }
         }
     }
 }

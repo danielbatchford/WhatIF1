@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using WhatIfF1.Adapters;
 using WhatIfF1.Logging;
@@ -15,9 +16,7 @@ namespace WhatIfF1.Modelling.Tracks
         public string WikipediaURL { get; }
         public double Latitude { get; }
         public double Longitude { get; }
-
         public string FlagFilePath { get; }
-
         public string TrackFilePath { get; }
 
         public Track(JObject trackJson)
@@ -50,12 +49,12 @@ namespace WhatIfF1.Modelling.Tracks
             FlagFilePath = flagFilePath;
 
             string tracksFolder = FileAdapter.Instance.TrackLayoutsRoot;
-            TrackFilePath = Path.Combine(tracksFolder, $"{TrackName}.png");
+            TrackFilePath = Path.Combine(tracksFolder, $"{TrackName}.txt");
 
             if (!File.Exists(TrackFilePath))
             {
-                Logger.Instance.Error($"Could not find the track file at \"{TrackFilePath}\". Using default");
-                TrackFilePath = Path.Combine(tracksFolder, $"default.png");
+                Logger.Instance.Error($"Could not find the track file at \"{TrackFilePath}\". Using default file");
+                TrackFilePath = Path.Combine(tracksFolder, $"default.txt");
             }
 
             // TODO - this
@@ -65,6 +64,17 @@ namespace WhatIfF1.Modelling.Tracks
         public override string ToString()
         {
             return TrackName;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Track track &&
+                   TrackName == track.TrackName;
+        }
+
+        public override int GetHashCode()
+        {
+            return 1631922063 + EqualityComparer<string>.Default.GetHashCode(TrackName);
         }
     }
 }

@@ -5,6 +5,8 @@ using System.Windows.Controls;
 using WhatIfF1.Modelling.Events;
 using WhatIfF1.Modelling.Events.Drivers;
 using WhatIfF1.Modelling.Tires;
+using WhatIfF1.Modelling.Tracks;
+using WhatIfF1.UI.Controller.TrackMaps;
 using WhatIfF1.Util;
 using WhatIfF1.Util.Enumerables;
 
@@ -27,6 +29,8 @@ namespace WhatIfF1.UI.Controller
         private int _currentTime;
 
         public ObservableRangeCollection<DriverStanding> Standings { get; }
+
+        public TrackMapProvider MapProvider { get; }
 
         public int CurrentTime
         {
@@ -51,8 +55,7 @@ namespace WhatIfF1.UI.Controller
             }
         }
 
-        private static readonly Random t = new Random();
-        public EventController(EventModel model)
+        public EventController(Track track, EventModel model)
         {
             Model = model;
 
@@ -68,13 +71,15 @@ namespace WhatIfF1.UI.Controller
             for (int i = 0; i < numDrivers; i++)
             {
                 int racePos = i + 1;
-                int gapToLead = t.Next(0, 120000);
+                int gapToLead = 0;
                 TireCompound tireCompound = TireCompoundStore.SoftTyre;
 
                 driverStandings.Add(new DriverStanding(drivers[i], racePos, gapToLead, tireCompound));
             }
 
             Standings = new ObservableRangeCollection<DriverStanding>(driverStandings);
+
+            MapProvider = new TrackMapProvider(track);
 
             CurrentTime = 0;
         }
