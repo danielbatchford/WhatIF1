@@ -11,6 +11,7 @@ using WhatIfF1.Modelling.Events;
 using WhatIfF1.Modelling.Events.Drivers;
 using WhatIfF1.Modelling.Tracks;
 using WhatIfF1.Scenarios.Exceptions;
+using WhatIfF1.UI.Controller;
 using WhatIfF1.Util;
 using WhatIfF1.Util.Extensions;
 
@@ -27,25 +28,9 @@ namespace WhatIfF1.Scenarios
         public DateTime EventDate { get; }
         public string WikipediaLink { get; }
 
+        public ScenarioType ScenarioType { get; }
+
         public int Round { get; }
-
-        private int _numLaps;
-
-        public int NumLaps
-        {
-            get => _numLaps;
-            set 
-            {
-                if(value <= 0)
-                {
-                    throw new ScenarioLoadException($"Invalid number of laps provided. Got {value} laps");
-                }
-
-                _numLaps = value;
-                OnPropertyChanged();
-            }
-        }
-
 
         private Color _primaryColor;
 
@@ -71,26 +56,27 @@ namespace WhatIfF1.Scenarios
             }
         }
 
-        private bool _isLoading;
+        private bool _isModelLoading;
 
-        public bool IsLoading
+        public bool IsModelLoading
         {
-            get => _isLoading;
+            get => _isModelLoading;
             private set
             {
-                _isLoading = value;
+                _isModelLoading = value;
                 OnPropertyChanged();
             }
         }
 
-        private bool _isLoaded;
+        private bool _isModelLoaded;
 
-        public bool IsLoaded
+        public bool IsModelLoaded
         {
-            get => _isLoaded;
+            get => _isModelLoaded;
             private set
             {
-                _isLoaded = value;
+                _isModelLoaded = value;
+                OnPropertyChanged();
             }
         }
 
@@ -100,15 +86,16 @@ namespace WhatIfF1.Scenarios
         {
             get
             {
-                if(_loadRaceCommand is null)
+                if (_loadRaceCommand is null)
                 {
-                    bool canExecute = !IsLoading && !IsLoaded;
-                    _loadRaceCommand = new CommandHandler(() => LoadRaceFromAPI(), () => canExecute);
+                    _loadRaceCommand = new CommandHandler(
+                        () => LoadRaceFromAPI(),
+                        () => !IsModelLoading && !IsModelLoaded);
                 }
 
                 return _loadRaceCommand;
             }
-                set 
+            set
             {
                 _loadRaceCommand = value;
                 OnPropertyChanged();
@@ -123,7 +110,7 @@ namespace WhatIfF1.Scenarios
             {
                 if (_removeScenarioCommand is null)
                 {
-                    _removeScenarioCommand = new CommandHandler(() => 
+                    _removeScenarioCommand = new CommandHandler(() =>
                     {
                         ScenarioStore.Instance.RemoveScenario(this);
                     }, () => true);
@@ -144,7 +131,7 @@ namespace WhatIfF1.Scenarios
         {
             get
             {
-                if(_cloneScenarioCommand is null)
+                if (_cloneScenarioCommand is null)
                 {
                     _cloneScenarioCommand = new CommandHandler(() =>
                     {
@@ -175,14 +162,24 @@ namespace WhatIfF1.Scenarios
 
                 return _aboutRaceCommand;
             }
-            set 
+            set
             {
                 _aboutRaceCommand = value;
                 OnPropertyChanged();
             }
         }
 
-        public EventModel Model { get; private set; }
+        private EventController _eventController;
+
+        public EventController EventController
+        {
+            get => _eventController;
+            private set
+            {
+                _eventController = value;
+                OnPropertyChanged();
+            }
+        }
 
         public Scenario(JObject eventJson)
         {
@@ -201,7 +198,7 @@ namespace WhatIfF1.Scenarios
             Track = new Track(eventJson["Circuit"].ToObject<JObject>());
 
             // Extract color from flag color
-            using(System.Drawing.Image flag = System.Drawing.Image.FromFile(Track.FlagFilePath))
+            using (System.Drawing.Image flag = System.Drawing.Image.FromFile(Track.FlagFilePath))
             {
                 IList<Color> sortedColors = flag.GetDominantColors().ToList();
 
@@ -217,41 +214,57 @@ namespace WhatIfF1.Scenarios
                     SecondaryColor = sortedColors[1];
                 }
             }
+
+            // Set scenario type to a race type
+            ScenarioType = ScenarioType.RACE;
         }
 
         private async void LoadRaceFromAPI()
         {
             Logger.Instance.Info($"Loading race data for the {EventName}");
-            IsLoading = true;
+            IsModelLoading = true;
 
             try
             {
                 int year = EventDate.Year;
 
                 // Fetch driver data for the event
-                APIResult result = await APIAdapter.GetFromF1API($"{year}/{Round}/results");
+                APIResult driverResult = await APIAdapter.GetFromF1API($"{year}/{Round}/results");
 
-                if (result.Equals(APIResult.Fail))
+                if (driverResult.Equals(APIResult.Fail))
                 {
-                    throw new ScenarioLoadException($"Failed to fetch event data for {this}");
+                    throw new ScenarioException($"Failed to fetch driver data for {this}");
                 }
-                JArray driversJson = result.Data["MRData"]["RaceTable"]["Races"][0]["Results"].ToObject<JArray>();
+                JArray driversJson = driverResult.Data["MRData"]["RaceTable"]["Races"][0]["Results"].ToObject<JArray>();
 
-                Model = new EventModel(Track, EventDate.Year, driversJson);
+                // Fetch lap time data for the event
+                APIResult lapTimesResult = await APIAdapter.GetFromF1API($"{year}/{Round}/laps.json");
 
-                // Assign current number of laps to match model
-                NumLaps = Model.NumLaps;
+                if (lapTimesResult.Equals(APIResult.Fail))
+                {
+                    throw new ScenarioException($"Failed to fetch lap time data for {this}");
+                }
 
-                IsLoaded = true;
+                JArray lapTimesJson = lapTimesResult.Data["MRData"]["RaceTable"]["Races"][0]["Laps"].ToObject<JArray>();
+
+                string modelName = $"{year} - {EventName}";
+
+                // Create a new event model from the raw json
+                EventModel model = new EventModel(modelName, Track.TrackLength, year, driversJson, lapTimesJson);
+
+                // Create a new EventController using the event model
+                EventController = new EventController(model);
+
+                IsModelLoaded = true;
                 Logger.Instance.Info($"Loaded race data for the {EventName}");
             }
-            catch (ScenarioLoadException e)
+            catch (ScenarioException e)
             {
                 Logger.Instance.Exception(e);
             }
             finally
             {
-                IsLoading = false;
+                IsModelLoading = false;
             }
         }
 

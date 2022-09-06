@@ -18,5 +18,11 @@ namespace WhatIfF1.Util.Enumerables
 
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
+
+        public void ReplaceRange(IEnumerable<T> items)
+        {
+            Items.Clear();
+            AddRange(items);
+        }
     }
 }

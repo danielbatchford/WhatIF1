@@ -109,8 +109,6 @@
                             <ColumnDefinition Width="auto" />
                             <ColumnDefinition Width="auto" />
                             <ColumnDefinition Width="auto" />
-                            <ColumnDefinition Width="auto" />
-                            <ColumnDefinition Width="auto" />
                         </Grid.ColumnDefinitions>
 
                         <TextBlock
@@ -120,7 +118,7 @@
                             FontFamily="{StaticResource boldFont}"
                             FontSize="15"
                             FontStyle="Italic"
-                            Text="{Binding EventDate.Year}" />
+                            Text="{Binding EventDate.Year, StringFormat={}{0}  |}" />
 
                         <TextBlock
                             Grid.Row="0"
@@ -128,28 +126,11 @@
                             Margin="0,5,0,0"
                             FontFamily="{StaticResource regularFont}"
                             FontSize="15"
-                            Text="  |  " />
+                            Text="{Binding Track.LocationName, StringFormat={}  {0}  |  Round}" />
 
                         <TextBlock
                             Grid.Row="0"
                             Grid.Column="2"
-                            Margin="0,5,0,0"
-                            FontFamily="{StaticResource regularFont}"
-                            FontSize="15"
-                            Text="{Binding Track.LocationName}" />
-
-                        <TextBlock
-                            Grid.Row="0"
-                            Grid.Column="3"
-                            Margin="0,5,0,0"
-                            FontFamily="{StaticResource regularFont}"
-                            FontSize="15"
-                            Text="  |  Round" />
-
-
-                        <TextBlock
-                            Grid.Row="0"
-                            Grid.Column="4"
                             Margin="5"
                             FontFamily="{StaticResource boldFont}"
                             FontSize="15"
@@ -198,10 +179,14 @@
                         Margin="{StaticResource defaultMargin}"
                         Background="{StaticResource mainColor}"
                         Command="{Binding LoadRaceCommand}"
-                        Content="Load Race"
-                        FontFamily="{StaticResource boldFont}"
-                        FontSize="15"
-                        IsEnabled="{Binding IsLoading, Converter={StaticResource inverseBoolConverter}}" />
+                        IsEnabled="{Binding IsModelLoading, Converter={StaticResource inverseBoolConverter}}">
+                        <Button.Content>
+                            <TextBlock
+                                FontFamily="{StaticResource boldFont}"
+                                FontSize="15"
+                                Text="{Binding ScenarioType, Converter={StaticResource scenarioTypeToStringConverter}, StringFormat=Load {0}}" />
+                        </Button.Content>
+                    </Button>
 
                     <Button
                         Grid.Row="0"
@@ -267,7 +252,6 @@
                 Grid.Row="0"
                 Grid.Column="0"
                 HorizontalAlignment="Stretch"
-                SelectedIndex="0"
                 SelectionMode="ZeroOrMore">
 
                 <sf:SfAccordion.HeaderTemplate>
@@ -310,19 +294,155 @@
                 ResizeBehavior="PreviousAndNext" />
 
             <Grid
-                x:Name="ScenarioGrid"
+                x:Name="ModelGrid"
+                Grid.Row="0"
+                Grid.Column="2"
                 DataContext="{Binding ActiveScenario, UpdateSourceTrigger=PropertyChanged}"
-                IsEnabled="{Binding Path=., Converter={StaticResource isNotNullConverter}}" />
+                Visibility="{Binding Path=., Converter={StaticResource isNotNullToVisConverter}}">
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="100" />
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
+
+                <Border
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    Height="700"
+                    Margin="50,50,0,0"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Top"
+                    BorderBrush="{StaticResource mainColor}"
+                    BorderThickness="10,10,0,0"
+                    CornerRadius="15,0,0,0">
+                    <Border.OpacityMask>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <LinearGradientBrush.GradientStops>
+                                <GradientStop Offset="0" Color="Black" />
+                                <GradientStop Offset="1.2" Color="Transparent" />
+                            </LinearGradientBrush.GradientStops>
+                        </LinearGradientBrush>
+                    </Border.OpacityMask>
+                </Border>
+
+                <Grid
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    Margin="60,60,0,0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Panel.ZIndex="1">
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="1*" />
+                    </Grid.RowDefinitions>
+
+                    <Grid
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Margin="10">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto" />
+                        </Grid.RowDefinitions>
+
+                        <Image
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            Width="70"
+                            Source="pack://application:,,,/Resources/F1Logo.png" />
+
+                        <TextBlock
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            Margin="5,0,0,0"
+                            FontFamily="{StaticResource wideFont}"
+                            FontSize="20"
+                            Foreground="{StaticResource lightColor}"
+                            Text="{Binding ScenarioType, Converter={StaticResource scenarioTypeToStringConverter}}" />
+
+                    </Grid>
+
+                    <ListView
+                        x:Name="DriverOrderGrid"
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        ItemTemplate="{StaticResource driverStandingsTemplate}"
+                        ItemsSource="{Binding EventController.Standings}"
+                        ScrollViewer.HorizontalScrollBarVisibility="Hidden" />
+
+                </Grid>
+
+                <Grid
+                    Grid.Row="1"
+                    Grid.Column="0"
+                    Margin="50,0,0,0"
+                    DataContext="{Binding ElementName=DriverOrderGrid, Path=SelectedItem}">
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="1*" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Bottom"
+                        FontFamily="{StaticResource wideFont}"
+                        FontSize="15"
+                        Text="{Binding Driver.DriverName}" />
+
+                    <TextBlock
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Top"
+                        FontFamily="{StaticResource wideFont}"
+                        FontSize="30"
+                        FontStyle="Italic"
+                        Text="{Binding RacePosition, UpdateSourceTrigger=PropertyChanged, StringFormat=P{0}}" />
+                </Grid>
+
+                <Rectangle
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    Grid.ColumnSpan="2"
+                    Height="2"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Bottom"
+                    Fill="{StaticResource lightColor}" />
+
+                <Grid
+                    Grid.Row="1"
+                    Grid.Column="0"
+                    Grid.ColumnSpan="2"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    DataContext="{Binding ElementName=DriverOrderGrid, Path=SelectedItem}" />
+
+            </Grid>
 
         </Grid>
 
-        <Rectangle
-            Grid.Row="2"
-            Grid.Column="0"
-            Height="2"
-            HorizontalAlignment="Stretch"
-            VerticalAlignment="Top"
-            Fill="{StaticResource mainColor}" />
         <Grid
             x:Name="LogBarGrid"
             Grid.Row="2"
@@ -330,6 +450,14 @@
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch"
             Background="{Binding CurrentColor, UpdateSourceTrigger=PropertyChanged, FallbackValue=Transparent, Converter={StaticResource colorToBrushConverter}}">
+
+            <Rectangle
+                Grid.Row="2"
+                Grid.Column="0"
+                Height="2"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Top"
+                Fill="{StaticResource mainColor}" />
 
             <TextBlock
                 Margin="{StaticResource defaultMargin}"

@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WhatIfF1.Modelling.Events;
+﻿using Newtonsoft.Json.Linq;
+using System;
 
 namespace WhatIfF1.Modelling.Events.Drivers
 {
@@ -11,9 +7,19 @@ namespace WhatIfF1.Modelling.Events.Drivers
     {
         public EventModel ParentModel { get; }
 
-        public DriverModel(EventModel parentModel)
+        private readonly double _trackLength;
+
+        public DriverModel(EventModel parentModel, double trackLength, JArray lapTimesJson)
         {
             ParentModel = parentModel;
+            _trackLength = trackLength;
+
+            // TODO - parse lap times
+        }
+
+        public Position GetPositionAtTime(int totalMs)
+        {
+            throw new NotImplementedException();
         }
     }
 }

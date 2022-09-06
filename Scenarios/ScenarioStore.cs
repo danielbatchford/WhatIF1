@@ -27,14 +27,14 @@ namespace WhatIfF1.Scenarios
         {
             if (Instance != null)
             {
-                throw new ScenarioLoadException($"{nameof(ScenarioStore)} singleton has already been initialised");
+                throw new ScenarioException($"{nameof(ScenarioStore)} singleton has already been initialised");
             }
 
             APIResult result = await APIAdapter.GetFromF1API(_year.ToString());
 
             if (!result.Success)
             {
-                throw new ScenarioLoadException($"Failed to load scenarios from {_year} as the API call failed");
+                throw new ScenarioException($"Failed to load scenarios from {_year} as the API call failed");
             }
 
             JObject rawJson = result.Data;
@@ -65,7 +65,6 @@ namespace WhatIfF1.Scenarios
             get => _activeScenario;
             set
             {
-                Console.WriteLine(value);
                 _activeScenario = value;
                 OnPropertyChanged();
             }

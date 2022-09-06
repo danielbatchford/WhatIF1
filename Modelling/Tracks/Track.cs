@@ -18,6 +18,8 @@ namespace WhatIfF1.Modelling.Tracks
 
         public string FlagFilePath { get; }
 
+        public string TrackFilePath { get; }
+
         public Track(JObject trackJson)
         {
             TrackName = trackJson["circuitName"].Value<string>();
@@ -35,7 +37,7 @@ namespace WhatIfF1.Modelling.Tracks
 
             if (!File.Exists(flagFilePath))
             {
-                Logger.Instance.Warn($"Could not find a flag file at \"{flagFilePath}\". Using default flag");
+                Logger.Instance.Warn($"Could not find a flag file at \"{flagFilePath}\" Using default flag");
 
                 flagFilePath = Path.Combine(flagsFolder, "default.png");
 
@@ -47,8 +49,21 @@ namespace WhatIfF1.Modelling.Tracks
 
             FlagFilePath = flagFilePath;
 
+            string tracksFolder = FileAdapter.Instance.TrackLayoutsRoot;
+            TrackFilePath = Path.Combine(tracksFolder, $"{TrackName}.jpg");
+
+            if (!File.Exists(TrackFilePath))
+            {
+                Logger.Instance.Error($"Could not find the track file at \"{TrackFilePath}\"");
+            }
+
             // TODO - this
             TrackLength = 5000;
+        }
+
+        public override string ToString()
+        {
+            return TrackName;
         }
     }
 }

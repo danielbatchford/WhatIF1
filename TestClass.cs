@@ -9,10 +9,8 @@ namespace WhatIfF1
 {
     public static class TestClass
     {
-        public static async Task<bool> RunTestCode()
+        public static bool RunTestCode()
         {
-            Console.WriteLine((App.Current.MainWindow as MainWindow).ScenariosListView.DataContext);
-
             return true;
         }
     }

@@ -1,10 +1,7 @@
 ﻿using Syncfusion.Windows.Shared;
-using System;
 using System.Configuration;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 using WhatIfF1.Logging;
 using WhatIfF1.Scenarios;
 
@@ -46,7 +43,7 @@ namespace WhatIfF1.UI.Windows
             DataContext = await ScenarioStore.InitialiseASync();
         }
 
-        private async void MainWindow_KeyDown(object sender, KeyEventArgs e)
+        private void MainWindow_KeyDown(object sender, KeyEventArgs e)
         {
 #if DEBUG
             if (e.Key != Key.D0)
@@ -54,7 +51,7 @@ namespace WhatIfF1.UI.Windows
                 return;
             }
 
-            await TestClass.RunTestCode();
+            TestClass.RunTestCode();
             Logger.Instance.Info("Test Ran");
 #endif
         }

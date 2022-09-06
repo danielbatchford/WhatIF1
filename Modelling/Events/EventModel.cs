@@ -1,54 +1,48 @@
 ﻿using Newtonsoft.Json.Linq;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WhatIfF1.Modelling.Events.Drivers;
-using WhatIfF1.Modelling.Tracks;
 
 namespace WhatIfF1.Modelling.Events
 {
     public class EventModel
     {
-        private readonly double _trackLength;
-
         private readonly IDictionary<Driver, DriverModel> _driverModels;
 
-        private readonly int _numDrivers;
+        public int NumDrivers { get; }
 
         public string Name { get; }
-        public int NumLaps { get; }
 
-        public EventModel(Track track, int year, JArray json)
+        public EventModel(string name, double trackLength, int year, JArray driversJson, JArray lapTimesJson)
         {
-            _trackLength = track.TrackLength;
-
-            Console.WriteLine(json);
-
-            // Calculate the number of laps completed as the minimum number of laps where the driver's status is "finished"
-            NumLaps = json
-                .Where(driver => driver["status"].ToObject<string>().Equals("Finished"))
-                .Min(driver => driver["laps"].ToObject<int>());
-
-            Name = $"{track} - {year} - {NumLaps} Laps";
+            Name = name;
 
             // Fetch driver list from the response Json
-            IEnumerable<Driver> drivers = Driver.GetDriverListFromJSON(json);
+            IEnumerable<Driver> drivers = Driver.GetDriverListFromJSON(driversJson);
 
-            _numDrivers = drivers.Count();
+            NumDrivers = drivers.Count();
 
-            _driverModels = new Dictionary<Driver, DriverModel>(_numDrivers);
+            _driverModels = new Dictionary<Driver, DriverModel>(NumDrivers);
 
             foreach(Driver driver in drivers)
             {
-                _driverModels.Add(driver, new DriverModel(this));
+                _driverModels.Add(driver, new DriverModel(this, trackLength, lapTimesJson));
             }
         }
 
         public override string ToString()
         {
             return Name;
+        }
+
+        public IEnumerable<Driver> GetDrivers()
+        {
+            return new List<Driver>(_driverModels.Keys);
+        }
+
+        public Position GetPositionAtTime(Driver driver, int totalMs)
+        {
+            return _driverModels[driver].GetPositionAtTime(totalMs);
         }
     }
 }

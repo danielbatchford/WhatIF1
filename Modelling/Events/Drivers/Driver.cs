@@ -6,31 +6,32 @@ namespace WhatIfF1.Modelling.Events.Drivers
 {
     public class Driver : IEquatable<Driver>
     {
-
         public static IEnumerable<Driver> GetDriverListFromJSON(JArray json)
         {
             ICollection<Driver> drivers = new HashSet<Driver>(json.Count);
 
             foreach(JObject driverJson in json)
             {
-                string driverCode = driverJson["Driver"]["code"].ToObject<string>();
+                string driverID = driverJson["Driver"]["driverId"].ToObject<string>();
+                string driverLetters = driverJson["Driver"]["code"].ToObject<string>();
 
                 string firstName = driverJson["Driver"]["givenName"].ToObject<string>();
                 string lastName= driverJson["Driver"]["familyName"].ToObject<string>();
                 string driverWikiLink = driverJson["Driver"]["url"].ToObject<string>();
 
-                string constructorName = driverJson["Constructor"]["name"].ToObject<string>();
-                string constructorWikiLink = driverJson["Constructor"]["url"].ToObject<string>();
+                string constrName = driverJson["Constructor"]["name"].ToObject<string>();
+                string constrWikiLink = driverJson["Constructor"]["url"].ToObject<string>();
 
                 int driverNumber = driverJson["number"].ToObject<int>();
 
-                drivers.Add(new Driver(driverCode, firstName, lastName, driverWikiLink, constructorName, constructorWikiLink, driverNumber));
+                drivers.Add(new Driver(driverID, driverLetters, firstName, lastName, driverWikiLink, constrName, constrWikiLink, driverNumber));
             }
 
             return drivers;
         }
 
-        public string DriverCode { get; }
+        public string DriverID { get; }
+        public string DriverLetters { get; }
         public string FirstName { get; }
         public string LastName { get; }
         public string DriverName { get; }
@@ -39,29 +40,30 @@ namespace WhatIfF1.Modelling.Events.Drivers
         public string ConstructorWikiLink { get; }
         public int DriverNumber { get; }
 
-        public Driver(string driverCode, string firstName, string lastName, string driverWikiLink, string constructorName, string constructorWikiLink, int driverNumber)
+        public Driver(string driverID, string driverLetters, string firstName, string lastName, string driverLink, string constrName, string constrLink, int driverNumber)
         {
-            DriverCode = driverCode;
+            DriverID = driverID;
+            DriverLetters = driverLetters;
             FirstName = firstName;
             LastName = lastName;
 
             DriverName = $"{firstName} {lastName}";
-            DriverWikiLink = driverWikiLink;
+            DriverWikiLink = driverLink;
 
-            ConstructorName = constructorName;
-            ConstructorWikiLink = constructorWikiLink;
+            ConstructorName = constrName;
+            ConstructorWikiLink = constrLink;
 
             DriverNumber = driverNumber;
         }
 
         public bool Equals(Driver other)
         {
-            return DriverCode.Equals(other.DriverCode);
+            return DriverID.Equals(other.DriverID);
         }
 
         public override string ToString()
         {
-            return $"{DriverCode} - {DriverNumber}";
+            return $"{DriverLetters} - {DriverNumber}";
         }
     }
 }

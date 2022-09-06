@@ -36,7 +36,7 @@ namespace WhatIfF1.Adapters
             {
                 JObject responseJson = JObject.Parse(responseString);
 
-                return new APIResult(responseJson);
+                return new APIResult(responseJson, true);
             }
             catch (JsonReaderException e)
             {

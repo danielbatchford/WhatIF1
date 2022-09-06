@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WhatIfF1.Adapters
 {
@@ -23,6 +18,8 @@ namespace WhatIfF1.Adapters
 
         public string CountryFlagsRoot { get; }
 
+        public string TrackLayoutsRoot { get; }
+
         private FileAdapter()
         {
             // TODO - THIS!!!!
@@ -38,6 +35,13 @@ namespace WhatIfF1.Adapters
             if (!Directory.Exists(CountryFlagsRoot))
             {
                 throw new DirectoryNotFoundException($"Could not find the flags directory at {CountryFlagsRoot}");
+            }
+
+            TrackLayoutsRoot = Path.Combine(_resourcesRoot, "Tracks");
+
+            if (!Directory.Exists(TrackLayoutsRoot))
+            {
+                throw new DirectoryNotFoundException($"Could not find the tracks directory at {TrackLayoutsRoot}");
             }
         }
 

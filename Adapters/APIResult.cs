@@ -8,17 +8,12 @@ namespace WhatIfF1.Adapters
 
         public bool Success { get; }
 
-        public static APIResult Fail => new APIResult();
+        public static APIResult Fail => new APIResult(null, false);
 
-        public APIResult(JObject data)
+        public APIResult(JObject data, bool success)
         {
             Data = data;
-            Success = true;
-        }
-
-        private APIResult()
-        {
-            Success = false;
+            Success = success;
         }
     }
 }
