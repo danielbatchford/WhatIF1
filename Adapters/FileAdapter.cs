@@ -20,6 +20,8 @@ namespace WhatIfF1.Adapters
 
         public string TrackLayoutsRoot { get; }
 
+        public string DriverPicsRoot { get; }
+
         private FileAdapter()
         {
             // TODO - THIS!!!!
@@ -30,20 +32,22 @@ namespace WhatIfF1.Adapters
                 throw new DirectoryNotFoundException($"Could not find the resources directory at {_resourcesRoot}");
             }
 
-            CountryFlagsRoot = Path.Combine(_resourcesRoot, "Flags");
-
-            if (!Directory.Exists(CountryFlagsRoot))
-            {
-                throw new DirectoryNotFoundException($"Could not find the flags directory at {CountryFlagsRoot}");
-            }
-
-            TrackLayoutsRoot = Path.Combine(_resourcesRoot, "Tracks");
-
-            if (!Directory.Exists(TrackLayoutsRoot))
-            {
-                throw new DirectoryNotFoundException($"Could not find the tracks directory at {TrackLayoutsRoot}");
-            }
+            CountryFlagsRoot = GetAndDebugResourcePath("Flags", "flags");
+            TrackLayoutsRoot = GetAndDebugResourcePath("Tracks", "tracks");
+            DriverPicsRoot = GetAndDebugResourcePath("Drivers", "drivers");
         }
 
+        private string GetAndDebugResourcePath(string folderName, string debugName)
+        {
+
+            string fullPath = Path.Combine(_resourcesRoot, folderName);
+
+            if (!Directory.Exists(fullPath))
+            {
+                throw new DirectoryNotFoundException($"Could not find the {debugName} directory at {fullPath}");
+            }
+
+            return fullPath;
+        }
     }
 }

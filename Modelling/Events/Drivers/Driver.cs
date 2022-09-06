@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using WhatIfF1.Adapters;
 
 namespace WhatIfF1.Modelling.Events.Drivers
 {
@@ -35,10 +37,12 @@ namespace WhatIfF1.Modelling.Events.Drivers
         public string FirstName { get; }
         public string LastName { get; }
         public string DriverName { get; }
+        public string DriverImagePath { get; }
         public string DriverWikiLink { get; }
         public string ConstructorName { get; }
         public string ConstructorWikiLink { get; }
         public int DriverNumber { get; }
+
 
         public Driver(string driverID, string driverLetters, string firstName, string lastName, string driverLink, string constrName, string constrLink, int driverNumber)
         {
@@ -46,6 +50,16 @@ namespace WhatIfF1.Modelling.Events.Drivers
             DriverLetters = driverLetters;
             FirstName = firstName;
             LastName = lastName;
+
+            string driverFolder = FileAdapter.Instance.DriverPicsRoot;
+
+            DriverImagePath = Path.Combine(driverFolder, $"{driverLetters}.png");
+
+            // If this image does not exist, use the default one
+            if (!File.Exists(DriverImagePath))
+            {
+                DriverImagePath = Path.Combine(driverFolder, $"default.png");
+            }
 
             DriverName = $"{firstName} {lastName}";
             DriverWikiLink = driverLink;

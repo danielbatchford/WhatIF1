@@ -230,5 +230,29 @@
   <ItemGroup>
     <Resource Include="Resources\F1Logo.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Drivers\ALO.png" />
+    <Resource Include="Resources\Drivers\BOT.png" />
+    <Resource Include="Resources\Drivers\GAS.png" />
+    <Resource Include="Resources\Drivers\HAM.png" />
+    <Resource Include="Resources\Drivers\LAT.png" />
+    <Resource Include="Resources\Drivers\LEC.png" />
+    <Resource Include="Resources\Drivers\MSC.png" />
+    <Resource Include="Resources\Drivers\NOR.png" />
+    <Resource Include="Resources\Drivers\OCO.png" />
+    <Resource Include="Resources\Drivers\PER.png" />
+    <Resource Include="Resources\Drivers\RIC.png" />
+    <Resource Include="Resources\Drivers\RUS.png" />
+    <Resource Include="Resources\Drivers\SAI.png" />
+    <Resource Include="Resources\Drivers\STR.png" />
+    <Resource Include="Resources\Drivers\TSU.png" />
+    <Resource Include="Resources\Drivers\VER.png" />
+    <Resource Include="Resources\Drivers\VET.png" />
+    <Resource Include="Resources\Drivers\ZHO.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Drivers\ALB.png" />
+    <Resource Include="Resources\Drivers\default.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
