@@ -409,8 +409,8 @@
                         <Polygon
                             Width="{Binding ActualWidth, ElementName=TrackMapGrid}"
                             Height="{Binding ActualHeight, ElementName=TrackMapGrid}"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Top"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
                             Fill="Transparent"
                             Points="{Binding EventController.MapProvider.TrackPoints}"
                             Stretch="Uniform"

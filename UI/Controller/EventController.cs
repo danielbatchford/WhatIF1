@@ -50,7 +50,7 @@ namespace WhatIfF1.UI.Controller
 
                 _currentTime = value;
 
-                UpdateOrdersAtCurrentTime();
+                UpdateAtTime();
                 OnPropertyChanged();
             }
         }
@@ -79,12 +79,13 @@ namespace WhatIfF1.UI.Controller
 
             Standings = new ObservableRangeCollection<DriverStanding>(driverStandings);
 
-            MapProvider = new TrackMapProvider(track);
+            // TODO - n drivers
+            MapProvider = new TrackMapProvider(track, driverStandings.ToList()[0].Driver);
 
             CurrentTime = 0;
         }
 
-        private void UpdateOrdersAtCurrentTime()
+        private void UpdateAtTime()
         {
             var driverPositions = new List<(Driver, Position)>(Model.NumDrivers);
 
@@ -124,6 +125,8 @@ namespace WhatIfF1.UI.Controller
                 Position driverPos = driverPositions[i].Item2;
 
                 newStandings.Add(new DriverStanding(driver, racePos, leadTime - driverPos.TotalMs, TireCompoundStore.SoftTyre));
+
+                MapProvider.UpdateDriverMapPosition(driver, driverPos);
             }
 
             // If driver standings has changed, replace the collection

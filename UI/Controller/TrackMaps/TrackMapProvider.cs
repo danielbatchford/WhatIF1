@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Shapes;
 using WhatIfF1.Adapters;
+using WhatIfF1.Modelling.Events;
+using WhatIfF1.Modelling.Events.Drivers;
 using WhatIfF1.Modelling.Tracks;
 
 namespace WhatIfF1.UI.Controller.TrackMaps
@@ -12,11 +15,17 @@ namespace WhatIfF1.UI.Controller.TrackMaps
     {
         private static readonly IDictionary<Track, PointCollection> _cachedTracks = new Dictionary<Track, PointCollection>();
 
-        private static readonly Rect _boundingBox = new Rect(0, 0, 100, 100);
+        private static readonly Rect _boundingBox = new Rect(-1, -1, 2, 2);
+
+        private static readonly Point _origin = new Point(_boundingBox.Left + _boundingBox.Width / 2, _boundingBox.Top + _boundingBox.Height / 2);
 
         public PointCollection TrackPoints { get; }
 
-        public TrackMapProvider(Track track)
+        public Point DriverPoint { get; }
+
+        public Point StartPoint { get; }
+
+        public TrackMapProvider(Track track, Driver driver)
         {
             // If the track has already been parsed, use the cached version.
             if (_cachedTracks.TryGetValue(track, out PointCollection trackPoints))
@@ -78,15 +87,86 @@ namespace WhatIfF1.UI.Controller.TrackMaps
                 translatedPoints.Add(new Point(normX, normY));
             }
 
-            var rotatedPoints = new PointCollection(numPoints);
-
+            const double rotationIncrement = 2 * Math.PI / 20;
+            const int sampleStep = 10;
+            var rotatedPoints = GetApproximateMaximalWidthCollection(translatedPoints, rotationIncrement, sampleStep);
 
             // Rotate track points to maximise width
-            TrackPoints = new PointCollection(translatedPoints);
+            TrackPoints = new PointCollection(rotatedPoints);
 
             // Cache the parsed points for reuse
             _cachedTracks.Add(track, TrackPoints);
+        }
 
+        /// <summary>
+        /// Rotate all points through 2pi radians using the provided increment. 
+        /// Return the collection which yields the maximal largest horizontal disstance for the set of points.
+        /// Returned collection is approximate and is not the exact optimal rotation.
+        /// Only a subset of points are sampled, for optimisation.
+        /// </summary>
+        private IEnumerable<Point> GetApproximateMaximalWidthCollection(IList<Point> points, double radIncrement, int sampleStep)
+        {
+            double optimalAngle = 0;
+            double bestHorizDist = 0;
+
+            double dx;
+            double dy;
+
+            for(double testAngle = 0; testAngle < 2 * Math.PI; testAngle += radIncrement)
+            {
+                double maxHorizDist = 0;
+
+                for (int i = 0; i < points.Count; i+=sampleStep)
+                {
+                    dx = points[i].X - _origin.X;
+                    dy = points[i].Y - _origin.Y;
+
+                    double angleToHoriz = Math.Atan2(dy, dx);
+                    double distToOrigin = Math.Sqrt(dx * dx + dy * dy);
+
+                    double horizDist = distToOrigin * Math.Abs(Math.Cos(testAngle + angleToHoriz));
+
+                    if (horizDist > maxHorizDist)
+                    {
+                        maxHorizDist = horizDist;
+                    }
+                }
+
+                if(maxHorizDist > bestHorizDist)
+                {
+                    bestHorizDist = maxHorizDist;
+                    optimalAngle = testAngle;
+                }
+            }
+
+            // No need to rotate points if the optimal angle is zero. Simply return original collection
+            if(optimalAngle == 0)
+            {
+                return points;
+            }
+
+            // Rotate original points by the calculated optimal angle
+            ICollection<Point> rotatedPoints = new List<Point>(points.Count);
+
+            double sinTheta = Math.Sin(optimalAngle);
+            double cosTheta = Math.Cos(optimalAngle);
+
+            foreach (Point point in points)
+            {
+                dx = point.X - _origin.X;
+                dy = point.Y - _origin.Y;
+
+                double x = cosTheta * dx - sinTheta * dy + _origin.X;
+                double y = sinTheta * dx + cosTheta * dy + _origin.Y;
+                rotatedPoints.Add(new Point(x, y));
+            }
+
+            return rotatedPoints;
+        }
+
+        public void UpdateDriverMapPosition(Driver driver, Position driverPos)
+        {
+            throw new NotImplementedException();
         }
     }
 }
