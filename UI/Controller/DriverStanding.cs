@@ -50,6 +50,18 @@ namespace WhatIfF1.UI.Controller
             }
         }
 
+        private int _gapToNextCar;
+
+        public int GapToNextCar
+        {
+            get => _gapToNextCar;
+            set
+            {
+                _gapToNextCar = value;
+                OnPropertyChanged();
+            }
+        }
+
         private TireCompound _tireCompound;
 
         public TireCompound TireCompound
@@ -62,11 +74,12 @@ namespace WhatIfF1.UI.Controller
             }
         }
 
-        public DriverStanding(Driver driver, int racePosition, int gapToLead, TireCompound tireCompound)
+        public DriverStanding(Driver driver, int racePosition, int gapToLead, int gapToNextCar, TireCompound tireCompound)
         {
             Driver = driver;
             RacePosition = racePosition;
             GapToLead = gapToLead;
+            GapToNextCar = gapToNextCar;
             TireCompound = tireCompound;
         }
 

@@ -235,7 +235,16 @@ namespace WhatIfF1.Scenarios
                 {
                     throw new ScenarioException($"Failed to fetch driver data for {this}");
                 }
-                JArray driversJson = driverResult.Data["MRData"]["RaceTable"]["Races"][0]["Results"].ToObject<JArray>();
+
+                JArray driverRaceTable = driverResult.Data["MRData"]["RaceTable"]["Races"].ToObject<JArray>();
+
+                // Sometimes happens if the race has not yet occured (e.g race is in the future)
+                if (driverRaceTable.Count == 0)
+                {
+                    throw new ScenarioException("No race data was found for the selected race. Has this race occured yet?");
+                }
+
+                JArray driversJson = driverRaceTable[0]["Results"].ToObject<JArray>();
 
                 // Fetch lap time data for the event
                 APIResult lapTimesResult = await APIAdapter.GetFromF1API($"{year}/{Round}/laps.json");

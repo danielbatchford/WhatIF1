@@ -25,6 +25,8 @@ namespace WhatIfF1.Adapters
 
         public string DriverPicsRoot { get; }
 
+        public string ConstructorPicsRoot { get; }
+
         private FileAdapter()
         {
             // TODO - THIS!!!!
@@ -38,6 +40,7 @@ namespace WhatIfF1.Adapters
             CountryFlagsRoot = GetAndDebugResourcePath("Flags", "flags");
             TrackLayoutsRoot = GetAndDebugResourcePath("Tracks", "tracks");
             DriverPicsRoot = GetAndDebugResourcePath("Drivers", "drivers");
+            ConstructorPicsRoot = GetAndDebugResourcePath("Constructors", "constructors");
         }
 
         private string GetAndDebugResourcePath(string folderName, string debugName)

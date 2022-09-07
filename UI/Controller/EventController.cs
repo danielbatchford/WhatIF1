@@ -72,9 +72,10 @@ namespace WhatIfF1.UI.Controller
             {
                 int racePos = i + 1;
                 int gapToLead = 0;
+                int gapToNextCar = 0;
                 TireCompound tireCompound = TireCompoundStore.SoftTyre;
 
-                driverStandings.Add(new DriverStanding(drivers[i], racePos, gapToLead, tireCompound));
+                driverStandings.Add(new DriverStanding(drivers[i], racePos, gapToLead, gapToNextCar, tireCompound));
             }
 
             Standings = new ObservableRangeCollection<DriverStanding>(driverStandings);
@@ -124,7 +125,9 @@ namespace WhatIfF1.UI.Controller
                 Driver driver = driverPositions[i].Item1;
                 Position driverPos = driverPositions[i].Item2;
 
-                newStandings.Add(new DriverStanding(driver, racePos, leadTime - driverPos.TotalMs, TireCompoundStore.SoftTyre));
+                int gapToNextCar = 0;
+
+                newStandings.Add(new DriverStanding(driver, racePos, leadTime - driverPos.TotalMs, gapToNextCar, TireCompoundStore.SoftTyre));
 
                 MapProvider.UpdateDriverMapPosition(driver, driverPos);
             }

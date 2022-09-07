@@ -2,12 +2,17 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Windows.Input;
+using System.Windows.Media;
 using WhatIfF1.Adapters;
+using WhatIfF1.Util;
+using WhatIfF1.Util.Extensions;
 
 namespace WhatIfF1.Modelling.Events.Drivers
 {
-    public class Driver : IEquatable<Driver>
+    public class Driver : PropertyChangedWrapper, IEquatable<Driver>
     {
+
         public static IEnumerable<Driver> GetDriverListFromJSON(JArray json)
         {
             ICollection<Driver> drivers = new HashSet<Driver>(json.Count);
@@ -21,12 +26,11 @@ namespace WhatIfF1.Modelling.Events.Drivers
                 string lastName= driverJson["Driver"]["familyName"].ToObject<string>();
                 string driverWikiLink = driverJson["Driver"]["url"].ToObject<string>();
 
-                string constrName = driverJson["Constructor"]["name"].ToObject<string>();
-                string constrWikiLink = driverJson["Constructor"]["url"].ToObject<string>();
-
                 int driverNumber = driverJson["number"].ToObject<int>();
 
-                drivers.Add(new Driver(driverID, driverLetters, firstName, lastName, driverWikiLink, constrName, constrWikiLink, driverNumber));
+                JObject constructorJson = driverJson["Constructor"].ToObject<JObject>();
+
+                drivers.Add(new Driver(driverID, driverLetters, firstName, lastName, driverWikiLink, constructorJson, driverNumber));
             }
 
             return drivers;
@@ -36,15 +40,38 @@ namespace WhatIfF1.Modelling.Events.Drivers
         public string DriverLetters { get; }
         public string FirstName { get; }
         public string LastName { get; }
-        public string DriverName { get; }
-        public string DriverImagePath { get; }
-        public string DriverWikiLink { get; }
-        public string ConstructorName { get; }
-        public string ConstructorWikiLink { get; }
+        public string Name { get; }
+        public string ImagePath { get; }
+        public string WikiLink { get; }
+
+        public Constructor Constructor { get; }
+
         public int DriverNumber { get; }
 
+        private ICommand _aboutDriverCommand;
+        public ICommand AboutDriverCommand
+        {
+            get
+            {
+                if (_aboutDriverCommand is null)
+                {
+                    bool canExecute = !string.IsNullOrEmpty(WikiLink);
+                    _aboutDriverCommand = new CommandHandler(() => WikiLink.OpenInBrowser(), () => canExecute);
+                }
 
-        public Driver(string driverID, string driverLetters, string firstName, string lastName, string driverLink, string constrName, string constrLink, int driverNumber)
+                return _aboutDriverCommand;
+            }
+            set
+            {
+                _aboutDriverCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
+
+
+
+        public Driver(string driverID, string driverLetters, string firstName, string lastName, string wikiLink, JObject constructorJson, int driverNumber)
         {
             DriverID = driverID;
             DriverLetters = driverLetters;
@@ -53,19 +80,18 @@ namespace WhatIfF1.Modelling.Events.Drivers
 
             string driverFolder = FileAdapter.Instance.DriverPicsRoot;
 
-            DriverImagePath = Path.Combine(driverFolder, $"{driverLetters}.png");
+            ImagePath = Path.Combine(driverFolder, $"{driverLetters}.png");
 
             // If this image does not exist, use the default one
-            if (!File.Exists(DriverImagePath))
+            if (!File.Exists(ImagePath))
             {
-                DriverImagePath = Path.Combine(driverFolder, $"default.png");
+                ImagePath = Path.Combine(driverFolder, "default.png");
             }
 
-            DriverName = $"{firstName} {lastName}";
-            DriverWikiLink = driverLink;
+            Name = $"{firstName} {lastName}";
+            WikiLink = wikiLink;
 
-            ConstructorName = constrName;
-            ConstructorWikiLink = constrLink;
+            Constructor = new Constructor(constructorJson);
 
             DriverNumber = driverNumber;
         }
