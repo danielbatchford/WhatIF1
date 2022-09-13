@@ -55,6 +55,33 @@ namespace WhatIfF1.UI.Controller
             }
         }
 
+        private int _maxTime;
+
+        public int MaxTime
+        {
+            get => _maxTime;
+            set 
+            {
+                _maxTime = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private int _currentLap;
+
+        public int CurrentLap
+        {
+            get => _currentLap;
+            private set
+            {
+                _currentLap = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public int MaxLap { get; }
+
+
         public EventController(Track track, EventModel model)
         {
             Model = model;
@@ -84,6 +111,9 @@ namespace WhatIfF1.UI.Controller
             MapProvider = new TrackMapProvider(track, driverStandings.ToList()[0].Driver);
 
             CurrentTime = 0;
+
+            // TODO - max time
+            MaxTime = 100000;
         }
 
         private void UpdateAtTime()
@@ -137,6 +167,8 @@ namespace WhatIfF1.UI.Controller
             {
                 Standings.ReplaceRange(newStandings);
             }
+
+            // Update current lap
         }
     }
 }

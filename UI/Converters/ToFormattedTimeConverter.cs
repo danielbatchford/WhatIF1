@@ -4,7 +4,7 @@ using System.Windows.Data;
 
 namespace WhatIfF1.UI.Converters
 {
-    public class ToFormattedTimeConverter : IValueConverter
+    public sealed class ToFormattedTimeConverter : IValueConverter
     {
         /// <summary>
         /// Formats millisecond times into the standard F1 format.

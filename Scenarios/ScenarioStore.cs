@@ -13,7 +13,7 @@ using WhatIfF1.Util.Enumerables;
 
 namespace WhatIfF1.Scenarios
 {
-    public class ScenarioStore : PropertyChangedWrapper
+    public sealed class ScenarioStore : PropertyChangedWrapper
     {
         private static readonly int _year = 2022;
 

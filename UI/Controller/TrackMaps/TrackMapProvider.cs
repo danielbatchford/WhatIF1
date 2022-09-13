@@ -11,7 +11,7 @@ using WhatIfF1.Modelling.Tracks;
 
 namespace WhatIfF1.UI.Controller.TrackMaps
 {
-    public class TrackMapProvider
+    public sealed class TrackMapProvider
     {
         private static readonly IDictionary<Track, PointCollection> _cachedTracks = new Dictionary<Track, PointCollection>();
 

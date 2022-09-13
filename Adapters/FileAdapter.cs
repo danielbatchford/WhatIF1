@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace WhatIfF1.Adapters
 {
-    public class FileAdapter
+    public sealed class FileAdapter
     {
 
         #region LazyInitialization

@@ -5,7 +5,7 @@ using System.Windows.Data;
 
 namespace WhatIfF1.UI.Converters
 {
-    public class BoolToCollapsedVisConverter : IValueConverter
+    public sealed class BoolToCollapsedVisConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {

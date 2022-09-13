@@ -2,7 +2,7 @@
 
 namespace WhatIfF1.Modelling.Events
 {
-    public class Position
+    public sealed class Position
     {
         public int TotalMs { get; }
 

@@ -7,7 +7,7 @@ using System.Windows.Media;
 
 namespace WhatIfF1.Util.Extensions
 {
-    public static class ColorExtensions
+    public sealed static class ColorExtensions
     {
         private readonly static Random _random = new Random();
 

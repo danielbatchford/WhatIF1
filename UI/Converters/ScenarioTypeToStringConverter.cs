@@ -6,7 +6,7 @@ using WhatIfF1.Scenarios.Exceptions;
 
 namespace WhatIfF1.UI.Converters
 {
-    public class ScenarioTypeToStringConverter : IValueConverter
+    public sealed class ScenarioTypeToStringConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {

@@ -422,26 +422,129 @@
 
                     </Grid>
 
-                    <Grid
-                        x:Name="TrackMapGrid"
-                        Grid.Row="0"
-                        Grid.Column="1"
-                        Margin="40"
-                        HorizontalAlignment="Stretch"
-                        VerticalAlignment="Stretch">
 
-                        <Polygon
-                            Width="{Binding ActualWidth, ElementName=TrackMapGrid}"
-                            Height="{Binding ActualHeight, ElementName=TrackMapGrid}"
+                    <Grid Grid.Row="0" Grid.Column="1">
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="50" />
+                        </Grid.RowDefinitions>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="300" />
+                        </Grid.ColumnDefinitions>
+
+                        <Grid
+                            x:Name="TrackMapGrid"
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            Margin="40"
                             HorizontalAlignment="Stretch"
-                            VerticalAlignment="Stretch"
-                            Fill="Transparent"
-                            Points="{Binding EventController.MapProvider.TrackPoints}"
-                            Stretch="Uniform"
-                            Stroke="White"
-                            StrokeThickness="12" />
-                    </Grid>
+                            VerticalAlignment="Stretch">
 
+                            <Polygon
+                                Width="{Binding ActualWidth, ElementName=TrackMapGrid}"
+                                Height="{Binding ActualHeight, ElementName=TrackMapGrid}"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                Fill="Transparent"
+                                Points="{Binding EventController.MapProvider.TrackPoints}"
+                                Stretch="Uniform"
+                                Stroke="White"
+                                StrokeThickness="12" />
+                        </Grid>
+
+                        <Grid
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            Margin="0,40,40,0"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Top">
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="50" />
+                                <RowDefinition Height="50" />
+                            </Grid.RowDefinitions>
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Border
+                                Grid.RowSpan="2"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Center"
+                                BorderBrush="{StaticResource mainColor}"
+                                BorderThickness="10,10,0,0"
+                                CornerRadius="15,0,0,0">
+
+                                <StackPanel Orientation="Vertical">
+                                    <StackPanel
+                                        Grid.Row="0"
+                                        Grid.Column="0"
+                                        Margin="10"
+                                        HorizontalAlignment="Left"
+                                        Orientation="Horizontal">
+
+                                        <TextBlock
+                                            FontFamily="{StaticResource boldFont}"
+                                            FontSize="20"
+                                            Text="{Binding EventController.CurrentLap, UpdateSourceTrigger=PropertyChanged, StringFormat=Lap {0}/}" />
+
+                                        <TextBlock
+                                            FontFamily="{StaticResource boldFont}"
+                                            FontSize="20"
+                                            Text="{Binding EventController.MaxLap}" />
+
+                                    </StackPanel>
+
+                                    <StackPanel
+                                        Grid.Row="1"
+                                        Grid.Column="0"
+                                        Margin="10"
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Center"
+                                        Orientation="Horizontal">
+
+                                        <TextBlock
+                                            FontFamily="{StaticResource boldFont}"
+                                            FontSize="20"
+                                            Text="{Binding EventController.CurrentTime, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource toFormattedTimeConverter}}" />
+
+                                    </StackPanel>
+                                </StackPanel>
+
+
+                            </Border>
+
+                        </Grid>
+
+                        <sf:SfRangeSlider
+                            Grid.Row="1"
+                            Grid.Column="0"
+                            Grid.ColumnSpan="2"
+                            Margin="20,0,20,0"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Center"
+                            ActiveMinorTickStroke="{StaticResource mainColor}"
+                            ActiveTrackStyle="{StaticResource activeTrackStyle}"
+                            InactiveTrackStyle="{StaticResource inactiveTrackStyle}"
+                            Maximum="{Binding EventController.MaxTime, UpdateSourceTrigger=PropertyChanged}"
+                            Minimum="0"
+                            MinorTickFrequency="1000"
+                            Orientation="Horizontal"
+                            ShowRange="False"
+                            SnapsTo="StepValues"
+                            StepFrequency="1"
+                            ThumbStyle="{StaticResource thumbStyle}"
+                            ThumbToolTipPlacement="TopLeft"
+                            ThumbToolTipPrecision="0"
+                            TickFrequency="60000"
+                            TickPlacement="BottomRight"
+                            Value="{Binding EventController.CurrentTime, UpdateSourceTrigger=PropertyChanged}" />
+
+                    </Grid>
                 </Grid>
 
                 <Grid

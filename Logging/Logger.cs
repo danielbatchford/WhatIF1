@@ -6,7 +6,7 @@ using WhatIfF1.Util;
 
 namespace WhatIfF1.Logging
 {
-    public class Logger : PropertyChangedWrapper
+    public sealed class Logger : PropertyChangedWrapper
     {
         #region LazyInitialization
 
