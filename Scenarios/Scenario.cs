@@ -174,7 +174,7 @@ namespace WhatIfF1.Scenarios
         public EventController EventController
         {
             get => _eventController;
-            private set
+            protected set
             {
                 _eventController = value;
                 OnPropertyChanged();
@@ -246,35 +246,41 @@ namespace WhatIfF1.Scenarios
 
                 JArray driversJson = driverRaceTable[0]["Results"].ToObject<JArray>();
 
+                int numLaps = InferNumberOfLaps(driversJson);
+
                 // Fetch lap time data for the event
-                APIResult lapTimesResult = await APIAdapter.GetFromF1API($"{year}/{Round}/laps.json");
+                APIResult lapTimesResult = await APIAdapter.GetLapsFromF1API(year, Round, numLaps);
 
                 if (lapTimesResult.Equals(APIResult.Fail))
                 {
                     throw new ScenarioException($"Failed to fetch lap time data for {this}");
                 }
 
-                JArray lapTimesJson = lapTimesResult.Data["MRData"]["RaceTable"]["Races"][0]["Laps"].ToObject<JArray>();
+                JArray lapTimesJson = lapTimesResult.Data["laps"].ToObject<JArray>();
 
                 string modelName = $"{year} - {EventName}";
 
                 // Create a new event model from the raw json
-                EventModel model = new EventModel(modelName, Track.TrackLength, year, driversJson, lapTimesJson);
+                EventModel model = new EventModel(modelName, Track.TrackLength, driversJson, lapTimesJson);
 
                 // Create a new EventController using the event model
                 EventController = new EventController(Track, model);
 
+                IsModelLoading = false;
                 IsModelLoaded = true;
+
                 Logger.Instance.Info($"Loaded race data for the {EventName}");
             }
             catch (ScenarioException e)
             {
                 Logger.Instance.Exception(e);
-            }
-            finally
-            {
                 IsModelLoading = false;
             }
+        }
+
+        private int InferNumberOfLaps(JArray driversJson)
+        {
+            return driversJson.Max((driver) => driver["laps"].ToObject<int>());
         }
 
         public object Clone()

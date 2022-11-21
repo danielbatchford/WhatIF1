@@ -8,6 +8,7 @@ using WhatIfF1.Adapters;
 using WhatIfF1.Modelling.Events;
 using WhatIfF1.Modelling.Events.Drivers;
 using WhatIfF1.Modelling.Tracks;
+using WhatIfF1.Util.Enumerables;
 
 namespace WhatIfF1.UI.Controller.TrackMaps
 {
@@ -21,11 +22,11 @@ namespace WhatIfF1.UI.Controller.TrackMaps
 
         public PointCollection TrackPoints { get; }
 
-        public Point DriverPoint { get; }
+        public IDictionary<Driver, Point> DriverPoints { get; }
 
         public Point StartPoint { get; }
 
-        public TrackMapProvider(Track track, Driver driver)
+        public TrackMapProvider(Track track, IEnumerable<Driver> drivers)
         {
             // If the track has already been parsed, use the cached version.
             if (_cachedTracks.TryGetValue(track, out PointCollection trackPoints))
@@ -96,6 +97,27 @@ namespace WhatIfF1.UI.Controller.TrackMaps
 
             // Cache the parsed points for reuse
             _cachedTracks.Add(track, TrackPoints);
+
+            StartPoint = TrackPoints[0];
+
+            // Build driver points dictionary.
+            // Initialise all drivers at the start line
+            DriverPoints = new Dictionary<Driver, Point>(drivers.Count());
+
+            foreach(Driver driver in drivers) 
+            {
+                //DriverPoints.Add(driver, StartPoint);
+            }
+        }
+
+        public void UpdateDriverMapPosition(Driver driver, Position driverPos)
+        {
+            double propAlongLap = driverPos.LapDistance / driverPos.TrackLength;
+
+            // Find the closest index in the track points list based on the distance around the lap
+            int trackIndex = (int)Math.Round(propAlongLap * TrackPoints.Count, 0);
+
+            DriverPoints[driver] = TrackPoints[trackIndex];
         }
 
         /// <summary>
@@ -162,11 +184,6 @@ namespace WhatIfF1.UI.Controller.TrackMaps
             }
 
             return rotatedPoints;
-        }
-
-        public void UpdateDriverMapPosition(Driver driver, Position driverPos)
-        {
-            throw new NotImplementedException();
         }
     }
 }

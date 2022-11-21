@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Windows.Controls;
 using WhatIfF1.Modelling.Events;
@@ -48,21 +49,15 @@ namespace WhatIfF1.UI.Controller
                     return;
                 }
 
+                // If the current time exceeds the maximum time in the model, throw an exception
+                if (value > Model.TotalTime)
+                {
+                    throw new EventControllerException($"Requested current time exceeds the maximum model time (Requested {value}, Max time is {Model.TotalTime}");
+                }
+
                 _currentTime = value;
 
                 UpdateAtTime();
-                OnPropertyChanged();
-            }
-        }
-
-        private int _maxTime;
-
-        public int MaxTime
-        {
-            get => _maxTime;
-            set 
-            {
-                _maxTime = value;
                 OnPropertyChanged();
             }
         }
@@ -78,9 +73,6 @@ namespace WhatIfF1.UI.Controller
                 OnPropertyChanged();
             }
         }
-
-        public int MaxLap { get; }
-
 
         public EventController(Track track, EventModel model)
         {
@@ -107,13 +99,9 @@ namespace WhatIfF1.UI.Controller
 
             Standings = new ObservableRangeCollection<DriverStanding>(driverStandings);
 
-            // TODO - n drivers
-            MapProvider = new TrackMapProvider(track, driverStandings.ToList()[0].Driver);
+            MapProvider = new TrackMapProvider(track, drivers);
 
             CurrentTime = 0;
-
-            // TODO - max time
-            MaxTime = 100000;
         }
 
         private void UpdateAtTime()
@@ -146,6 +134,7 @@ namespace WhatIfF1.UI.Controller
             const int leadTime = 100;
 
             // TODO - tire compound changes
+
             // Build new driver standings
 
             for (int i = 0; i < Model.NumDrivers; i++)
@@ -159,6 +148,7 @@ namespace WhatIfF1.UI.Controller
 
                 newStandings.Add(new DriverStanding(driver, racePos, leadTime - driverPos.TotalMs, gapToNextCar, TireCompoundStore.SoftTyre));
 
+                // Update this driver's position on the map
                 MapProvider.UpdateDriverMapPosition(driver, driverPos);
             }
 
@@ -168,7 +158,8 @@ namespace WhatIfF1.UI.Controller
                 Standings.ReplaceRange(newStandings);
             }
 
-            // Update current lap
+            // Update the current lap based off the leading driver
+            CurrentLap = driverPositions[0].Item2.Lap;
         }
     }
 }

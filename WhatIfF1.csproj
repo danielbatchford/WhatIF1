@@ -132,9 +132,11 @@
     <Compile Include="UI\Controller\EventControllerException.cs" />
     <Compile Include="UI\Converters\ToFormattedTimeConverter.cs" />
     <Compile Include="Util\CommandHandler.cs" />
+    <Compile Include="Util\Enumerables\ObservableDictionary.cs" />
     <Compile Include="Util\Enumerables\ObservableRangeCollection.cs" />
     <Compile Include="Util\Extensions\ColorExtensions.cs" />
     <Compile Include="Util\Extensions\ImageExtensions.cs" />
+    <Compile Include="Util\Extensions\NumberExtensions.cs" />
     <Compile Include="Util\Extensions\StringExtensions.cs" />
     <Compile Include="Util\PropertyChangedWrapper.cs" />
     <Page Include="UI\Windows\MainWindow.xaml">

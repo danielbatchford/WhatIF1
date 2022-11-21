@@ -297,7 +297,7 @@
                 Grid.Row="0"
                 Grid.Column="2"
                 DataContext="{Binding ActiveScenario, UpdateSourceTrigger=PropertyChanged}"
-                Visibility="{Binding Path=., Converter={StaticResource isNotNullToVisConverter}}">
+                Visibility="{Binding Path=IsModelLoaded, Converter={StaticResource isNotNullToVisConverter}}">
 
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1*" />
@@ -422,7 +422,6 @@
 
                     </Grid>
 
-
                     <Grid Grid.Row="0" Grid.Column="1">
 
                         <Grid.RowDefinitions>
@@ -453,6 +452,34 @@
                                 Stretch="Uniform"
                                 Stroke="White"
                                 StrokeThickness="12" />
+
+                            <ItemsControl
+                                Width="{Binding ActualWidth, ElementName=TrackMapGrid}"
+                                Height="{Binding ActualHeight, ElementName=TrackMapGrid}"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                ItemsSource="{Binding EventController.MapProvider.DriverPoints.K}">
+                                <ItemsControl.ItemContainerStyle>
+                                    <Style TargetType="{x:Type FrameworkElement}">
+                                        <Setter Property="Canvas.Left" Value="{Binding X}" />
+                                        <Setter Property="Canvas.Top" Value="{Binding Y}" />
+                                    </Style>
+                                </ItemsControl.ItemContainerStyle>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type Point}">
+                                        <Ellipse
+                                            Width="8"
+                                            Height="8"
+                                            Fill="Blue" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <Canvas IsItemsHost="True" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+
                         </Grid>
 
                         <Grid
@@ -530,7 +557,7 @@
                             ActiveMinorTickStroke="{StaticResource mainColor}"
                             ActiveTrackStyle="{StaticResource activeTrackStyle}"
                             InactiveTrackStyle="{StaticResource inactiveTrackStyle}"
-                            Maximum="{Binding EventController.MaxTime, UpdateSourceTrigger=PropertyChanged}"
+                            Maximum="{Binding EventController.Model.TotalTime, UpdateSourceTrigger=PropertyChanged}"
                             Minimum="0"
                             MinorTickFrequency="1000"
                             Orientation="Horizontal"
@@ -801,6 +828,7 @@
                                         Grid.Row="2"
                                         Grid.Column="1"
                                         Margin="{StaticResource defaultMargin}"
+                                        HorizontalAlignment="Right"
                                         VerticalAlignment="Center"
                                         FontFamily="{StaticResource regularFont}"
                                         FontSize="20"
