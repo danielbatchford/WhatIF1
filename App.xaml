@@ -24,6 +24,8 @@
         <converters:BoolToHiddenVisConverter x:Key="boolToHiddenVisConverter" />
         <converters:ScenarioTypeToStringConverter x:Key="scenarioTypeToStringConverter" />
         <converters:ToFormattedTimeConverter x:Key="toFormattedTimeConverter" />
+        <converters:MsToSConverter x:Key="msToSConverter"/>
+        <converters:SToMsConverter x:Key="sToMsConverter"/>
 
         <SolidColorBrush x:Key="mainColor" Color="Firebrick" />
         <SolidColorBrush x:Key="lightColor" Color="LightGray" />

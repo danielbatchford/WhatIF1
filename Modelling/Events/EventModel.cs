@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using WhatIfF1.Modelling.Events.Drivers;
+using WhatIfF1.Util;
 
 namespace WhatIfF1.Modelling.Events
 {
-    public class EventModel
+    public class EventModel : PropertyChangedWrapper
     {
         private readonly IDictionary<Driver, DriverModel> _driverModels;
 
@@ -15,9 +16,38 @@ namespace WhatIfF1.Modelling.Events
 
         public string Name { get; }
 
-        public int NoOfLaps { get; }
 
-        public int TotalTime { get; }
+        private int _noOfLaps;
+        public int NoOfLaps
+        {
+            get => _noOfLaps;
+            set
+            {
+                if(_noOfLaps == value)
+                {
+                    return;
+                }
+
+                _noOfLaps = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private int _totalTime;
+        public int TotalTime
+        {
+            get => _totalTime;
+            set
+            {
+                if (value == _totalTime)
+                {
+                    return;
+                }
+
+                _totalTime = value;
+                OnPropertyChanged();
+            }
+        }
 
         public EventModel(string name, double trackLength, JArray driversJson, JArray lapTimesJson)
         {
@@ -88,9 +118,14 @@ namespace WhatIfF1.Modelling.Events
             return new List<Driver>(_driverModels.Keys);
         }
 
-        public Position GetPositionAtTime(Driver driver, int totalMs)
+        public bool TryGetPositionAtTime(Driver driver, int totalMs, out Position driverPos)
         {
-            return _driverModels[driver].GetPositionAtTime(totalMs);
+            if(_driverModels[driver].TryGetPositionAtTime(totalMs, out driverPos))
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }

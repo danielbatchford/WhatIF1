@@ -106,7 +106,7 @@ namespace WhatIfF1.UI.Controller.TrackMaps
 
             foreach(Driver driver in drivers) 
             {
-                //DriverPoints.Add(driver, StartPoint);
+                DriverPoints.Add(driver, StartPoint);
             }
         }
 
@@ -115,7 +115,7 @@ namespace WhatIfF1.UI.Controller.TrackMaps
             double propAlongLap = driverPos.LapDistance / driverPos.TrackLength;
 
             // Find the closest index in the track points list based on the distance around the lap
-            int trackIndex = (int)Math.Round(propAlongLap * TrackPoints.Count, 0);
+            int trackIndex = (int)Math.Round(propAlongLap * (TrackPoints.Count - 1), 0);
 
             DriverPoints[driver] = TrackPoints[trackIndex];
         }

@@ -45,6 +45,10 @@ namespace WhatIfF1.UI.Controller
             get => _gapToLead;
             set 
             {
+                if(_gapToLead == value)
+                {
+                    return;
+                }
                 _gapToLead = value;
                 OnPropertyChanged();
             }
@@ -57,6 +61,10 @@ namespace WhatIfF1.UI.Controller
             get => _gapToNextCar;
             set
             {
+                if(_gapToNextCar == value)
+                {
+                    return;
+                }
                 _gapToNextCar = value;
                 OnPropertyChanged();
             }
@@ -69,6 +77,10 @@ namespace WhatIfF1.UI.Controller
             get => _tireCompound;
             set 
             {
+                if(_tireCompound == value)
+                {
+                    return;
+                }
                 _tireCompound = value;
                 OnPropertyChanged();
             }

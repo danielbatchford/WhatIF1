@@ -17,19 +17,19 @@ namespace WhatIfF1.UI.Converters
         /// <returns></returns>
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            string ToNdpString(int n, int ms)
+            string ToNdpString(int nDigits, int val)
             {
-                string msString = ms.ToString();
+                string msString = val.ToString();
                 int msLength = msString.Length;
 
-                if (msLength == n)
+                if (msLength == nDigits)
                 {
                     return msString;
                 }
 
                 string zeroPadding = "0";
 
-                for (int i = 0; i < n - msLength - 1; i++)
+                for (int i = 0; i < nDigits - msLength - 1; i++)
                 {
                     zeroPadding += "0";
                 }
@@ -39,16 +39,20 @@ namespace WhatIfF1.UI.Converters
 
             int milliSeconds = (int)value;
 
-            DateTime time = new DateTime(10000 * Math.Abs(milliSeconds));
+            TimeSpan time = TimeSpan.FromMilliseconds(milliSeconds);
             char sign = milliSeconds >= 0 ? '+' : '-';
 
-            if(time.Minute >= 1)
+            if(time.TotalHours >= 1)
             {
-                return $"{sign}{time.Minute}:{time.Second}:{ToNdpString(3, time.Millisecond)}";
+                return $"{sign}{time.Hours}:{ToNdpString(2, time.Minutes)}:{ToNdpString(2, time.Seconds)}:{ToNdpString(3, time.Milliseconds)}";
+            }
+            else if (time.TotalMinutes >= 1)
+            {
+                return $"{sign}{ToNdpString(2, time.Minutes)}:{ToNdpString(2, time.Seconds)}:{ToNdpString(3, time.Milliseconds)}";
             }
             else
             {
-                return $"{sign}{time.Second}:{ToNdpString(3, time.Millisecond)}";
+                return $"{sign}{time.Seconds}:{ToNdpString(3, time.Milliseconds)}";
             }
         }
 

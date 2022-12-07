@@ -69,6 +69,11 @@ namespace WhatIfF1.UI.Controller
             get => _currentLap;
             private set
             {
+                if (value > Model.NoOfLaps)
+                {
+                    throw new EventControllerException($"Attempted to set max lap to {value} while only {Model.NoOfLaps} existed");
+                }
+
                 _currentLap = value;
                 OnPropertyChanged();
             }
@@ -92,7 +97,7 @@ namespace WhatIfF1.UI.Controller
                 int racePos = i + 1;
                 int gapToLead = 0;
                 int gapToNextCar = 0;
-                TireCompound tireCompound = TireCompoundStore.SoftTyre;
+                TireCompound tireCompound = TireCompoundStore.MediumTyre;
 
                 driverStandings.Add(new DriverStanding(drivers[i], racePos, gapToLead, gapToNextCar, tireCompound));
             }
@@ -106,12 +111,19 @@ namespace WhatIfF1.UI.Controller
 
         private void UpdateAtTime()
         {
-            var driverPositions = new List<(Driver, Position)>(Model.NumDrivers);
+            var driverPositions = new List<(Driver, Position)>();
 
             foreach (DriverStanding standing in Standings)
             {
-                Position driverPos = Model.GetPositionAtTime(standing.Driver, CurrentTime);
-                driverPositions.Add((standing.Driver, driverPos));
+                if(Model.TryGetPositionAtTime(standing.Driver, CurrentTime, out Position driverPos))
+                {
+                    driverPositions.Add((standing.Driver, driverPos));
+                }
+            }
+
+            if(driverPositions.Count == 0)
+            {
+                return;
             }
 
             // Order drivers by position
@@ -125,19 +137,19 @@ namespace WhatIfF1.UI.Controller
                     return 0;
                 }
 
-                return Math.Sign(posA.TotalDistance - posB.TotalDistance);
+                return -Math.Sign(posA.TotalDistance - posB.TotalDistance);
             });
 
-            var newStandings = new List<DriverStanding>(Model.NumDrivers);
+            var newStandings = new List<DriverStanding>(driverPositions.Count);
 
-            // TODO - lead time
-            const int leadTime = 100;
+            // Set the lead time to the standing of the first driver
+            int leadTime = driverPositions[0].Item2.TotalMs;
 
             // TODO - tire compound changes
 
             // Build new driver standings
 
-            for (int i = 0; i < Model.NumDrivers; i++)
+            for (int i = 0; i < driverPositions.Count; i++)
             {
                 int racePos = i + 1;
 
@@ -145,17 +157,20 @@ namespace WhatIfF1.UI.Controller
                 Position driverPos = driverPositions[i].Item2;
 
                 int gapToNextCar = 0;
+                int gapToLead = 0;
 
-                newStandings.Add(new DriverStanding(driver, racePos, leadTime - driverPos.TotalMs, gapToNextCar, TireCompoundStore.SoftTyre));
+                var newStanding = new DriverStanding(driver, racePos, gapToLead, gapToNextCar, TireCompoundStore.SoftTyre);
+
+                var oldStandingIndex = Standings.IndexOf(Standings.Single(s => s.Driver.Equals(driver)));
+
+                // Update this driver's standing if it has changed
+                if (!Standings[oldStandingIndex].Equals(newStanding)) 
+                {
+                    Standings[oldStandingIndex] = newStanding;
+                }
 
                 // Update this driver's position on the map
                 MapProvider.UpdateDriverMapPosition(driver, driverPos);
-            }
-
-            // If driver standings has changed, replace the collection
-            if (Standings.SequenceEqual(newStandings))
-            {
-                Standings.ReplaceRange(newStandings);
             }
 
             // Update the current lap based off the leading driver

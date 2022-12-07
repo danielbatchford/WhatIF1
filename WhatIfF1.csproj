@@ -127,9 +127,11 @@
     <Compile Include="UI\Converters\InverseBoolConverter.cs" />
     <Compile Include="UI\Converters\IsNotNullConverter.cs" />
     <Compile Include="UI\Converters\IsNotNullToVisConverter.cs" />
+    <Compile Include="UI\Converters\MsToSConverter.cs" />
     <Compile Include="UI\Converters\ScenarioTypeToStringConverter.cs" />
     <Compile Include="UI\Controller\EventController.cs" />
     <Compile Include="UI\Controller\EventControllerException.cs" />
+    <Compile Include="UI\Converters\SToMsConverter.cs" />
     <Compile Include="UI\Converters\ToFormattedTimeConverter.cs" />
     <Compile Include="Util\CommandHandler.cs" />
     <Compile Include="Util\Enumerables\ObservableDictionary.cs" />

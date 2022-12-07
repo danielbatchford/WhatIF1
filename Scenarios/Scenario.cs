@@ -246,7 +246,7 @@ namespace WhatIfF1.Scenarios
 
                 JArray driversJson = driverRaceTable[0]["Results"].ToObject<JArray>();
 
-                int numLaps = InferNumberOfLaps(driversJson);
+                int numLaps = driversJson.Max((driver) => driver["laps"].ToObject<int>());
 
                 // Fetch lap time data for the event
                 APIResult lapTimesResult = await APIAdapter.GetLapsFromF1API(year, Round, numLaps);
@@ -276,11 +276,6 @@ namespace WhatIfF1.Scenarios
                 Logger.Instance.Exception(e);
                 IsModelLoading = false;
             }
-        }
-
-        private int InferNumberOfLaps(JArray driversJson)
-        {
-            return driversJson.Max((driver) => driver["laps"].ToObject<int>());
         }
 
         public object Clone()

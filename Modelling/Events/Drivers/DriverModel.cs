@@ -30,23 +30,33 @@ namespace WhatIfF1.Modelling.Events.Drivers
             TotalTime = _lapTimes.Sum();
         }
 
-        public Position GetPositionAtTime(int totalMs)
+        public bool TryGetPositionAtTime(int totalMs, out Position position)
         {
             int lapIndex = 0;
-            int lapMs = totalMs;
 
-            while (lapMs > _lapTimes[lapIndex])
+            // Find the lap index based on the total time elapsed
+            while(totalMs >= _lapTimes[lapIndex])
             {
-                lapMs -= _lapTimes[lapIndex];
+                totalMs -= _lapTimes[lapIndex];
                 lapIndex++;
+
+                // Implys car has retired, cannot fetch position for lap greater than the laps travelled by this driver
+                if(lapIndex == NoOfLaps)
+                {
+                    position = null;
+                    return false;
+                }
             }
+
+            int lapMs = totalMs;
 
             // Interpolate the distance travelled around the lap based on the current time in the lap - TODO - correct model
             double lapDistance = NumberExtensions.InterpolateLinear(lapMs, 0, _lapTimes[lapIndex], 0, _trackLength);
 
             double totalDistance = lapIndex * _trackLength + lapDistance;
 
-            return new Position(totalMs, lapMs, lapIndex, totalDistance, lapDistance, _trackLength);
+            position = new Position(totalMs, lapMs, lapIndex, totalDistance, lapDistance, _trackLength);
+            return true;
         }
     }
 }

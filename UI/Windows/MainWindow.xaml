@@ -308,7 +308,6 @@
                     <ColumnDefinition Width="1*" />
                 </Grid.ColumnDefinitions>
 
-
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="280" />
@@ -431,7 +430,7 @@
 
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="1*" />
-                            <ColumnDefinition Width="300" />
+                            <ColumnDefinition Width="250" />
                         </Grid.ColumnDefinitions>
 
                         <Grid
@@ -458,7 +457,7 @@
                                 Height="{Binding ActualHeight, ElementName=TrackMapGrid}"
                                 HorizontalAlignment="Stretch"
                                 VerticalAlignment="Stretch"
-                                ItemsSource="{Binding EventController.MapProvider.DriverPoints.K}">
+                                ItemsSource="{Binding EventController.MapProvider.DriverPoints.Values}">
                                 <ItemsControl.ItemContainerStyle>
                                     <Style TargetType="{x:Type FrameworkElement}">
                                         <Setter Property="Canvas.Left" Value="{Binding X}" />
@@ -485,7 +484,7 @@
                         <Grid
                             Grid.Row="0"
                             Grid.Column="1"
-                            Margin="0,40,40,0"
+                            Margin="0,40,0,0"
                             HorizontalAlignment="Left"
                             VerticalAlignment="Top">
 
@@ -500,7 +499,8 @@
 
                             <Border
                                 Grid.RowSpan="2"
-                                HorizontalAlignment="Stretch"
+                                Width="200"
+                                HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
                                 BorderBrush="{StaticResource mainColor}"
                                 BorderThickness="10,10,0,0"
@@ -522,7 +522,7 @@
                                         <TextBlock
                                             FontFamily="{StaticResource boldFont}"
                                             FontSize="20"
-                                            Text="{Binding EventController.MaxLap}" />
+                                            Text="{Binding EventController.Model.NoOfLaps}" />
 
                                     </StackPanel>
 
@@ -557,9 +557,9 @@
                             ActiveMinorTickStroke="{StaticResource mainColor}"
                             ActiveTrackStyle="{StaticResource activeTrackStyle}"
                             InactiveTrackStyle="{StaticResource inactiveTrackStyle}"
-                            Maximum="{Binding EventController.Model.TotalTime, UpdateSourceTrigger=PropertyChanged}"
+                            Maximum="{Binding EventController.Model.TotalTime, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource msToSConverter}}"
                             Minimum="0"
-                            MinorTickFrequency="1000"
+                            MinorTickFrequency="10"
                             Orientation="Horizontal"
                             ShowRange="False"
                             SnapsTo="StepValues"
@@ -567,12 +567,14 @@
                             ThumbStyle="{StaticResource thumbStyle}"
                             ThumbToolTipPlacement="TopLeft"
                             ThumbToolTipPrecision="0"
-                            TickFrequency="60000"
+                            TickFrequency="60"
                             TickPlacement="BottomRight"
-                            Value="{Binding EventController.CurrentTime, UpdateSourceTrigger=PropertyChanged}" />
+                            Value="{Binding EventController.CurrentTime, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource msToSConverter}}" />
 
                     </Grid>
+
                 </Grid>
+
 
                 <Grid
                     Grid.Row="1"
@@ -867,7 +869,9 @@
 
                     </TabControl>
                 </Grid>
+
             </Grid>
+
         </Grid>
 
         <Grid
