@@ -14,6 +14,7 @@ namespace WhatIfF1.UI.Converters
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return !(bool)value;
+
         }
     }
 }
