@@ -252,6 +252,7 @@
                 Grid.Row="0"
                 Grid.Column="0"
                 HorizontalAlignment="Stretch"
+                SelectedIndex="0"
                 SelectionMode="ZeroOrMore">
 
                 <sf:SfAccordion.HeaderTemplate>
@@ -370,7 +371,7 @@
                         Panel.ZIndex="1">
 
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="1*" />
                         </Grid.ColumnDefinitions>
 
                         <Grid.RowDefinitions>
@@ -413,6 +414,7 @@
                             x:Name="DriverOrderGrid"
                             Grid.Row="1"
                             Grid.Column="0"
+                            HorizontalContentAlignment="Stretch"
                             ItemTemplate="{StaticResource driverStandingsTemplate}"
                             ItemsSource="{Binding EventController.Standings}"
                             ScrollViewer.HorizontalScrollBarVisibility="Hidden"

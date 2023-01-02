@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using WhatIfF1.Util.Extensions;
 
@@ -18,7 +16,7 @@ namespace WhatIfF1.Modelling.Events.Drivers
 
         public int TotalTime { get; }
 
-        public DriverModel(EventModel parentModel, double trackLength, IEnumerable<int> lapTimes) 
+        public DriverModel(EventModel parentModel, double trackLength, IEnumerable<int> lapTimes)
         {
             ParentModel = parentModel;
             _trackLength = trackLength;
@@ -35,13 +33,13 @@ namespace WhatIfF1.Modelling.Events.Drivers
             int lapIndex = 0;
 
             // Find the lap index based on the total time elapsed
-            while(totalMs >= _lapTimes[lapIndex])
+            while (totalMs >= _lapTimes[lapIndex])
             {
                 totalMs -= _lapTimes[lapIndex];
                 lapIndex++;
 
                 // Implys car has retired, cannot fetch position for lap greater than the laps travelled by this driver
-                if(lapIndex == NoOfLaps)
+                if (lapIndex == NoOfLaps)
                 {
                     position = null;
                     return false;
@@ -53,9 +51,12 @@ namespace WhatIfF1.Modelling.Events.Drivers
             // Interpolate the distance travelled around the lap based on the current time in the lap - TODO - correct model
             double lapDistance = NumberExtensions.InterpolateLinear(lapMs, 0, _lapTimes[lapIndex], 0, _trackLength);
 
-            double totalDistance = lapIndex * _trackLength + lapDistance;
+            double totalDistance = (lapIndex * _trackLength) + lapDistance;
 
-            position = new Position(totalMs, lapMs, lapIndex, totalDistance, lapDistance, _trackLength);
+            double lapFraction = lapDistance / _trackLength;
+            int forecastLapTime = _lapTimes[lapIndex];
+
+            position = new Position(totalMs, lapMs, lapIndex, forecastLapTime, lapFraction, totalDistance, lapDistance, _trackLength);
             return true;
         }
     }

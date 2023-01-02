@@ -134,8 +134,8 @@
     <Compile Include="UI\Converters\SToMsConverter.cs" />
     <Compile Include="UI\Converters\ToFormattedTimeConverter.cs" />
     <Compile Include="Util\CommandHandler.cs" />
-    <Compile Include="Util\Enumerables\ObservableDictionary.cs" />
     <Compile Include="Util\Enumerables\ObservableRangeCollection.cs" />
+    <Compile Include="Util\Enumerables\SortableList.cs" />
     <Compile Include="Util\Extensions\ColorExtensions.cs" />
     <Compile Include="Util\Extensions\ImageExtensions.cs" />
     <Compile Include="Util\Extensions\NumberExtensions.cs" />

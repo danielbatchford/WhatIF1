@@ -18,7 +18,7 @@ namespace WhatIfF1.Adapters
         {
             HttpResponseMessage response;
 
-            using (HttpClient client = new HttpClient { BaseAddress = new Uri(baseAddress)})
+            using (HttpClient client = new HttpClient { BaseAddress = new Uri(baseAddress) })
             {
                 // Only allow json responses
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -77,7 +77,7 @@ namespace WhatIfF1.Adapters
             // Wait for all tasks to complete
             await Task.WhenAll(tasks);
 
-            if(!tasks.All(task => task.Result.Success))
+            if (!tasks.All(task => task.Result.Success))
             {
                 Logger.Instance.Error("One or more lap time API calls failed");
                 return APIResult.Fail;

@@ -37,28 +37,44 @@ namespace WhatIfF1.UI.Converters
                 return zeroPadding + msString;
             }
 
-            int milliSeconds = (int)value;
+            int milliseconds = (int)value;
 
-            TimeSpan time = TimeSpan.FromMilliseconds(milliSeconds);
-            char sign = milliSeconds >= 0 ? '+' : '-';
+            string sign = GetSign(milliseconds);
 
-            if(time.TotalHours >= 1)
+            TimeSpan absTime = TimeSpan.FromMilliseconds(Math.Abs(milliseconds));
+
+            string hours = absTime.Hours.ToString();
+            string mins = absTime.Minutes.ToString();
+            string secs = ToNdpString(2, absTime.Seconds);
+            string ms = ToNdpString(3, absTime.Milliseconds);
+
+            if (Math.Abs(absTime.TotalHours) >= 1)
             {
-                return $"{sign}{time.Hours}:{ToNdpString(2, time.Minutes)}:{ToNdpString(2, time.Seconds)}:{ToNdpString(3, time.Milliseconds)}";
+                return $"{sign}{hours}:{mins}:{secs}:{ms}";
             }
-            else if (time.TotalMinutes >= 1)
+            else if (Math.Abs(absTime.TotalMinutes) >= 1)
             {
-                return $"{sign}{ToNdpString(2, time.Minutes)}:{ToNdpString(2, time.Seconds)}:{ToNdpString(3, time.Milliseconds)}";
+                return $"{sign}{mins}:{secs}:{ms}";
             }
             else
             {
-                return $"{sign}{time.Seconds}:{ToNdpString(3, time.Milliseconds)}";
+                return $"{sign}{secs}:{ms}";
             }
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
+        }
+
+        private string GetSign(double ms)
+        {
+            if (ms == 0)
+            {
+                return string.Empty;
+            }
+
+            return ms > 0 ? "+" : "-";
         }
     }
 }

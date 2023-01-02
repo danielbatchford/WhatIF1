@@ -12,7 +12,7 @@ namespace WhatIfF1.UI.Controller
         public Driver Driver
         {
             get => _driver;
-            set 
+            set
             {
                 _driver = value;
                 OnPropertyChanged();
@@ -43,9 +43,9 @@ namespace WhatIfF1.UI.Controller
         public int GapToLead
         {
             get => _gapToLead;
-            set 
+            set
             {
-                if(_gapToLead == value)
+                if (_gapToLead == value)
                 {
                     return;
                 }
@@ -61,7 +61,7 @@ namespace WhatIfF1.UI.Controller
             get => _gapToNextCar;
             set
             {
-                if(_gapToNextCar == value)
+                if (_gapToNextCar == value)
                 {
                     return;
                 }
@@ -75,9 +75,9 @@ namespace WhatIfF1.UI.Controller
         public TireCompound TireCompound
         {
             get => _tireCompound;
-            set 
+            set
             {
-                if(_tireCompound == value)
+                if (_tireCompound == value)
                 {
                     return;
                 }
@@ -86,12 +86,30 @@ namespace WhatIfF1.UI.Controller
             }
         }
 
-        public DriverStanding(Driver driver, int racePosition, int gapToLead, int gapToNextCar, TireCompound tireCompound)
+        private double _proportionOfLap;
+
+        public double ProportionOfLap
+        {
+            get => _proportionOfLap;
+            set
+            {
+                if (_proportionOfLap == value)
+                {
+                    return;
+                }
+
+                _proportionOfLap = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public DriverStanding(Driver driver, int racePosition, int gapToLead, int gapToNextCar, double proportionOfLap, TireCompound tireCompound)
         {
             Driver = driver;
             RacePosition = racePosition;
             GapToLead = gapToLead;
             GapToNextCar = gapToNextCar;
+            ProportionOfLap = proportionOfLap;
             TireCompound = tireCompound;
         }
 
@@ -100,7 +118,13 @@ namespace WhatIfF1.UI.Controller
             return Driver.Equals(other.Driver)
                 && RacePosition.Equals(other.RacePosition)
                 && GapToLead.Equals(other.GapToLead)
-                && TireCompound.Equals(other.TireCompound);
+                && TireCompound.Equals(other.TireCompound)
+                && ProportionOfLap.Equals(other.ProportionOfLap);
+        }
+
+        public override string ToString()
+        {
+            return $"{Driver} - P{RacePosition} - {TireCompound} - Gap: {GapToNextCar} - GapToLead: {GapToLead}";
         }
     }
 }

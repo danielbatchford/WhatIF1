@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+
 namespace WhatIfF1.Util.Enumerables
 {
     public class ObservableRangeCollection<T> : ObservableCollection<T>

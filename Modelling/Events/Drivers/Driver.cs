@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Windows.Input;
-using System.Windows.Media;
 using WhatIfF1.Adapters;
 using WhatIfF1.Util;
 using WhatIfF1.Util.Extensions;
@@ -17,13 +16,13 @@ namespace WhatIfF1.Modelling.Events.Drivers
         {
             ICollection<Driver> drivers = new HashSet<Driver>(json.Count);
 
-            foreach(JObject driverJson in json)
+            foreach (JObject driverJson in json)
             {
                 string driverID = driverJson["Driver"]["driverId"].ToObject<string>();
                 string driverLetters = driverJson["Driver"]["code"].ToObject<string>();
 
                 string firstName = driverJson["Driver"]["givenName"].ToObject<string>();
-                string lastName= driverJson["Driver"]["familyName"].ToObject<string>();
+                string lastName = driverJson["Driver"]["familyName"].ToObject<string>();
                 string driverWikiLink = driverJson["Driver"]["url"].ToObject<string>();
 
                 int driverNumber = driverJson["number"].ToObject<int>();
@@ -103,7 +102,7 @@ namespace WhatIfF1.Modelling.Events.Drivers
 
         public override string ToString()
         {
-            return $"{DriverLetters} - {DriverNumber}";
+            return DriverLetters;
         }
     }
 }

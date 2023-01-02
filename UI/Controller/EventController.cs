@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Windows.Controls;
+﻿using System.Linq;
 using WhatIfF1.Modelling.Events;
-using WhatIfF1.Modelling.Events.Drivers;
-using WhatIfF1.Modelling.Tires;
 using WhatIfF1.Modelling.Tracks;
 using WhatIfF1.UI.Controller.TrackMaps;
 using WhatIfF1.Util;
@@ -83,98 +77,34 @@ namespace WhatIfF1.UI.Controller
         {
             Model = model;
 
-            // Retrieve drivers : TODO - order them based on grid position
-
-            // TODO - tire compound
-
-            var drivers = Model.GetDrivers().ToList();
-            int numDrivers = drivers.Count();
-
-            var driverStandings = new List<DriverStanding>(numDrivers);
-
-            for (int i = 0; i < numDrivers; i++)
-            {
-                int racePos = i + 1;
-                int gapToLead = 0;
-                int gapToNextCar = 0;
-                TireCompound tireCompound = TireCompoundStore.MediumTyre;
-
-                driverStandings.Add(new DriverStanding(drivers[i], racePos, gapToLead, gapToNextCar, tireCompound));
-            }
-
-            Standings = new ObservableRangeCollection<DriverStanding>(driverStandings);
-
-            MapProvider = new TrackMapProvider(track, drivers);
+            MapProvider = new TrackMapProvider(track, model.GetDrivers());
 
             CurrentTime = 0;
+
+            var standings = model.GetStandingsAtTime(CurrentTime, out int currentLap);
+            CurrentLap = currentLap;
+
+            Standings = new ObservableRangeCollection<DriverStanding>(standings);
         }
 
         private void UpdateAtTime()
         {
-            var driverPositions = new List<(Driver, Position)>();
+            var newStandings = Model.GetStandingsAtTime(CurrentTime, out int currentLap);
 
+            // Update current lap
+            CurrentLap = currentLap;
+
+            if (!Standings.SequenceEqual(newStandings))
+            {
+                Standings.ReplaceRange(newStandings);
+            }
+
+            // Update driver positions on the map
             foreach (DriverStanding standing in Standings)
             {
-                if(Model.TryGetPositionAtTime(standing.Driver, CurrentTime, out Position driverPos))
-                {
-                    driverPositions.Add((standing.Driver, driverPos));
-                }
+                MapProvider.UpdateDriverMapPosition(standing.Driver, standing.ProportionOfLap);
             }
 
-            if(driverPositions.Count == 0)
-            {
-                return;
-            }
-
-            // Order drivers by position
-            driverPositions.Sort((dPosA, dPosB) =>
-            {
-                (_, Position posA) = dPosA;
-                (_, Position posB) = dPosB;
-
-                if (dPosA == dPosB)
-                {
-                    return 0;
-                }
-
-                return -Math.Sign(posA.TotalDistance - posB.TotalDistance);
-            });
-
-            var newStandings = new List<DriverStanding>(driverPositions.Count);
-
-            // Set the lead time to the standing of the first driver
-            int leadTime = driverPositions[0].Item2.TotalMs;
-
-            // TODO - tire compound changes
-
-            // Build new driver standings
-
-            for (int i = 0; i < driverPositions.Count; i++)
-            {
-                int racePos = i + 1;
-
-                Driver driver = driverPositions[i].Item1;
-                Position driverPos = driverPositions[i].Item2;
-
-                int gapToNextCar = 0;
-                int gapToLead = 0;
-
-                var newStanding = new DriverStanding(driver, racePos, gapToLead, gapToNextCar, TireCompoundStore.SoftTyre);
-
-                var oldStandingIndex = Standings.IndexOf(Standings.Single(s => s.Driver.Equals(driver)));
-
-                // Update this driver's standing if it has changed
-                if (!Standings[oldStandingIndex].Equals(newStanding)) 
-                {
-                    Standings[oldStandingIndex] = newStanding;
-                }
-
-                // Update this driver's position on the map
-                MapProvider.UpdateDriverMapPosition(driver, driverPos);
-            }
-
-            // Update the current lap based off the leading driver
-            CurrentLap = driverPositions[0].Item2.Lap;
         }
     }
 }

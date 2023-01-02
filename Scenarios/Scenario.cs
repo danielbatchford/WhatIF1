@@ -8,7 +8,6 @@ using System.Windows.Media;
 using WhatIfF1.Adapters;
 using WhatIfF1.Logging;
 using WhatIfF1.Modelling.Events;
-using WhatIfF1.Modelling.Events.Drivers;
 using WhatIfF1.Modelling.Tracks;
 using WhatIfF1.Scenarios.Exceptions;
 using WhatIfF1.UI.Controller;

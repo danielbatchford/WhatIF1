@@ -8,11 +8,11 @@ namespace WhatIfF1.UI.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if(value is int i)
+            if (value is int i)
             {
                 return ((double)i) / 1000;
             }
-            else if(value is double d)
+            else if (value is double d)
             {
                 return d / 1000;
             }
@@ -22,7 +22,7 @@ namespace WhatIfF1.UI.Converters
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if(value is int i)
+            if (value is int i)
             {
                 return i * 1000;
             }

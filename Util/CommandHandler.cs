@@ -23,13 +23,13 @@ namespace WhatIfF1.Util
 
         public event EventHandler CanExecuteChanged
         {
-            add 
+            add
             {
-                CommandManager.RequerySuggested += value; 
+                CommandManager.RequerySuggested += value;
             }
-            remove 
+            remove
             {
-                CommandManager.RequerySuggested -= value; 
+                CommandManager.RequerySuggested -= value;
             }
         }
 
@@ -40,7 +40,7 @@ namespace WhatIfF1.Util
 
         public void Execute(object parameter)
         {
-            if(_func is null)
+            if (_func is null)
             {
                 _action();
             }
@@ -50,4 +50,4 @@ namespace WhatIfF1.Util
             }
         }
     }
-    }
+}

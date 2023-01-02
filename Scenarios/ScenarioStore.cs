@@ -1,11 +1,8 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using WhatIfF1.Adapters;
 using WhatIfF1.Scenarios.Exceptions;
 using WhatIfF1.Util;
@@ -86,7 +83,7 @@ namespace WhatIfF1.Scenarios
             Scenarios.Remove(scenario);
         }
 
-        public void CloneScenario(Scenario original) 
+        public void CloneScenario(Scenario original)
         {
             Scenarios.Add((Scenario)original.Clone());
         }

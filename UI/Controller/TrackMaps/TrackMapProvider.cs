@@ -3,12 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
-using System.Windows.Shapes;
 using WhatIfF1.Adapters;
-using WhatIfF1.Modelling.Events;
 using WhatIfF1.Modelling.Events.Drivers;
 using WhatIfF1.Modelling.Tracks;
-using WhatIfF1.Util.Enumerables;
 
 namespace WhatIfF1.UI.Controller.TrackMaps
 {
@@ -19,6 +16,8 @@ namespace WhatIfF1.UI.Controller.TrackMaps
         private static readonly Rect _boundingBox = new Rect(-1, -1, 2, 2);
 
         private static readonly Point _origin = new Point(_boundingBox.Left + _boundingBox.Width / 2, _boundingBox.Top + _boundingBox.Height / 2);
+
+        private static readonly int _pointsReductionFactor = 15;
 
         public PointCollection TrackPoints { get; }
 
@@ -39,19 +38,23 @@ namespace WhatIfF1.UI.Controller.TrackMaps
 
             var lines = FileAdapter.ReadLines(track.TrackFilePath, true);
 
-            int numPoints = lines.Count();
-
             // List to store unnormalised points from file
-            var rawPoints = new List<Point>(numPoints);
+            var rawPoints = new List<Point>();
 
             const char delimiter = ',';
+
+            int increment = lines.Count() / _pointsReductionFactor;
+            for (int i = 0; i < lines.Count(); i += increment)
+            {
+
+            }
 
             foreach (string line in lines)
             {
                 // lines are in format "x,y"
                 string[] split = line.Split(delimiter);
 
-                if(split.Length != 2)
+                if (split.Length != 2)
                 {
                     throw new EventControllerException($"Failed to parse a track file as an invalid line was recieved ({line})");
                 }
@@ -77,7 +80,7 @@ namespace WhatIfF1.UI.Controller.TrackMaps
             double scaleFactor = Math.Min(scaleFactorX, scaleFactorY);
 
             // create list of translated points
-            var translatedPoints = new PointCollection(numPoints);
+            var translatedPoints = new PointCollection(rawPoints.Count);
 
             foreach (Point rawPoint in rawPoints)
             {
@@ -104,24 +107,22 @@ namespace WhatIfF1.UI.Controller.TrackMaps
             // Initialise all drivers at the start line
             DriverPoints = new Dictionary<Driver, Point>(drivers.Count());
 
-            foreach(Driver driver in drivers) 
+            foreach (Driver driver in drivers)
             {
                 DriverPoints.Add(driver, StartPoint);
             }
         }
 
-        public void UpdateDriverMapPosition(Driver driver, Position driverPos)
+        public void UpdateDriverMapPosition(Driver driver, double proportionOfLap)
         {
-            double propAlongLap = driverPos.LapDistance / driverPos.TrackLength;
-
             // Find the closest index in the track points list based on the distance around the lap
-            int trackIndex = (int)Math.Round(propAlongLap * (TrackPoints.Count - 1), 0);
+            int trackIndex = (int)Math.Round(proportionOfLap * (TrackPoints.Count - 1), 0);
 
             DriverPoints[driver] = TrackPoints[trackIndex];
         }
 
         /// <summary>
-        /// Rotate all points through 2pi radians using the provided increment. 
+        /// Rotate all points through 2pi radians using the provided increment.
         /// Return the collection which yields the maximal largest horizontal disstance for the set of points.
         /// Returned collection is approximate and is not the exact optimal rotation.
         /// Only a subset of points are sampled, for optimisation.
@@ -134,11 +135,11 @@ namespace WhatIfF1.UI.Controller.TrackMaps
             double dx;
             double dy;
 
-            for(double testAngle = 0; testAngle < 2 * Math.PI; testAngle += radIncrement)
+            for (double testAngle = 0; testAngle < 2 * Math.PI; testAngle += radIncrement)
             {
                 double maxHorizDist = 0;
 
-                for (int i = 0; i < points.Count; i+=sampleStep)
+                for (int i = 0; i < points.Count; i += sampleStep)
                 {
                     dx = points[i].X - _origin.X;
                     dy = points[i].Y - _origin.Y;
@@ -154,7 +155,7 @@ namespace WhatIfF1.UI.Controller.TrackMaps
                     }
                 }
 
-                if(maxHorizDist > bestHorizDist)
+                if (maxHorizDist > bestHorizDist)
                 {
                     bestHorizDist = maxHorizDist;
                     optimalAngle = testAngle;
@@ -162,7 +163,7 @@ namespace WhatIfF1.UI.Controller.TrackMaps
             }
 
             // No need to rotate points if the optimal angle is zero. Simply return original collection
-            if(optimalAngle == 0)
+            if (optimalAngle == 0)
             {
                 return points;
             }
