@@ -16,9 +16,7 @@ namespace WhatIfF1.UI.Controller
     {
         private readonly DispatcherTimer _timer;
 
-        private readonly int _frameRate = (int)Properties.Settings.Default["playbackFramerate"];
-        private readonly double _playbackSpeed = (double)Properties.Settings.Default["playbackSpeed"];
-        private readonly int _msIncrement;
+        private readonly PlaybackParameterContainer _playbackParams;
 
         private EventModel _model;
 
@@ -84,6 +82,23 @@ namespace WhatIfF1.UI.Controller
             }
         }
 
+        private DriverStanding _selectedStanding;
+
+        public DriverStanding SelectedStanding
+        {
+            get => _selectedStanding;
+            set 
+            {
+                if(_selectedStanding != null && _selectedStanding.Equals(value))
+                {
+                    return;
+                }
+
+                _selectedStanding = value;
+                OnPropertyChanged();
+            }
+        }
+
         private bool _playing;
 
         public bool Playing
@@ -134,9 +149,9 @@ namespace WhatIfF1.UI.Controller
 
             Standings = new ObservableRangeCollection<DriverStanding>(standings);
 
-            _msIncrement = 1000 / _frameRate;
+            _playbackParams = PlaybackParameterContainer.GetDefault();
 
-            _timer = new DispatcherTimer(TimeSpan.FromMilliseconds(_msIncrement), DispatcherPriority.ApplicationIdle, TimerTick, Dispatcher.CurrentDispatcher);
+            _timer = new DispatcherTimer(TimeSpan.FromMilliseconds(_playbackParams.TimerUpdateMsIncrement), DispatcherPriority.ApplicationIdle, TimerTick, Dispatcher.CurrentDispatcher);
             // Don't start timer by default
             _timer.Stop();
         }
@@ -156,6 +171,13 @@ namespace WhatIfF1.UI.Controller
             if (!Standings.SequenceEqual(newStandings))
             {
                 Standings.ReplaceRange(newStandings);
+
+                // Update the selected standing to the lead driver standing if this driver standing is no longer in the race (e.g has retired)
+
+                if (SelectedStanding != null && !Standings.Contains(SelectedStanding))
+                {
+                    SelectedStanding = Standings.First();
+                }
             }
 
             // Update driver positions on the map
@@ -167,7 +189,7 @@ namespace WhatIfF1.UI.Controller
 
         private void TimerTick(object sender, EventArgs e)
         {
-            CurrentTime += (int)(_msIncrement * _playbackSpeed);
+            CurrentTime += _playbackParams.MsIncrement;
         }
 
         private void OnPlayingChanged(bool playing)

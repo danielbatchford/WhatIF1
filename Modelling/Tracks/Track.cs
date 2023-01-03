@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using WhatIfF1.Adapters;
@@ -6,7 +7,7 @@ using WhatIfF1.Logging;
 
 namespace WhatIfF1.Modelling.Tracks
 {
-    public class Track
+    public class Track : IEquatable<Track>
     {
         public string TrackName { get; }
         public double TrackLength { get; }
@@ -69,6 +70,11 @@ namespace WhatIfF1.Modelling.Tracks
         {
             return obj is Track track &&
                    TrackName == track.TrackName;
+        }
+
+        public bool Equals(Track other)
+        {
+            return Equals(other);
         }
 
         public override int GetHashCode()

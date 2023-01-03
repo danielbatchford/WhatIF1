@@ -115,6 +115,11 @@ namespace WhatIfF1.UI.Controller
 
         public bool Equals(DriverStanding other)
         {
+            if(other is null)
+            {
+                return false;
+            }
+
             return Driver.Equals(other.Driver)
                 && RacePosition.Equals(other.RacePosition)
                 && GapToLead.Equals(other.GapToLead)

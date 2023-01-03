@@ -14,7 +14,7 @@
     KeyDown="MainWindow_KeyDown"
     Loaded="MainWindow_Loaded"
     ResizeBorderThickness="0"
-    ResizeMode="CanResizeWithGrip"
+    ResizeMode="NoResize"
     ShowIcon="False"
     TitleBarBackground="{StaticResource mainColor}"
     TitleBarForeground="White"
@@ -418,7 +418,7 @@
                             ItemTemplate="{StaticResource driverStandingsTemplate}"
                             ItemsSource="{Binding EventController.Standings}"
                             ScrollViewer.HorizontalScrollBarVisibility="Hidden"
-                            SelectedIndex="0"
+                            SelectedItem="{Binding EventController.SelectedStanding, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                             SelectionMode="Single" />
 
                     </Grid>
@@ -465,7 +465,7 @@
                                     ItemsSource="{Binding EventController.MapProvider.DriverPoints}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
-                                            <Canvas Background="Beige" />
+                                            <Canvas Background="Transparent" />
                                         </ItemsPanelTemplate>
                                     </ItemsControl.ItemsPanel>
                                     <ItemsControl.ItemContainerStyle>
@@ -501,7 +501,7 @@
                                     ItemsSource="{Binding EventController.MapProvider.DriverPoints}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
-                                            <Canvas Background="Beige" />
+                                            <Canvas Background="Transparent" />
                                         </ItemsPanelTemplate>
                                     </ItemsControl.ItemsPanel>
                                     <ItemsControl.ItemContainerStyle>
@@ -675,11 +675,10 @@
                     </Grid>
                 </Grid>
 
-
                 <Grid
                     Grid.Row="1"
                     Grid.Column="0"
-                    DataContext="{Binding ElementName=DriverOrderGrid, Path=SelectedItem}">
+                    DataContext="{Binding EventController.SelectedStanding, UpdateSourceTrigger=PropertyChanged}">
 
                     <Rectangle
                         Height="2"

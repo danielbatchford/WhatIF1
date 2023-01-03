@@ -9,6 +9,7 @@ using WhatIfF1.Adapters;
 using WhatIfF1.Modelling.Events.Drivers;
 using WhatIfF1.Modelling.Tracks;
 using WhatIfF1.Util;
+using WhatIfF1.Util.Enumerables;
 
 namespace WhatIfF1.UI.Controller.TrackMaps
 {
@@ -16,9 +17,7 @@ namespace WhatIfF1.UI.Controller.TrackMaps
     {
         private static readonly IDictionary<Track, PointCollection> _cachedTracks = new Dictionary<Track, PointCollection>();
 
-        private static readonly Rect _boundingBox = new Rect(300, 200, 1000, 700);
-
-        private static readonly Point _origin = new Point(_boundingBox.Left + _boundingBox.Width / 2, _boundingBox.Top + _boundingBox.Height / 2);
+        private static readonly Rect _boundingBox = new Rect(0, 0, 1050, 600);
 
         private static readonly int _pointsReductionFactor = 15;
 
@@ -68,12 +67,16 @@ namespace WhatIfF1.UI.Controller.TrackMaps
                 rawPoints.Add(new Point(x, y));
             }
 
+            const double rotationIncrement = 2 * Math.PI / 20;
+            const int sampleStep = 10;
+            var rotatedPoints = GetApproximateMaximalWidthCollection(rawPoints, rotationIncrement, sampleStep);
+
             // Find minX, minY and maxX, maxY, to allow for normalisation to the bounding box
 
-            double minX = rawPoints.Min(point => point.X);
-            double minY = rawPoints.Min(point => point.Y);
-            double maxX = rawPoints.Max(point => point.X);
-            double maxY = rawPoints.Max(point => point.Y);
+            double minX = rotatedPoints.Min(point => point.X);
+            double minY = rotatedPoints.Min(point => point.Y);
+            double maxX = rotatedPoints.Max(point => point.X);
+            double maxY = rotatedPoints.Max(point => point.Y);
 
             // precompute multiplicative scale factors between raw points and bounding box
             double scaleFactorX = _boundingBox.Width / (maxX - minX);
@@ -83,23 +86,19 @@ namespace WhatIfF1.UI.Controller.TrackMaps
             double scaleFactor = Math.Min(scaleFactorX, scaleFactorY);
 
             // create list of translated points
-            var translatedPoints = new PointCollection(rawPoints.Count);
+            var translatedPoints = new List<Point>(rotatedPoints.Count());
 
-            foreach (Point rawPoint in rawPoints)
+            foreach (Point rotatedPoint in rotatedPoints)
             {
-                // Translate points from the source file to the bounding box positions
-                double normX = (scaleFactor * (rawPoint.X - minX)) + _boundingBox.Left;
-                double normY = (scaleFactor * (rawPoint.Y - minY)) + _boundingBox.Top;
+                double normX = (scaleFactor * (rotatedPoint.X - minX)) + _boundingBox.Left;
+                double normY = (scaleFactor * (rotatedPoint.Y - minY)) + _boundingBox.Top;
 
                 translatedPoints.Add(new Point(normX, normY));
             }
 
-            const double rotationIncrement = 2 * Math.PI / 20;
-            const int sampleStep = 10;
-            var rotatedPoints = GetApproximateMaximalWidthCollection(translatedPoints, rotationIncrement, sampleStep);
+            translatedPoints = TranslatePointsToBoundingBoxCenter(translatedPoints).ToList();
 
-            // Rotate track points to maximise width
-            TrackPoints = new PointCollection(rotatedPoints);
+            TrackPoints = new PointCollection(translatedPoints);
 
             // Cache the parsed points for reuse
             _cachedTracks.Add(track, TrackPoints);
@@ -108,12 +107,19 @@ namespace WhatIfF1.UI.Controller.TrackMaps
 
             // Build driver points collection
             // Initialise all drivers at the start line
-            DriverPoints = new ObservableCollection<DriverMapPoint>();
+            var driverPoints = new List<DriverMapPoint>(drivers.Count());
 
             foreach (Driver driver in drivers)
             {
-                DriverPoints.Add(new DriverMapPoint(driver, StartPoint));
+                driverPoints.Add(new DriverMapPoint(driver, StartPoint));
             }
+
+            minX = translatedPoints.Min(point => point.X);
+            minY = translatedPoints.Min(point => point.Y);
+            maxX = translatedPoints.Max(point => point.X);
+            maxY = translatedPoints.Max(point => point.Y);
+
+            DriverPoints = new ObservableCollection<DriverMapPoint>(driverPoints);
         }
 
         public void UpdateDriverMapPosition(Driver driver, double proportionOfLap)
@@ -141,14 +147,22 @@ namespace WhatIfF1.UI.Controller.TrackMaps
             double dx;
             double dy;
 
+            double minX = points.Min(p => p.X);
+            double minY = points.Min(p => p.Y);
+
+            double maxX = points.Max(p => p.X);
+            double maxY = points.Max(p => p.Y);
+
+            Point origin = new Point(minX + (maxX - minX) / 2, minY + (maxY - minY) / 2);
+
             for (double testAngle = 0; testAngle < 2 * Math.PI; testAngle += radIncrement)
             {
                 double maxHorizDist = 0;
 
                 for (int i = 0; i < points.Count; i += sampleStep)
                 {
-                    dx = points[i].X - _origin.X;
-                    dy = points[i].Y - _origin.Y;
+                    dx = points[i].X - origin.X;
+                    dy = points[i].Y - origin.Y;
 
                     double angleToHoriz = Math.Atan2(dy, dx);
                     double distToOrigin = Math.Sqrt(dx * dx + dy * dy);
@@ -182,15 +196,37 @@ namespace WhatIfF1.UI.Controller.TrackMaps
 
             foreach (Point point in points)
             {
-                dx = point.X - _origin.X;
-                dy = point.Y - _origin.Y;
+                dx = point.X - origin.X;
+                dy = point.Y - origin.Y;
 
-                double x = cosTheta * dx - sinTheta * dy + _origin.X;
-                double y = sinTheta * dx + cosTheta * dy + _origin.Y;
+                double x = cosTheta * dx - sinTheta * dy + origin.X;
+                double y = sinTheta * dx + cosTheta * dy + origin.Y;
                 rotatedPoints.Add(new Point(x, y));
             }
 
             return rotatedPoints;
+        }
+
+        private IEnumerable<Point> TranslatePointsToBoundingBoxCenter(IEnumerable<Point> points)
+        {
+            double minX = points.Min(p => p.X);
+            double minY = points.Min(p => p.Y);
+
+            double maxX = points.Max(p => p.X);
+            double maxY = points.Max(p => p.Y);
+
+            // Find which dimension is not in center of bounding box
+            if (maxX - minX == _boundingBox.Width)
+            {
+                double dy = (_boundingBox.Height - (maxY - minY)) / 2;
+                return points.Select(point => new Point(point.X, point.Y + dy));
+            }
+            else
+            {
+                double dx = (_boundingBox.Width - (maxX - minX)) / 2;
+
+                return points.Select(point => new Point(point.X + dx, point.Y));
+            }
         }
     }
 }
