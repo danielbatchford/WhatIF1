@@ -436,7 +436,7 @@
                         </Grid.ColumnDefinitions>
 
                         <Grid
-                            x:Name="TrackMapGrid"
+                            x:Name="trackMapGrid"
                             Grid.Row="0"
                             Grid.Column="0"
                             Margin="40"
@@ -444,42 +444,88 @@
                             VerticalAlignment="Stretch">
 
                             <Polygon
-                                Width="{Binding ActualWidth, ElementName=TrackMapGrid}"
-                                Height="{Binding ActualHeight, ElementName=TrackMapGrid}"
-                                HorizontalAlignment="Stretch"
-                                VerticalAlignment="Stretch"
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Top"
                                 Fill="Transparent"
                                 Points="{Binding EventController.MapProvider.TrackPoints}"
-                                Stretch="Uniform"
+                                Stretch="None"
                                 Stroke="White"
                                 StrokeThickness="12" />
 
-                            <ItemsControl
-                                Width="{Binding ActualWidth, ElementName=TrackMapGrid}"
-                                Height="{Binding ActualHeight, ElementName=TrackMapGrid}"
-                                HorizontalAlignment="Stretch"
-                                VerticalAlignment="Stretch"
-                                ItemsSource="{Binding EventController.MapProvider.DriverPoints.Values}">
-                                <ItemsControl.ItemContainerStyle>
-                                    <Style TargetType="{x:Type FrameworkElement}">
-                                        <Setter Property="Canvas.Left" Value="{Binding X}" />
-                                        <Setter Property="Canvas.Top" Value="{Binding Y}" />
-                                    </Style>
-                                </ItemsControl.ItemContainerStyle>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate DataType="{x:Type Point}">
-                                        <Ellipse
-                                            Width="8"
-                                            Height="8"
-                                            Fill="Blue" />
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <Canvas IsItemsHost="True" />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                            </ItemsControl>
+                            <Canvas
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Top">
+                                <ItemsControl
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch"
+                                    ItemsSource="{Binding EventController.MapProvider.DriverPoints}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <Canvas Background="Beige" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemContainerStyle>
+                                        <Style TargetType="{x:Type ContentPresenter}">
+                                            <Setter Property="Canvas.Left" Value="{Binding Path=Point.X, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            <Setter Property="Canvas.Top" Value="{Binding Path=Point.Y, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        </Style>
+                                    </ItemsControl.ItemContainerStyle>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock
+                                                HorizontalAlignment="Left"
+                                                VerticalAlignment="Center"
+                                                FontFamily="{StaticResource boldFont}"
+                                                FontSize="15"
+                                                Text="{Binding Path=Driver.DriverLetters}">
+                                                <TextBlock.RenderTransform>
+                                                    <TranslateTransform X="20" Y="-10" />
+                                                </TextBlock.RenderTransform>
+                                                <TextBlock.Effect>
+                                                    <DropShadowEffect
+                                                        BlurRadius="5"
+                                                        Opacity="0.6"
+                                                        Color="Black" />
+                                                </TextBlock.Effect>
+                                            </TextBlock>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <ItemsControl
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch"
+                                    ItemsSource="{Binding EventController.MapProvider.DriverPoints}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <Canvas Background="Beige" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemContainerStyle>
+                                        <Style TargetType="{x:Type ContentPresenter}">
+                                            <Setter Property="Canvas.Left" Value="{Binding Path=Point.X, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+                                            <Setter Property="Canvas.Top" Value="{Binding Path=Point.Y, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        </Style>
+                                    </ItemsControl.ItemContainerStyle>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Ellipse
+                                                Width="30"
+                                                Height="30"
+                                                Fill="{Binding Path=Color, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource colorToBrushConverter}}"
+                                                Stroke="Black"
+                                                StrokeThickness="3">
+                                                <Ellipse.RenderTransform>
+                                                    <TranslateTransform X="-15" Y="-15" />
+                                                </Ellipse.RenderTransform>
+                                            </Ellipse>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Canvas>
 
                         </Grid>
 
@@ -549,32 +595,84 @@
 
                         </Grid>
 
-                        <sf:SfRangeSlider
+                        <Grid
                             Grid.Row="1"
                             Grid.Column="0"
-                            Grid.ColumnSpan="2"
-                            Margin="20,0,20,0"
-                            HorizontalAlignment="Stretch"
-                            VerticalAlignment="Center"
-                            ActiveMinorTickStroke="{StaticResource mainColor}"
-                            ActiveTrackStyle="{StaticResource activeTrackStyle}"
-                            InactiveTrackStyle="{StaticResource inactiveTrackStyle}"
-                            Maximum="{Binding EventController.Model.TotalTime, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource msToSConverter}}"
-                            Minimum="0"
-                            MinorTickFrequency="10"
-                            Orientation="Horizontal"
-                            ShowRange="False"
-                            SnapsTo="StepValues"
-                            StepFrequency="1"
-                            ThumbStyle="{StaticResource thumbStyle}"
-                            ThumbToolTipPlacement="TopLeft"
-                            ThumbToolTipPrecision="0"
-                            TickFrequency="60"
-                            TickPlacement="BottomRight"
-                            Value="{Binding EventController.CurrentTime, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource msToSConverter}}" />
+                            Grid.ColumnSpan="2">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*" />
+                            </Grid.RowDefinitions>
 
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="45" />
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Button
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Margin="{StaticResource defaultMargin}"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                Background="Transparent"
+                                Command="{Binding EventController.PlayPauseCommand}"
+                                Foreground="Transparent"
+                                IsEnabled="{Binding IsModelLoaded, UpdateSourceTrigger=PropertyChanged}">
+                                <Button.Content>
+                                    <Grid>
+
+                                        <Ellipse
+                                            Width="30"
+                                            Height="30"
+                                            Fill="{StaticResource mainColor}"
+                                            Visibility="{Binding EventController.Playing, Converter={StaticResource boolToHiddenVisConverter}}" />
+                                        <Image
+                                            Width="15"
+                                            Height="15"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            Source="Icons/Play.ico"
+                                            Visibility="{Binding EventController.Playing, Converter={StaticResource boolToHiddenVisConverter}}" />
+                                        <Ellipse
+                                            Width="30"
+                                            Height="30"
+                                            Fill="{StaticResource lightColor}"
+                                            Visibility="{Binding EventController.Playing, Converter={StaticResource inverseBoolToHiddenVisConverter}}" />
+                                        <Image
+                                            Width="15"
+                                            Height="15"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            Source="Icons/Pause.ico"
+                                            Visibility="{Binding EventController.Playing, Converter={StaticResource inverseBoolToHiddenVisConverter}}" />
+                                    </Grid>
+                                </Button.Content>
+                            </Button>
+
+                            <sf:SfRangeSlider
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Margin="10,0,20,0"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Center"
+                                ActiveMinorTickStroke="{StaticResource mainColor}"
+                                ActiveTrackStyle="{StaticResource activeTrackStyle}"
+                                InactiveTrackStyle="{StaticResource inactiveTrackStyle}"
+                                Maximum="{Binding EventController.Model.TotalTime, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource msToSConverter}}"
+                                Minimum="0"
+                                MinorTickFrequency="10"
+                                Orientation="Horizontal"
+                                ShowRange="False"
+                                SnapsTo="StepValues"
+                                StepFrequency="1"
+                                ThumbStyle="{StaticResource thumbStyle}"
+                                ThumbToolTipPlacement="TopLeft"
+                                ThumbToolTipPrecision="0"
+                                TickFrequency="60"
+                                TickPlacement="BottomRight"
+                                Value="{Binding EventController.CurrentTime, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource msToSConverter}}" />
+                        </Grid>
                     </Grid>
-
                 </Grid>
 
 

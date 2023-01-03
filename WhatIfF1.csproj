@@ -120,11 +120,14 @@
     <Compile Include="Scenarios\ScenarioType.cs" />
     <Compile Include="TestClass.cs" />
     <Compile Include="UI\Controller\DriverStanding.cs" />
+    <Compile Include="UI\Controller\TrackMaps\DriverMapPoint.cs" />
     <Compile Include="UI\Controller\TrackMaps\TrackMapProvider.cs" />
     <Compile Include="UI\Converters\BoolToCollapsedVisConverter.cs" />
     <Compile Include="UI\Converters\BoolToHiddenVisConverter.cs" />
     <Compile Include="UI\Converters\ColorToBrushConverter.cs" />
+    <Compile Include="UI\Converters\DriverMapPointToPointsConverter.cs" />
     <Compile Include="UI\Converters\InverseBoolConverter.cs" />
+    <Compile Include="UI\Converters\InverseBoolToHiddenVisConverter.cs" />
     <Compile Include="UI\Converters\IsNotNullConverter.cs" />
     <Compile Include="UI\Converters\IsNotNullToVisConverter.cs" />
     <Compile Include="UI\Converters\MsToSConverter.cs" />
@@ -140,7 +143,7 @@
     <Compile Include="Util\Extensions\ImageExtensions.cs" />
     <Compile Include="Util\Extensions\NumberExtensions.cs" />
     <Compile Include="Util\Extensions\StringExtensions.cs" />
-    <Compile Include="Util\PropertyChangedWrapper.cs" />
+    <Compile Include="Util\NotifyPropertyChangedWrapper.cs" />
     <Page Include="UI\Windows\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -262,6 +265,10 @@
   <ItemGroup>
     <Resource Include="Resources\Drivers\ALB.png" />
     <Resource Include="Resources\Drivers\default.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="UI\Windows\Icons\Pause.ico" />
+    <Resource Include="UI\Windows\Icons\Play.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

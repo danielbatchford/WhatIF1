@@ -10,7 +10,7 @@ using WhatIfF1.Util;
 
 namespace WhatIfF1.Modelling.Events
 {
-    public class EventModel : PropertyChangedWrapper
+    public class EventModel : NotifyPropertyChangedWrapper
     {
         private readonly IDictionary<Driver, DriverModel> _driverModels;
 

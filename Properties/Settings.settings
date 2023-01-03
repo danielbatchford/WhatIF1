@@ -5,5 +5,11 @@
     <Setting Name="f1APIRoot" Type="System.String" Scope="User">
       <Value Profile="(Default)">http://ergast.com/api/f1/</Value>
     </Setting>
+    <Setting Name="playbackFramerate" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">10</Value>
+    </Setting>
+    <Setting Name="playbackSpeed" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">10</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

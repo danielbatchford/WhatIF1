@@ -22,10 +22,12 @@
         <converters:IsNotNullToVisConverter x:Key="isNotNullToVisConverter" />
         <converters:BoolToCollapsedVisConverter x:Key="boolToCollapsedVisConverter" />
         <converters:BoolToHiddenVisConverter x:Key="boolToHiddenVisConverter" />
+        <converters:InverseBoolToHiddenVisConverter x:Key="inverseBoolToHiddenVisConverter" />
         <converters:ScenarioTypeToStringConverter x:Key="scenarioTypeToStringConverter" />
         <converters:ToFormattedTimeConverter x:Key="toFormattedTimeConverter" />
         <converters:MsToSConverter x:Key="msToSConverter" />
         <converters:SToMsConverter x:Key="sToMsConverter" />
+        <converters:DriverMapPointToPointsConverter x:Key="driverMapPointToPointsConverter" />
 
         <SolidColorBrush x:Key="mainColor" Color="Firebrick" />
         <SolidColorBrush x:Key="lightColor" Color="LightGray" />

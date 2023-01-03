@@ -56,7 +56,7 @@ namespace WhatIfF1.Modelling.Events.Drivers
             double lapFraction = lapDistance / _trackLength;
             int forecastLapTime = _lapTimes[lapIndex];
 
-            position = new Position(totalMs, lapMs, lapIndex, forecastLapTime, lapFraction, totalDistance, lapDistance, _trackLength);
+            position = new Position(totalMs, lapMs, lapIndex + 1, forecastLapTime, lapFraction, totalDistance, lapDistance, _trackLength);
             return true;
         }
     }

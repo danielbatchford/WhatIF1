@@ -6,7 +6,7 @@ using WhatIfF1.Util;
 
 namespace WhatIfF1.Logging
 {
-    public sealed class Logger : PropertyChangedWrapper
+    public sealed class Logger : NotifyPropertyChangedWrapper
     {
         #region LazyInitialization
 
@@ -89,8 +89,10 @@ namespace WhatIfF1.Logging
             ResetTimerCountdown();
         }
 
-        public void Info(string message)
+        public void Info(object obj)
         {
+            string message = obj.ToString();
+
             _logger.Info(message);
             Console.WriteLine(message);
 
@@ -100,8 +102,10 @@ namespace WhatIfF1.Logging
             ResetTimerCountdown();
         }
 
-        public void Warn(string message)
+        public void Warn(object obj)
         {
+            string message = obj.ToString();
+
             _logger.Warn(message);
             Console.WriteLine(message);
 
@@ -111,8 +115,10 @@ namespace WhatIfF1.Logging
             ResetTimerCountdown();
         }
 
-        public void Error(string message)
+        public void Error(object obj)
         {
+            string message = obj.ToString();
+
             _logger.Error(message);
             Console.WriteLine(message);
 

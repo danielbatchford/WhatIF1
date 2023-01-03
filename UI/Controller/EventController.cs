@@ -1,14 +1,25 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using System.Windows.Input;
+using System.Windows.Threading;
+using WhatIfF1.Logging;
 using WhatIfF1.Modelling.Events;
 using WhatIfF1.Modelling.Tracks;
+using WhatIfF1.Scenarios.Exceptions;
 using WhatIfF1.UI.Controller.TrackMaps;
 using WhatIfF1.Util;
 using WhatIfF1.Util.Enumerables;
 
 namespace WhatIfF1.UI.Controller
 {
-    public class EventController : PropertyChangedWrapper
+    public class EventController : NotifyPropertyChangedWrapper, IDisposable
     {
+        private readonly DispatcherTimer _timer;
+
+        private readonly int _frameRate = (int)Properties.Settings.Default["playbackFramerate"];
+        private readonly double _playbackSpeed = (double)Properties.Settings.Default["playbackSpeed"];
+        private readonly int _msIncrement;
+
         private EventModel _model;
 
         public EventModel Model
@@ -73,6 +84,43 @@ namespace WhatIfF1.UI.Controller
             }
         }
 
+        private bool _playing;
+
+        public bool Playing
+        {
+            get => _playing;
+            set 
+            {
+                if(_playing == value)
+                {
+                    return;
+                }
+
+                _playing = value;
+                OnPlayingChanged(value);
+                OnPropertyChanged();
+            }
+        }
+
+        private ICommand _playPauseCommand;
+        public ICommand PlayPauseCommand
+        {
+            get
+            {
+                if(_playPauseCommand is null)
+                {
+                    _playPauseCommand = new CommandHandler(() => Playing = !Playing, () => true);
+                }
+
+                return _playPauseCommand;
+            }
+            set
+            {
+                _playPauseCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public EventController(Track track, EventModel model)
         {
             Model = model;
@@ -85,6 +133,17 @@ namespace WhatIfF1.UI.Controller
             CurrentLap = currentLap;
 
             Standings = new ObservableRangeCollection<DriverStanding>(standings);
+
+            _msIncrement = 1000 / _frameRate;
+
+            _timer = new DispatcherTimer(TimeSpan.FromMilliseconds(_msIncrement), DispatcherPriority.ApplicationIdle, TimerTick, Dispatcher.CurrentDispatcher);
+            // Don't start timer by default
+            _timer.Stop();
+        }
+
+        public void Dispose()
+        {
+            Playing = false;
         }
 
         private void UpdateAtTime()
@@ -104,7 +163,30 @@ namespace WhatIfF1.UI.Controller
             {
                 MapProvider.UpdateDriverMapPosition(standing.Driver, standing.ProportionOfLap);
             }
+        }
 
+        private void TimerTick(object sender, EventArgs e)
+        {
+            CurrentTime += (int)(_msIncrement * _playbackSpeed);
+        }
+
+        private void OnPlayingChanged(bool playing)
+        {
+            if (_timer.IsEnabled && !playing)
+            {
+                _timer.Stop();
+                Logger.Instance.Info("Playback stopped");
+                return;
+            }
+
+            if (!_timer.IsEnabled && playing)
+            {
+                _timer.Start();
+                Logger.Instance.Info("Playback started");
+                return;
+            }
+
+            throw new ScenarioException("Mismatch between event controller playback states occured");
         }
     }
 }

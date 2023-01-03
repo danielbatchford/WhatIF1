@@ -5,7 +5,7 @@ using WhatIfF1.Util;
 
 namespace WhatIfF1.UI.Controller
 {
-    public class DriverStanding : PropertyChangedWrapper, IEquatable<DriverStanding>
+    public class DriverStanding : NotifyPropertyChangedWrapper, IEquatable<DriverStanding>
     {
         private Driver _driver;
 

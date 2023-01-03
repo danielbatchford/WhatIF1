@@ -10,7 +10,7 @@ using WhatIfF1.Util.Enumerables;
 
 namespace WhatIfF1.Scenarios
 {
-    public sealed class ScenarioStore : PropertyChangedWrapper
+    public sealed class ScenarioStore : NotifyPropertyChangedWrapper
     {
         private static readonly int _year = 2022;
 

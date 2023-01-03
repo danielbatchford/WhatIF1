@@ -9,7 +9,7 @@ using WhatIfF1.Util.Extensions;
 
 namespace WhatIfF1.Modelling.Events.Drivers
 {
-    public class Driver : PropertyChangedWrapper, IEquatable<Driver>
+    public class Driver : NotifyPropertyChangedWrapper, IEquatable<Driver>
     {
 
         public static IEnumerable<Driver> GetDriverListFromJSON(JArray json)

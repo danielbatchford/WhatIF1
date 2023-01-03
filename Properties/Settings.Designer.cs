@@ -34,5 +34,29 @@ namespace WhatIfF1.Properties {
                 this["f1APIRoot"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("10")]
+        public int playbackFramerate {
+            get {
+                return ((int)(this["playbackFramerate"]));
+            }
+            set {
+                this["playbackFramerate"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("10")]
+        public double playbackSpeed {
+            get {
+                return ((double)(this["playbackSpeed"]));
+            }
+            set {
+                this["playbackSpeed"] = value;
+            }
+        }
     }
 }

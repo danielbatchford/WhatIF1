@@ -16,7 +16,7 @@ using WhatIfF1.Util.Extensions;
 
 namespace WhatIfF1.Scenarios
 {
-    public class Scenario : PropertyChangedWrapper, ICloneable, IEquatable<Scenario>
+    public class Scenario : NotifyPropertyChangedWrapper, ICloneable, IEquatable<Scenario>
     {
         /// <summary>
         /// Used for equality checks

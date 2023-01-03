@@ -9,7 +9,7 @@ using WhatIfF1.Util.Extensions;
 
 namespace WhatIfF1.Modelling.Events.Drivers
 {
-    public class Constructor : PropertyChangedWrapper
+    public class Constructor : NotifyPropertyChangedWrapper
     {
         private static readonly IDictionary<string, Color> _constructorColorMap = new Dictionary<string, Color>()
         {

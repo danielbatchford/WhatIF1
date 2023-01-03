@@ -1,19 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using WhatIfF1.Adapters;
 using WhatIfF1.Modelling.Events.Drivers;
 using WhatIfF1.Modelling.Tracks;
+using WhatIfF1.Util;
 
 namespace WhatIfF1.UI.Controller.TrackMaps
 {
-    public sealed class TrackMapProvider
+    public sealed class TrackMapProvider : NotifyPropertyChangedWrapper
     {
         private static readonly IDictionary<Track, PointCollection> _cachedTracks = new Dictionary<Track, PointCollection>();
 
-        private static readonly Rect _boundingBox = new Rect(-1, -1, 2, 2);
+        private static readonly Rect _boundingBox = new Rect(300, 200, 1000, 700);
 
         private static readonly Point _origin = new Point(_boundingBox.Left + _boundingBox.Width / 2, _boundingBox.Top + _boundingBox.Height / 2);
 
@@ -21,7 +24,7 @@ namespace WhatIfF1.UI.Controller.TrackMaps
 
         public PointCollection TrackPoints { get; }
 
-        public IDictionary<Driver, Point> DriverPoints { get; }
+        public ObservableCollection<DriverMapPoint> DriverPoints { get; }
 
         public Point StartPoint { get; }
 
@@ -103,13 +106,13 @@ namespace WhatIfF1.UI.Controller.TrackMaps
 
             StartPoint = TrackPoints[0];
 
-            // Build driver points dictionary.
+            // Build driver points collection
             // Initialise all drivers at the start line
-            DriverPoints = new Dictionary<Driver, Point>(drivers.Count());
+            DriverPoints = new ObservableCollection<DriverMapPoint>();
 
             foreach (Driver driver in drivers)
             {
-                DriverPoints.Add(driver, StartPoint);
+                DriverPoints.Add(new DriverMapPoint(driver, StartPoint));
             }
         }
 
@@ -118,7 +121,10 @@ namespace WhatIfF1.UI.Controller.TrackMaps
             // Find the closest index in the track points list based on the distance around the lap
             int trackIndex = (int)Math.Round(proportionOfLap * (TrackPoints.Count - 1), 0);
 
-            DriverPoints[driver] = TrackPoints[trackIndex];
+            // Find the index of the requested driver in the driverpoints list
+            int driverIndex = DriverPoints.Select(dp => dp.Driver).ToList().IndexOf(driver);
+
+            DriverPoints[driverIndex].Point = TrackPoints[trackIndex];
         }
 
         /// <summary>
