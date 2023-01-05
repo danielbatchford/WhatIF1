@@ -179,13 +179,15 @@ namespace WhatIfF1.Modelling.Events
             return standings;
         }
 
-        public int GetCurrentLap(int timeMs)
+        public int GetCurrentLap(int timeMs, Driver driver = null)
         {
             var positions = new List<Position>();
 
-            foreach (Driver driver in _driverModels.Keys)
+            var driversInLapEval = driver is null ? _driverModels.Keys : new List<Driver> { driver };
+
+            foreach (Driver driverInEval in driversInLapEval)
             {
-                if (_driverModels[driver].TryGetPositionAtTime(timeMs, out Position driverPos))
+                if (_driverModels[driverInEval].TryGetPositionAtTime(timeMs, out Position driverPos))
                 {
                     positions.Add(driverPos);
                 }

@@ -6,6 +6,7 @@ using WhatIfF1.Logging;
 using WhatIfF1.Modelling.Events;
 using WhatIfF1.Modelling.Tracks;
 using WhatIfF1.Scenarios.Exceptions;
+using WhatIfF1.UI.Controller.Graphing;
 using WhatIfF1.UI.Controller.TrackMaps;
 using WhatIfF1.Util;
 using WhatIfF1.Util.Enumerables;
@@ -36,6 +37,8 @@ namespace WhatIfF1.UI.Controller
 
         public TrackMapProvider MapProvider { get; }
 
+        public GraphProvider VelocityLapGraphProvider { get; }
+
         public int CurrentTime
         {
             get => _currentTime;
@@ -60,7 +63,7 @@ namespace WhatIfF1.UI.Controller
 
                 _currentTime = value;
 
-                UpdateAtTime();
+                OnCurrentTimeChanged();
                 OnPropertyChanged();
             }
         }
@@ -78,6 +81,7 @@ namespace WhatIfF1.UI.Controller
                 }
 
                 _currentLap = value;
+                OnCurrentLapChanged();
                 OnPropertyChanged();
             }
         }
@@ -95,6 +99,7 @@ namespace WhatIfF1.UI.Controller
                 }
 
                 _selectedStanding = value;
+                OnSelectedStandingChanged();
                 OnPropertyChanged();
             }
         }
@@ -141,6 +146,7 @@ namespace WhatIfF1.UI.Controller
             Model = model;
 
             MapProvider = new TrackMapProvider(track, model.GetDrivers());
+            VelocityLapGraphProvider = new GraphProvider(this, GraphType.VELOCITY_TIME);
 
             CurrentTime = 0;
 
@@ -161,7 +167,7 @@ namespace WhatIfF1.UI.Controller
             Playing = false;
         }
 
-        private void UpdateAtTime()
+        private void OnCurrentTimeChanged()
         {
             var newStandings = Model.GetStandingsAtTime(CurrentTime, out int currentLap);
 
@@ -184,6 +190,23 @@ namespace WhatIfF1.UI.Controller
             foreach (DriverStanding standing in Standings)
             {
                 MapProvider.UpdateDriverMapPosition(standing.Driver, standing.ProportionOfLap);
+            }
+        }
+
+        private void OnCurrentLapChanged()
+        {
+            VelocityLapGraphProvider.UpdateGraph();
+        }
+
+        private void OnSelectedStandingChanged()
+        {
+            if (SelectedStanding != null)
+            {
+                VelocityLapGraphProvider.UpdateCurrentDriver(SelectedStanding.Driver);
+            }
+            else
+            {
+                VelocityLapGraphProvider.RemoveCurrentDriver();
             }
         }
 

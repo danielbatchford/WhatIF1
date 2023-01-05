@@ -30,6 +30,11 @@ namespace WhatIfF1.Logging
 
         private string _currentMessage;
 
+        internal void Exception(object exceptionObject)
+        {
+            throw new NotImplementedException();
+        }
+
         public string CurrentMessage
         {
             get => _currentMessage;

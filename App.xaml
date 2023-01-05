@@ -5,8 +5,6 @@
     xmlns:converters="clr-namespace:WhatIfF1.UI.Converters"
     xmlns:local="clr-namespace:WhatIfF1"
     xmlns:sf="http://schemas.syncfusion.com/wpf"
-    DispatcherUnhandledException="Application_DispatcherUnhandledException"
-    Exit="Application_Exit"
     ShutdownMode="OnMainWindowClose"
     StartupUri="UI/Windows/MainWindow.xaml">
 

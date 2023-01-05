@@ -1,5 +1,7 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using WhatIfF1.Logging;
@@ -24,16 +26,24 @@ namespace WhatIfF1
             string syncfusionKey = ConfigurationManager.AppSettings["syncfusionLicenseKey"];
 
             Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(syncfusionKey);
-        }
 
-        private void Application_Exit(object sender, ExitEventArgs e)
-        {
+            AppDomain.CurrentDomain.UnhandledException += (s, e) => {
 
-        }
+                Logger.Instance.Exception(e.ExceptionObject);
+            };
 
-        private void Application_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
-        {
-            Logger.Instance.Exception(e.Exception);
+
+            DispatcherUnhandledException += (s, e) =>
+            {
+                Logger.Instance.Exception(e.Exception);
+                e.Handled = true;
+            };
+
+            TaskScheduler.UnobservedTaskException += (s, e) =>
+            {
+                Logger.Instance.Exception(e.Exception);
+                e.SetObserved();
+            };
         }
     }
 }
