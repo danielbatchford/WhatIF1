@@ -29,7 +29,7 @@ namespace WhatIfF1
 
             AppDomain.CurrentDomain.UnhandledException += (s, e) => {
 
-                Logger.Instance.Exception(e.ExceptionObject);
+                Logger.Instance.Exception((Exception)e.ExceptionObject);
             };
 
 

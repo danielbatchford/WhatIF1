@@ -73,22 +73,20 @@ namespace WhatIfF1.Modelling.Events
             {
                 foreach (Driver driver in drivers)
                 {
-                    foreach (var driverLapInnerJson in lapTimeJson["times"]["Timings"])
+                    // If no element is found, this implies the driver has retired from the race
+                    JToken timingObject = lapTimeJson["Timings"].SingleOrDefault(timing => timing["driverId"].ToObject<string>().Equals(driver.DriverID));
+
+                    if(timingObject == default)
                     {
-                        if (!driverLapInnerJson["driverId"].ToObject<string>().Equals(driver.DriverID))
-                        {
-                            continue;
-                        }
-
-                        string timingString = driverLapInnerJson["time"].ToObject<string>();
-
-                        // Convert this timing string from format minute:second.millisecond to milliseconds
-                        TimeSpan timeSpan = TimeSpan.ParseExact(timingString, timeFormat, CultureInfo.InvariantCulture);
-
-                        lapTimes[driver].Add((int)timeSpan.TotalMilliseconds);
-
-                        break;
+                        continue;
                     }
+
+                    string timingString = timingObject["time"].ToObject<string>();
+
+                    // Convert this timing string from format minute:second.millisecond to milliseconds
+                    TimeSpan timeSpan = TimeSpan.ParseExact(timingString, timeFormat, CultureInfo.InvariantCulture);
+
+                    lapTimes[driver].Add((int)timeSpan.TotalMilliseconds);
                 }
             }
 

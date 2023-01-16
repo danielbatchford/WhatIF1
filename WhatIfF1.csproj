@@ -248,6 +248,7 @@
     <Resource Include="Resources\Flags\USA.png" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Adapters\LiveTimingParsing\" />
     <Folder Include="Resources\Tracks\" />
     <Folder Include="UI\Windows\XamlElements\" />
   </ItemGroup>

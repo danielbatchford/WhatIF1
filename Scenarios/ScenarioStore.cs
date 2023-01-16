@@ -27,7 +27,7 @@ namespace WhatIfF1.Scenarios
                 throw new ScenarioException($"{nameof(ScenarioStore)} singleton has already been initialised");
             }
 
-            APIResult result = await APIAdapter.GetFromF1API(_year.ToString());
+            APIResult result = await APIAdapter.GetFromErgastAPI($"{_year.ToString()}.json");
 
             if (!result.Success)
             {

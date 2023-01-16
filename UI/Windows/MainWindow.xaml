@@ -625,26 +625,26 @@
                                             Width="30"
                                             Height="30"
                                             Fill="{StaticResource mainColor}"
-                                            Visibility="{Binding EventController.Playing, Converter={StaticResource boolToHiddenVisConverter}}" />
+                                            Visibility="{Binding EventController.Playing, Converter={StaticResource inverseBoolToHiddenVisConverter}}" />
                                         <Image
                                             Width="15"
                                             Height="15"
                                             HorizontalAlignment="Center"
                                             VerticalAlignment="Center"
                                             Source="Icons/Play.ico"
-                                            Visibility="{Binding EventController.Playing, Converter={StaticResource boolToHiddenVisConverter}}" />
+                                            Visibility="{Binding EventController.Playing, Converter={StaticResource inverseBoolToHiddenVisConverter}}" />
                                         <Ellipse
                                             Width="30"
                                             Height="30"
                                             Fill="{StaticResource lightColor}"
-                                            Visibility="{Binding EventController.Playing, Converter={StaticResource inverseBoolToHiddenVisConverter}}" />
+                                            Visibility="{Binding EventController.Playing, Converter={StaticResource boolToHiddenVisConverter}}" />
                                         <Image
                                             Width="15"
                                             Height="15"
                                             HorizontalAlignment="Center"
                                             VerticalAlignment="Center"
                                             Source="Icons/Pause.ico"
-                                            Visibility="{Binding EventController.Playing, Converter={StaticResource inverseBoolToHiddenVisConverter}}" />
+                                            Visibility="{Binding EventController.Playing, Converter={StaticResource boolToHiddenVisConverter}}" />
                                     </Grid>
                                 </Button.Content>
                             </Button>

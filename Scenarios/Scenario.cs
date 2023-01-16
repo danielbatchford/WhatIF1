@@ -228,7 +228,7 @@ namespace WhatIfF1.Scenarios
                 int year = EventDate.Year;
 
                 // Fetch driver data for the event
-                APIResult driverResult = await APIAdapter.GetFromF1API($"{year}/{Round}/results");
+                APIResult driverResult = await APIAdapter.GetFromErgastAPI($"{year}/{Round}/results.json");
 
                 if (driverResult.Equals(APIResult.Fail))
                 {
@@ -248,14 +248,14 @@ namespace WhatIfF1.Scenarios
                 int numLaps = driversJson.Max((driver) => driver["laps"].ToObject<int>());
 
                 // Fetch lap time data for the event
-                APIResult lapTimesResult = await APIAdapter.GetLapsFromF1API(year, Round, numLaps);
+                APIResult lapTimesResult = await APIAdapter.GetFromErgastAPI($"{year}/{Round}/laps.json?limit=10000");
 
                 if (lapTimesResult.Equals(APIResult.Fail))
                 {
                     throw new ScenarioException($"Failed to fetch lap time data for {this}");
                 }
 
-                JArray lapTimesJson = lapTimesResult.Data["laps"].ToObject<JArray>();
+                JArray lapTimesJson = lapTimesResult.Data["MRData"]["RaceTable"]["Races"][0]["Laps"].ToObject<JArray>();
 
                 string modelName = $"{year} - {EventName}";
 
