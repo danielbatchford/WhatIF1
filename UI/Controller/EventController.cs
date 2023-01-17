@@ -176,10 +176,14 @@ namespace WhatIfF1.UI.Controller
 
             if (!Standings.SequenceEqual(newStandings))
             {
+                if(Standings.Count() != newStandings.Count())
+                {
+                    MapProvider.UpdateRetirements(newStandings, Standings);
+                }
+
                 Standings.ReplaceRange(newStandings);
 
                 // Update the selected standing to the lead driver standing if this driver standing is no longer in the race (e.g has retired)
-
                 if (SelectedStanding != null && !Standings.Contains(SelectedStanding))
                 {
                     SelectedStanding = Standings.First();

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
@@ -9,7 +8,6 @@ using WhatIfF1.Adapters;
 using WhatIfF1.Modelling.Events.Drivers;
 using WhatIfF1.Modelling.Tracks;
 using WhatIfF1.Util;
-using WhatIfF1.Util.Enumerables;
 
 namespace WhatIfF1.UI.Controller.TrackMaps
 {
@@ -131,6 +129,29 @@ namespace WhatIfF1.UI.Controller.TrackMaps
             int driverIndex = DriverPoints.Select(dp => dp.Driver).ToList().IndexOf(driver);
 
             DriverPoints[driverIndex].Point = TrackPoints[trackIndex];
+        }
+
+        public void UpdateRetirements(IEnumerable<DriverStanding> newStandings, IEnumerable<DriverStanding> oldStandings)
+        {
+            var newDrivers = newStandings.Select(ds => ds.Driver);
+            var oldDrivers = oldStandings.Select(ds => ds.Driver);
+
+            // Find driver retirements
+            foreach (var driver in oldDrivers)
+            {
+                if (!newDrivers.Contains(driver))
+                {
+                    DriverPoints.Single(dp => dp.Driver.Equals(driver)).IsRetired = true;
+                }
+            }
+
+            foreach(var driver in newDrivers)
+            {
+                if (!oldDrivers.Contains(driver))
+                {
+                    DriverPoints.Single(dp => dp.Driver.Equals(driver)).IsRetired = false;
+                }
+            }
         }
 
         /// <summary>

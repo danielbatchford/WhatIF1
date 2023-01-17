@@ -476,7 +476,7 @@
                                     </ItemsControl.ItemContainerStyle>
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <TextBlock
+                                            <TextBlock Opacity="{Binding Path=Opacity, UpdateSourceTrigger=PropertyChanged}"
                                                 HorizontalAlignment="Left"
                                                 VerticalAlignment="Center"
                                                 FontFamily="{StaticResource boldFont}"
@@ -512,7 +512,7 @@
                                     </ItemsControl.ItemContainerStyle>
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Ellipse
+                                            <Ellipse Opacity="{Binding Path=Opacity, UpdateSourceTrigger=PropertyChanged}"
                                                 Width="30"
                                                 Height="30"
                                                 Fill="{Binding Path=Color, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource colorToBrushConverter}}"
