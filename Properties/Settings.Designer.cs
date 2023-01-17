@@ -26,12 +26,12 @@ namespace WhatIfF1.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("http://ergast.com/api/f1/")]
-        public string f1APIRoot {
+        public string ergastAPIRoot {
             get {
-                return ((string)(this["f1APIRoot"]));
+                return ((string)(this["ergastAPIRoot"]));
             }
             set {
-                this["f1APIRoot"] = value;
+                this["ergastAPIRoot"] = value;
             }
         }
         
@@ -68,6 +68,18 @@ namespace WhatIfF1.Properties {
             }
             set {
                 this["syncfusionLicenseKey"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("https://livetiming.formula1.com/static/")]
+        public string liveTimingAPIRoot {
+            get {
+                return ((string)(this["liveTimingAPIRoot"]));
+            }
+            set {
+                this["liveTimingAPIRoot"] = value;
             }
         }
     }

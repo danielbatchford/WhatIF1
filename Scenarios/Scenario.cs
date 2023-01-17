@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media;
 using WhatIfF1.Adapters;
@@ -225,17 +226,35 @@ namespace WhatIfF1.Scenarios
 
             try
             {
-                int year = EventDate.Year;
+                // Fetches driver data for the event
+                Task < APIResult > driverTask = APIAdapter.GetFromErgastAPI($"{EventDate.Year}/{Round}/results.json");
 
-                // Fetch driver data for the event
-                APIResult driverResult = await APIAdapter.GetFromErgastAPI($"{year}/{Round}/results.json");
+                // Fetches lap time data for the event
+                Task<APIResult> lapTimesTask = APIAdapter.GetFromErgastAPI($"{EventDate.Year}/{Round}/laps.json?limit=10000");
 
-                if (driverResult.Equals(APIResult.Fail))
+                // Fetches velocity data for the event
+                Task<APIResult> velocityTask = APIAdapter.GetVelocityJsonFromLiveTimingAPI(EventDate, EventName);
+
+                await Task.WhenAll(driverTask, lapTimesTask, velocityTask);
+
+                if (driverTask.IsFaulted || driverTask.Result.Equals(APIResult.Fail))
                 {
                     throw new ScenarioException($"Failed to fetch driver data for {this}");
                 }
 
-                JArray driverRaceTable = driverResult.Data["MRData"]["RaceTable"]["Races"].ToObject<JArray>();
+                if (lapTimesTask.IsFaulted || lapTimesTask.Result.Equals(APIResult.Fail))
+                {
+                    throw new ScenarioException($"Failed to fetch lap time data for {this}");
+                }
+
+                if (velocityTask.IsFaulted || velocityTask.Result.Equals(APIResult.Fail))
+                {
+                    throw new ScenarioException($"Failed to fetch velocity data for {this}");
+                }
+
+                JArray driverRaceTable = driverTask.Result.Data["MRData"]["RaceTable"]["Races"].ToObject<JArray>();
+
+                JArray driversJson = driverRaceTable[0]["Results"].ToObject<JArray>();
 
                 // Sometimes happens if the race has not yet occured (e.g race is in the future)
                 if (driverRaceTable.Count == 0)
@@ -243,24 +262,15 @@ namespace WhatIfF1.Scenarios
                     throw new ScenarioException("No race data was found for the selected race. Has this race occured yet?");
                 }
 
-                JArray driversJson = driverRaceTable[0]["Results"].ToObject<JArray>();
+                JArray lapTimesJson = lapTimesTask.Result.Data["MRData"]["RaceTable"]["Races"][0]["Laps"].ToObject<JArray>();
+                JArray velocityJson = velocityTask.Result.Data.ToObject<JArray>();
+
+                string modelName = $"{EventDate.Year} - {EventName}";
 
                 int numLaps = driversJson.Max((driver) => driver["laps"].ToObject<int>());
 
-                // Fetch lap time data for the event
-                APIResult lapTimesResult = await APIAdapter.GetFromErgastAPI($"{year}/{Round}/laps.json?limit=10000");
-
-                if (lapTimesResult.Equals(APIResult.Fail))
-                {
-                    throw new ScenarioException($"Failed to fetch lap time data for {this}");
-                }
-
-                JArray lapTimesJson = lapTimesResult.Data["MRData"]["RaceTable"]["Races"][0]["Laps"].ToObject<JArray>();
-
-                string modelName = $"{year} - {EventName}";
-
                 // Create a new event model from the raw json
-                EventModel model = new EventModel(modelName, Track.TrackLength, driversJson, lapTimesJson);
+                EventModel model = new EventModel(modelName, Track.TrackLength, driversJson, lapTimesJson, velocityJson);
 
                 // Create a new EventController using the event model
                 EventController = new EventController(Track, model);

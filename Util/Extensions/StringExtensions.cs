@@ -1,4 +1,7 @@
-﻿namespace WhatIfF1.Util.Extensions
+﻿using System;
+using System.Linq;
+
+namespace WhatIfF1.Util.Extensions
 {
     public static class StringExtensions
     {

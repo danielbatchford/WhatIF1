@@ -50,7 +50,7 @@ namespace WhatIfF1.Modelling.Events
             }
         }
 
-        public EventModel(string name, double trackLength, JArray driversJson, JArray lapTimesJson)
+        public EventModel(string name, double trackLength, JArray driversJson, JArray lapTimesJson, JArray velocityJson)
         {
             Name = name;
 
