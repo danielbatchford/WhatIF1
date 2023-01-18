@@ -21,7 +21,7 @@ namespace WhatIfF1.Adapters
 
         #endregion LazyInitialization
 
-        private string _resourcesRoot;
+        private readonly string _resourcesRoot;
 
         public string CountryFlagsRoot { get; }
 

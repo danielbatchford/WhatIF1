@@ -125,11 +125,18 @@ namespace WhatIfF1.Adapters
             var lines = raw.Split('\n');
 
             const int timestampLength = 13;
+            const string channelVelocityLabel = "2";
+            const int minNonZerosForRaceStart = 5;
+            JArray outputArray = new JArray();
 
-            JArray entriesArray = new JArray();
+            // Used to infer when the race has started
+            bool raceStarted = false;
+
+            string[] channelKeys = null;
+            int[] velocities = null;
 
             // Ignore last line of text, as it is simply an empty line
-            foreach(string line in lines.Take(lines.Length - 1))
+            foreach (string line in lines.Take(lines.Length - 1))
             {
                 // Indexes account for leading " and tailing \r"
                 string dataString = line.Substring(timestampLength, line.Length - timestampLength - 2);
@@ -144,15 +151,52 @@ namespace WhatIfF1.Adapters
 
                         JToken jsonObj = JToken.Parse(streamReader.ReadToEnd());
 
-                        foreach(JToken entry in jsonObj["Entries"].ToObject<JArray>())
+                        JArray entriesArray = (JArray)jsonObj["Entries"];
+
+                        // Extract driver channel keys here for optimisation if they have not been assigned
+                        if(channelKeys == null)
                         {
-                            entriesArray.Add(entry);
+                            channelKeys = ((JObject)entriesArray[0]["Cars"]).Properties().Select(prop => prop.Name).ToArray();
+                            velocities = new int[channelKeys.Length];
+                        }
+
+                        foreach (JToken fullEntry in entriesArray)
+                        {
+                            int numNonZerosFound = 0;
+
+                            for (int i = 0; i < channelKeys.Length; i++)
+                            {
+                                velocities[i] = (int)fullEntry["Cars"][channelKeys[i]]["Channels"][channelVelocityLabel];
+
+                                if(velocities[i] > 0)
+                                {
+                                    numNonZerosFound++;
+                                }
+                            }
+
+                            if (!raceStarted && numNonZerosFound >= minNonZerosForRaceStart)
+                            {
+                                raceStarted = true;
+                            }
+
+                            if (raceStarted)
+                            {
+                                outputArray.Add(new JObject
+                                {
+                                    ["Utc"] = fullEntry["Utc"],
+                                    ["Velocities"] = new JArray(velocities)
+                                });
+                            }
                         }
                     }
                 }
             }
 
-            return entriesArray;
+            return new JObject
+            {
+                ["ChannelKeys"] = new JArray(channelKeys),
+                ["ChannelValues"] = outputArray
+            };
         }
 
     }

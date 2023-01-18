@@ -89,7 +89,7 @@ namespace WhatIfF1.Scenarios
                 if (_loadRaceCommand is null)
                 {
                     _loadRaceCommand = new CommandHandler(
-                        () => LoadRaceFromAPI(),
+                        () => LoadRace(),
                         () => !IsModelLoading && !IsModelLoaded);
                 }
 
@@ -219,7 +219,7 @@ namespace WhatIfF1.Scenarios
             ScenarioType = ScenarioType.RACE;
         }
 
-        private async void LoadRaceFromAPI()
+        private async void LoadRace()
         {
             Logger.Instance.Info($"Loading race data for the {EventName}");
             IsModelLoading = true;
@@ -264,9 +264,9 @@ namespace WhatIfF1.Scenarios
                     throw new ScenarioException($"Failed to fetch telemetry data for {this}");
                 }
 
-                JArray driverRaceTable = driverTask.Result.Data["MRData"]["RaceTable"]["Races"].ToObject<JArray>();
+                JArray driverRaceTable = (JArray)driverTask.Result.Data["MRData"]["RaceTable"]["Races"];
 
-                JArray driversJson = driverRaceTable[0]["Results"].ToObject<JArray>();
+                JArray driversJson = (JArray)driverRaceTable[0]["Results"];
 
                 // Sometimes happens if the race has not yet occured (e.g race is in the future)
                 if (driverRaceTable.Count == 0)
@@ -274,8 +274,8 @@ namespace WhatIfF1.Scenarios
                     throw new ScenarioException("No race data was found for the selected race. Has this race occured yet?");
                 }
 
-                JArray lapTimesJson = lapTimesTask.Result.Data["MRData"]["RaceTable"]["Races"][0]["Laps"].ToObject<JArray>();
-                JArray telemetryJson = (JArray)telemetryTask.Result.Data;
+                JArray lapTimesJson = (JArray)lapTimesTask.Result.Data["MRData"]["RaceTable"]["Races"][0]["Laps"];
+                JObject telemetryJson = (JObject)telemetryTask.Result.Data;
 
                 // Cache this telemetry data if it is not already cached
                 if (!telemetryCacheFileExists)
