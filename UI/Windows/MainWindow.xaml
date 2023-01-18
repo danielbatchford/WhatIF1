@@ -345,7 +345,7 @@
                         Grid.Row="0"
                         Grid.Column="0"
                         Width="220"
-                        Height="700"
+                        Height="600"
                         Margin="40,40,0,0"
                         HorizontalAlignment="Left"
                         VerticalAlignment="Top"
@@ -476,11 +476,12 @@
                                     </ItemsControl.ItemContainerStyle>
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <TextBlock Opacity="{Binding Path=Opacity, UpdateSourceTrigger=PropertyChanged}"
+                                            <TextBlock
                                                 HorizontalAlignment="Left"
                                                 VerticalAlignment="Center"
                                                 FontFamily="{StaticResource boldFont}"
                                                 FontSize="15"
+                                                Opacity="{Binding Path=Opacity, UpdateSourceTrigger=PropertyChanged}"
                                                 Text="{Binding Path=Driver.DriverLetters}">
                                                 <TextBlock.RenderTransform>
                                                     <TranslateTransform X="20" Y="-10" />
@@ -512,10 +513,11 @@
                                     </ItemsControl.ItemContainerStyle>
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Ellipse Opacity="{Binding Path=Opacity, UpdateSourceTrigger=PropertyChanged}"
+                                            <Ellipse
                                                 Width="30"
                                                 Height="30"
                                                 Fill="{Binding Path=Color, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource colorToBrushConverter}}"
+                                                Opacity="{Binding Path=Opacity, UpdateSourceTrigger=PropertyChanged}"
                                                 Stroke="Black"
                                                 StrokeThickness="3">
                                                 <Ellipse.RenderTransform>

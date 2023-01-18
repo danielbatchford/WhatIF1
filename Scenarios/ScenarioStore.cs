@@ -16,8 +16,6 @@ namespace WhatIfF1.Scenarios
 
         #region StaticInitialization
 
-        private static readonly Lazy<Task<ScenarioStore>> _getStoreASync = new Lazy<Task<ScenarioStore>>(() => InitialiseASync());
-
         public static ScenarioStore Instance { get; private set; }
 
         public static async Task<ScenarioStore> InitialiseASync()
@@ -27,14 +25,14 @@ namespace WhatIfF1.Scenarios
                 throw new ScenarioException($"{nameof(ScenarioStore)} singleton has already been initialised");
             }
 
-            APIResult result = await APIAdapter.GetFromErgastAPI($"{_year.ToString()}.json");
+            FetchResult result = await APIAdapter.GetFromErgastAPI($"{_year.ToString()}.json");
 
             if (!result.Success)
             {
                 throw new ScenarioException($"Failed to load scenarios from {_year} as the API call failed");
             }
 
-            JObject rawJson = result.Data;
+            JToken rawJson = result.Data;
 
             // Access inner race table data from the response
             JArray races = (JArray)rawJson["MRData"]["RaceTable"]["Races"];

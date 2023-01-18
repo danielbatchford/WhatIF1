@@ -127,12 +127,15 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Adapters\APIAdapter.cs" />
-    <Compile Include="Adapters\APIResult.cs" />
+    <Compile Include="Adapters\FetchResult.cs" />
     <Compile Include="Adapters\FileAdapter.cs" />
     <Compile Include="Logging\Logger.cs" />
     <Compile Include="Modelling\Events\Drivers\Constructor.cs" />
     <Compile Include="Modelling\Events\Drivers\Driver.cs" />
     <Compile Include="Modelling\Events\Drivers\DriverModel.cs" />
+    <Compile Include="Modelling\Events\Drivers\Telemetry\TelemetryParser.cs" />
+    <Compile Include="Modelling\Events\Drivers\Telemetry\TelemetryTimeStamp.cs" />
+    <Compile Include="Modelling\Events\Drivers\Telemetry\VelocityDistanceTimeContainer.cs" />
     <Compile Include="Modelling\Events\EventModel.cs" />
     <Compile Include="Modelling\Events\Position.cs" />
     <Compile Include="Modelling\Tires\TireCompound.cs" />
@@ -170,7 +173,9 @@
     <Compile Include="Util\Enumerables\ObservableRangeCollection.cs" />
     <Compile Include="Util\Enumerables\SortableList.cs" />
     <Compile Include="Util\Extensions\ColorExtensions.cs" />
+    <Compile Include="Util\Extensions\DateTimeExtensions.cs" />
     <Compile Include="Util\Extensions\ImageExtensions.cs" />
+    <Compile Include="Util\Extensions\EnumerableExtensions.cs" />
     <Compile Include="Util\Extensions\NumberExtensions.cs" />
     <Compile Include="Util\Extensions\StringExtensions.cs" />
     <Compile Include="Util\NotifyPropertyChangedWrapper.cs" />

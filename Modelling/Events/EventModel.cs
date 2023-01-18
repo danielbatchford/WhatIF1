@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using WhatIfF1.Modelling.Events.Drivers;
+using WhatIfF1.Modelling.Events.Drivers.Telemetry;
 using WhatIfF1.Modelling.Tires;
 using WhatIfF1.UI.Controller;
 using WhatIfF1.Util;
@@ -50,7 +51,7 @@ namespace WhatIfF1.Modelling.Events
             }
         }
 
-        public EventModel(string name, double trackLength, JArray driversJson, JArray lapTimesJson, JArray velocityJson)
+        public EventModel(string name, double trackLength, JArray driversJson, JArray lapTimesJson, JArray telemetryJson)
         {
             Name = name;
 
@@ -90,13 +91,15 @@ namespace WhatIfF1.Modelling.Events
                 }
             }
 
+            var vdtContainers = TelemetryParser.ParseTelemetryJson(drivers, lapTimes, telemetryJson);
+
             // Initialise driver models
 
             _driverModels = new Dictionary<Driver, DriverModel>(NumDrivers);
 
             foreach (Driver driver in drivers)
             {
-                _driverModels.Add(driver, new DriverModel(this, trackLength, lapTimes[driver]));
+                _driverModels.Add(driver, new DriverModel(lapTimes[driver], vdtContainers[driver], trackLength));
             }
 
             // Initialise number of laps as the max of the laps completed by each driver

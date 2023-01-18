@@ -61,18 +61,6 @@ namespace WhatIfF1.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute(@"Mgo+DSMBaFt/QHRqVVhkXlpFdEBBXHxAd1p/VWJYdVt5flBPcDwsT3RfQF5jSH9Vd01gXnxbdHxXQg==;Mgo+DSMBPh8sVXJ0S0J+XE9AdFRDX3xKf0x/TGpQb19xflBPallYVBYiSV9jS31Td0RlWHddd3dQQmlZVQ==;ORg4AjUWIQA/Gnt2VVhkQlFacl1JXGFWfVJpTGpQdk5xdV9DaVZUTWY/P1ZhSXxQdkRiX35Wc3NWQ2VcWUA=;OTUwNTUzQDMyMzAyZTM0MmUzMGRqYVZoeElvQlF4VDgwNjREK1E3V0J0ZnFnNU5lWjRlNnBUdkZrYXJZRDg9;OTUwNTU0QDMyMzAyZTM0MmUzMGlCLzRRTThZeExZWjREbnNRWUp0Z09YSWRWOFdpelFiY2huNG1oL1IybXc9;NRAiBiAaIQQuGjN/V0Z+WE9EaFtAVmJLYVB3WmpQdldgdVRMZVVbQX9PIiBoS35RdUViWHlfeHdSRWVZVkNy;OTUwNTU2QDMyMzAyZTM0MmUzMGVJaG1YRThkZ21UdEhBcUo1NjJtNWM1NU9ZdUdUQmJWUG5yV0pxZHhiajg9;OTUwNTU3QDMyMzAyZTM0MmUzMGl0S1NGUmxTeE1WMU9SWkp0OWFWWXFyZEtXenRORmYwYnlJb1pGT3hVajg9;Mgo+DSMBMAY9C3t2VVhkQlFacl1JXGFWfVJpTGpQdk5xdV9DaVZUTWY/P1ZhSXxQdkRiX35Wc3NWQGFcV0E=;OTUwNTU5QDMyMzAyZTM0MmUzMEFzem5acXd2bUQxaHhHb0ZXdjhpZEErY1NCdXQ0L3RFMWt0ZThqdFdRekU9;OTUwNTYwQDMyMzAyZTM0MmUzMG1aSWg2aU53UEpYSTJISCtKQUtla01JVXRHTlZoOFRjdFgxOUpPci9IakU9;OTUwNTYxQDMyMzAyZTM0MmUzMGVJaG1YRThkZ21UdEhBcUo1NjJtNWM1NU9ZdUdUQmJWUG5yV0pxZHhiajg9")]
-        public string syncfusionLicenseKey {
-            get {
-                return ((string)(this["syncfusionLicenseKey"]));
-            }
-            set {
-                this["syncfusionLicenseKey"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("https://livetiming.formula1.com/static/")]
         public string liveTimingAPIRoot {
             get {

@@ -1,27 +1,28 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using WhatIfF1.Util.Extensions;
+using WhatIfF1.Modelling.Events.Drivers.Telemetry;
 
 namespace WhatIfF1.Modelling.Events.Drivers
 {
     public class DriverModel
     {
-        public EventModel ParentModel { get; }
-
         private readonly double _trackLength;
 
         private readonly IList<int> _lapTimes;
+
+        private readonly IList<VelocityDistanceTimeContainer> _vdtContainers;
 
         public int NoOfLaps { get; }
 
         public int TotalTime { get; }
 
-        public DriverModel(EventModel parentModel, double trackLength, IEnumerable<int> lapTimes)
+        public DriverModel(IEnumerable<int> lapTimes, IEnumerable<VelocityDistanceTimeContainer> vdtContainers, double trackLength)
         {
-            ParentModel = parentModel;
-            _trackLength = trackLength;
-
             _lapTimes = lapTimes.ToList();
+
+            _vdtContainers = vdtContainers.ToList();
+
+            _trackLength = trackLength;
 
             NoOfLaps = _lapTimes.Count;
 
@@ -48,13 +49,11 @@ namespace WhatIfF1.Modelling.Events.Drivers
 
             int lapMs = totalMs;
 
-            // Interpolate the distance travelled around the lap based on the current time in the lap - TODO - correct model
-            double lapDistance = NumberExtensions.InterpolateLinear(lapMs, 0, _lapTimes[lapIndex], 0, _trackLength);
+            var vdtContainer = _vdtContainers[lapIndex];
+
+            vdtContainer.GetVDTData(lapMs, out int forecastLapTime, out double lapFraction, out int lapDistance);
 
             double totalDistance = (lapIndex * _trackLength) + lapDistance;
-
-            double lapFraction = lapDistance / _trackLength;
-            int forecastLapTime = _lapTimes[lapIndex];
 
             position = new Position(totalMs, lapMs, lapIndex + 1, forecastLapTime, lapFraction, totalDistance, lapDistance, _trackLength);
             return true;

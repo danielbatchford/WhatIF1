@@ -227,29 +227,41 @@ namespace WhatIfF1.Scenarios
             try
             {
                 // Fetches driver data for the event
-                Task < APIResult > driverTask = APIAdapter.GetFromErgastAPI($"{EventDate.Year}/{Round}/results.json");
+                Task < FetchResult > driverTask = APIAdapter.GetFromErgastAPI($"{EventDate.Year}/{Round}/results.json");
 
                 // Fetches lap time data for the event
-                Task<APIResult> lapTimesTask = APIAdapter.GetFromErgastAPI($"{EventDate.Year}/{Round}/laps.json?limit=10000");
+                Task<FetchResult> lapTimesTask = APIAdapter.GetFromErgastAPI($"{EventDate.Year}/{Round}/laps.json?limit=10000");
 
-                // Fetches velocity data for the event
-                Task<APIResult> velocityTask = APIAdapter.GetVelocityJsonFromLiveTimingAPI(EventDate, EventName);
+                // Fetches telemetry data for the event, from the cache if possible
+                Task<FetchResult> telemetryTask;
 
-                await Task.WhenAll(driverTask, lapTimesTask, velocityTask);
+                bool telemetryCacheFileExists = FileAdapter.Instance.TelemetryCacheFileExists(EventName, EventDate);
+                if (telemetryCacheFileExists)
+                {
+                    Logger.Instance.Info("Fetching telemetry data from cache");
+                    telemetryTask = FileAdapter.Instance.LoadTelemetryCacheFileAsync(EventName, EventDate); 
+                }
+                else
+                {
+                    Logger.Instance.Info("Fetching telemetry data from live timing API");
+                    telemetryTask = APIAdapter.GetTelemetryJsonFromLiveTimingAPI(EventName, EventDate);
+                }
 
-                if (driverTask.IsFaulted || driverTask.Result.Equals(APIResult.Fail))
+                await Task.WhenAll(driverTask, lapTimesTask, telemetryTask);
+
+                if (driverTask.IsFaulted || driverTask.Result.Equals(FetchResult.Fail))
                 {
                     throw new ScenarioException($"Failed to fetch driver data for {this}");
                 }
 
-                if (lapTimesTask.IsFaulted || lapTimesTask.Result.Equals(APIResult.Fail))
+                if (lapTimesTask.IsFaulted || lapTimesTask.Result.Equals(FetchResult.Fail))
                 {
                     throw new ScenarioException($"Failed to fetch lap time data for {this}");
                 }
 
-                if (velocityTask.IsFaulted || velocityTask.Result.Equals(APIResult.Fail))
+                if (telemetryTask.IsFaulted || telemetryTask.Result.Equals(FetchResult.Fail))
                 {
-                    throw new ScenarioException($"Failed to fetch velocity data for {this}");
+                    throw new ScenarioException($"Failed to fetch telemetry data for {this}");
                 }
 
                 JArray driverRaceTable = driverTask.Result.Data["MRData"]["RaceTable"]["Races"].ToObject<JArray>();
@@ -263,19 +275,25 @@ namespace WhatIfF1.Scenarios
                 }
 
                 JArray lapTimesJson = lapTimesTask.Result.Data["MRData"]["RaceTable"]["Races"][0]["Laps"].ToObject<JArray>();
-                JArray velocityJson = velocityTask.Result.Data.ToObject<JArray>();
+                JArray telemetryJson = (JArray)telemetryTask.Result.Data;
+
+                // Cache this telemetry data if it is not already cached
+                if (!telemetryCacheFileExists)
+                {
+                    Logger.Instance.Info("Writing telemetry data to cache");
+                    _ = Task.Run(() => FileAdapter.Instance.WriteTelemetryCacheFile(EventName, EventDate, telemetryJson));
+                }
 
                 string modelName = $"{EventDate.Year} - {EventName}";
 
                 int numLaps = driversJson.Max((driver) => driver["laps"].ToObject<int>());
 
                 // Create a new event model from the raw json
-                EventModel model = new EventModel(modelName, Track.TrackLength, driversJson, lapTimesJson, velocityJson);
+                EventModel model = new EventModel(modelName, Track.TrackLength, driversJson, lapTimesJson, telemetryJson);
 
                 // Create a new EventController using the event model
                 EventController = new EventController(Track, model);
 
-                IsModelLoading = false;
                 IsModelLoaded = true;
 
                 Logger.Instance.Info($"Loaded race data for the {EventName}");
@@ -283,6 +301,9 @@ namespace WhatIfF1.Scenarios
             catch (ScenarioException e)
             {
                 Logger.Instance.Exception(e);
+            }
+            finally
+            {
                 IsModelLoading = false;
             }
         }

@@ -2,21 +2,21 @@
 
 namespace WhatIfF1.Adapters
 {
-    public class APIResult
+    public class FetchResult
     {
-        public JObject Data { get; }
+        public JToken Data { get; }
 
         public bool Success { get; }
 
-        public static APIResult Fail => new APIResult();
+        public static FetchResult Fail => new FetchResult();
 
-        public APIResult(JObject data)
+        public FetchResult(JToken data)
         {
             Data = data;
             Success = true;
         }
 
-        private APIResult()
+        private FetchResult()
         {
             Success = false;
         }

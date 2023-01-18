@@ -1,8 +1,12 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
+using WhatIfF1.Logging;
 
 namespace WhatIfF1.Adapters
 {
@@ -27,6 +31,8 @@ namespace WhatIfF1.Adapters
 
         public string ConstructorPicsRoot { get; }
 
+        public string TelemetryCacheRoot { get; }
+
         private FileAdapter()
         {
             // TODO - THIS!!!!
@@ -41,6 +47,61 @@ namespace WhatIfF1.Adapters
             TrackLayoutsRoot = GetAndDebugResourcePath("Tracks", "tracks");
             DriverPicsRoot = GetAndDebugResourcePath("Drivers", "drivers");
             ConstructorPicsRoot = GetAndDebugResourcePath("Constructors", "constructors");
+
+            string roamingPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            TelemetryCacheRoot = Path.Combine(roamingPath, ((App)System.Windows.Application.Current).AppName, "TelemetryCache");
+
+            if (!Directory.Exists(TelemetryCacheRoot))
+            {
+                Directory.CreateDirectory(TelemetryCacheRoot);
+                Logger.Instance.Info($"Created cache root at \"{TelemetryCacheRoot}\" as it did not exist");
+            }
+        }
+
+        public IEnumerable<string> ReadLines(string path, bool ignoreEmptyLines = false)
+        {
+            IEnumerable<string> lines = File.ReadAllLines(path, Encoding.UTF8);
+
+            if (ignoreEmptyLines)
+            {
+                return lines.Where(line => !string.IsNullOrEmpty(line));
+            }
+            else
+            {
+                return lines;
+            }
+        }
+
+        public bool TelemetryCacheFileExists(string eventName, DateTime eventDate)
+        {
+            return File.Exists(GetCacheFileName(eventName, eventDate));
+        }
+
+        public async Task<FetchResult> LoadTelemetryCacheFileAsync(string eventName, DateTime eventDate)
+        {
+            string cachePath = GetCacheFileName(eventName, eventDate);
+
+            using (StreamReader file = File.OpenText(cachePath))
+            {
+                using (JsonTextReader jsonReader = new JsonTextReader(file))
+                {
+                    JToken loaded = await JToken.ReadFromAsync(jsonReader);
+                    return new FetchResult(loaded);
+                }
+            }
+        }
+
+        public void WriteTelemetryCacheFile(string eventName, DateTime eventDate, JToken telemetryJson)
+        {
+            string cachePath = GetCacheFileName(eventName, eventDate);
+
+            using (FileStream stream = new FileStream(cachePath, FileMode.Create))
+            {
+                using (StreamWriter streamWriter = new StreamWriter(stream))
+                {
+                    streamWriter.Write(telemetryJson.ToString(Formatting.Indented));
+                }
+            }
         }
 
         private string GetAndDebugResourcePath(string folderName, string debugName)
@@ -56,18 +117,9 @@ namespace WhatIfF1.Adapters
             return fullPath;
         }
 
-        public static IEnumerable<string> ReadLines(string path, bool ignoreEmptyLines = false)
+        private string GetCacheFileName(string eventName, DateTime eventDate)
         {
-            IEnumerable<string> lines = File.ReadAllLines(path, Encoding.UTF8);
-
-            if (ignoreEmptyLines)
-            {
-                return lines.Where(line => !string.IsNullOrEmpty(line));
-            }
-            else
-            {
-                return lines;
-            }
+            return Path.Combine(TelemetryCacheRoot, $"{eventName} - {eventDate.Year}.json");
         }
     }
 }

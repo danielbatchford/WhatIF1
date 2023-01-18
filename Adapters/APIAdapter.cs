@@ -20,7 +20,7 @@ namespace WhatIfF1.Adapters
         private static readonly string _ergastAPIRoot = (string)Properties.Settings.Default["ergastAPIRoot"];
         private static readonly string _liveTimingAPIRoot = (string)Properties.Settings.Default["liveTimingAPIRoot"];
 
-        private static async Task<APIResult> GetJson(string baseAddress, string relativeAddress)
+        private static async Task<FetchResult> GetJson(string baseAddress, string relativeAddress)
         {
             HttpResponseMessage response;
 
@@ -34,7 +34,7 @@ namespace WhatIfF1.Adapters
                 if (!response.IsSuccessStatusCode)
                 {
                     Logger.Instance.Error($"Received invalid success code: {response.ReasonPhrase}");
-                    return APIResult.Fail;
+                    return FetchResult.Fail;
                 }
             }
 
@@ -47,23 +47,23 @@ namespace WhatIfF1.Adapters
                 responseString = responseString.TrimStart(new char[] { 'b', '\'' }).TrimEnd('\'');
             }
 
-            if (TryParseResponseJson(responseString, out JObject json))
+            if (TryParseResponseJson(responseString, out JToken json))
             {
-                return new APIResult(json);
+                return new FetchResult(json);
             }
             else
             {
                 Logger.Instance.Error("Failed to parse the response json");
-                return APIResult.Fail;
+                return FetchResult.Fail;
             }
         }
 
-        public static async Task<APIResult> GetFromErgastAPI(string relativeAddress)
+        public static async Task<FetchResult> GetFromErgastAPI(string relativeAddress)
         {
             return await GetJson(_ergastAPIRoot, relativeAddress);
         }
 
-        public static async Task<APIResult> GetVelocityJsonFromLiveTimingAPI(DateTime eventDate, string eventName)
+        public static async Task<FetchResult> GetTelemetryJsonFromLiveTimingAPI(string eventName, DateTime eventDate)
         {
             string dateString = eventDate.ToString("yyyy-MM-dd");
 
@@ -80,7 +80,7 @@ namespace WhatIfF1.Adapters
                 if (!response.IsSuccessStatusCode)
                 {
                     Logger.Instance.Error($"Received invalid success code: {response.ReasonPhrase}");
-                    return APIResult.Fail;
+                    return FetchResult.Fail;
                 }
             }
 
@@ -89,21 +89,21 @@ namespace WhatIfF1.Adapters
             try
             {
                 // Response data needs to be decoded here
-                JObject json = DecodeLiveTimingAPIResultString(responseString);
-                return new APIResult(json);
+                JToken json = DecodeLiveTimingAPIResultToJson(responseString);
+                return new FetchResult(json);
             }
             catch (Exception e)
             {
                 Logger.Instance.Error($"Failed to parse live timing response text: {e.Message}");
-                return APIResult.Fail;
+                return FetchResult.Fail;
             }
 
         }
-        private static bool TryParseResponseJson(string responseString, out JObject json)
+        private static bool TryParseResponseJson(string responseString, out JToken json)
         {
             try
             {
-                json = JObject.Parse(responseString);
+                json = JToken.Parse(responseString);
                 return true;
 
             }
@@ -120,16 +120,13 @@ namespace WhatIfF1.Adapters
         /// See https://github.com/theOehrly/Fast-F1, api.py for parsing logic
         /// </summary>
         /// <returns>JObject of decoded data</returns>
-        private static JObject DecodeLiveTimingAPIResultString(string raw)
+        private static JToken DecodeLiveTimingAPIResultToJson(string raw)
         {
-            // TODO - remove 
-            // File.WriteAllText(@"C:\Users\Daniel Batchford\Desktop\test.txt", raw);
-
             var lines = raw.Split('\n');
 
             const int timestampLength = 13;
 
-            StringBuilder resultBuilder = new StringBuilder();
+            JArray entriesArray = new JArray();
 
             // Ignore last line of text, as it is simply an empty line
             foreach(string line in lines.Take(lines.Length - 1))
@@ -143,18 +140,19 @@ namespace WhatIfF1.Adapters
                 {
                     using(Stream uncompressedStream = new DeflateStream(compressedStream, CompressionMode.Decompress))
                     {
-                        StreamReader reader = new StreamReader(uncompressedStream, Encoding.UTF8);
-                        resultBuilder.Append(reader.ReadToEnd());
+                        StreamReader streamReader = new StreamReader(uncompressedStream, Encoding.UTF8);
+
+                        JToken jsonObj = JToken.Parse(streamReader.ReadToEnd());
+
+                        foreach(JToken entry in jsonObj["Entries"].ToObject<JArray>())
+                        {
+                            entriesArray.Add(entry);
+                        }
                     }
                 }
             }
 
-            // TODO - remove 
-            // File.WriteAllText(@"C:\Users\Daniel Batchford\Desktop\testdecoded.json", resultBuilder.ToString());
-
-            JObject primitive = JObject.Parse(resultBuilder.ToString());
-
-            return new JObject();
+            return entriesArray;
         }
 
     }

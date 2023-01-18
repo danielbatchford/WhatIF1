@@ -15,7 +15,7 @@ namespace WhatIfF1.UI.Controller.TrackMaps
     {
         private static readonly IDictionary<Track, PointCollection> _cachedTracks = new Dictionary<Track, PointCollection>();
 
-        private static readonly Rect _boundingBox = new Rect(0, 0, 1050, 600);
+        private static readonly Rect _boundingBox = new Rect(0, 0, 950, 500);
 
         private static readonly int _pointsReductionFactor = 15;
 
@@ -36,7 +36,7 @@ namespace WhatIfF1.UI.Controller.TrackMaps
 
             // Else, parse the track
 
-            var lines = FileAdapter.ReadLines(track.TrackFilePath, true);
+            var lines = FileAdapter.Instance.ReadLines(track.TrackFilePath, true);
 
             // List to store unnormalised points from file
             var rawPoints = new List<Point>();
