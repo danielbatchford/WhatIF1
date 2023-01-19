@@ -1,8 +1,6 @@
-﻿using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -11,7 +9,6 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using WhatIfF1.Logging;
-using WhatIfF1.Util.Extensions;
 
 namespace WhatIfF1.Adapters
 {
@@ -42,7 +39,7 @@ namespace WhatIfF1.Adapters
 
             // Sometimes, the response string is wrapped in b''
             // Remove this if this is the case
-            if(responseString.StartsWith("b\'") && responseString.EndsWith("'"))
+            if (responseString.StartsWith("b\'") && responseString.EndsWith("'"))
             {
                 responseString = responseString.TrimStart(new char[] { 'b', '\'' }).TrimEnd('\'');
             }
@@ -145,7 +142,7 @@ namespace WhatIfF1.Adapters
 
                 using (Stream compressedStream = new MemoryStream(toDecode))
                 {
-                    using(Stream uncompressedStream = new DeflateStream(compressedStream, CompressionMode.Decompress))
+                    using (Stream uncompressedStream = new DeflateStream(compressedStream, CompressionMode.Decompress))
                     {
                         StreamReader streamReader = new StreamReader(uncompressedStream, Encoding.UTF8);
 
@@ -154,7 +151,7 @@ namespace WhatIfF1.Adapters
                         JArray entriesArray = (JArray)jsonObj["Entries"];
 
                         // Extract driver channel keys here for optimisation if they have not been assigned
-                        if(channelKeys == null)
+                        if (channelKeys == null)
                         {
                             channelKeys = ((JObject)entriesArray[0]["Cars"]).Properties().Select(prop => prop.Name).ToArray();
                             velocities = new int[channelKeys.Length];
@@ -168,7 +165,7 @@ namespace WhatIfF1.Adapters
                             {
                                 velocities[i] = (int)fullEntry["Cars"][channelKeys[i]]["Channels"][channelVelocityLabel];
 
-                                if(velocities[i] > 0)
+                                if (velocities[i] > 0)
                                 {
                                     numNonZerosFound++;
                                 }

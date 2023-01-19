@@ -1,18 +1,138 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using WhatIfF1.Util.Extensions;
 
 namespace WhatIfF1.Modelling.Events.Drivers.Telemetry
 {
     public class VelocityDistanceTimeContainer
     {
+        /// <summary>
+        /// Factor for converting kph to meters per millisecond
+        /// </summary>
+        private const double _kphToMperMsFactor = 0.000277778;
 
-        public VelocityDistanceTimeContainer(IEnumerable<TelemetryTimeStamp> timeStamp)
+        private readonly int _lap;
+
+        private readonly double _trackLength;
+
+        private readonly int[] _ms;
+
+        private readonly double[] _velocity;
+
+        private double[] _distance;
+
+        private readonly int _n;
+
+        private bool _isIntegrated;
+
+        public VelocityDistanceTimeContainer(int lap, double trackLength, IEnumerable<TelemetryTimeStamp> timeStamps)
         {
+            _lap = lap;
+            _trackLength = trackLength;
+            _ms = timeStamps.Select(ts => ts.Ms).ToArray();
+            _velocity = timeStamps.Select(ts => ts.Velocity).ToArray();
+            _n = _ms.Length;
         }
 
-        public void GetVDTData(int lapMs, out int forecastLapTime, out double lapFraction, out int lapDistance)
+        public void GetLapDistanceAndVelocity(int lapMs, out double lapDistance, out double velocity)
         {
-            throw new NotImplementedException();
+            if (!_isIntegrated)
+            {
+                IntegrateVelocity();
+            }
+
+            int closestIndex = _ms.FindClosestIndex(lapMs);
+
+            // When requested ms is outside the bounds of the defined ms in the data
+            if(closestIndex == _n - 1)
+            {
+                lapDistance = _distance[_n - 1];
+                velocity = _velocity[_n - 1];
+                return;
+            }
+            else if(closestIndex == 0)
+            {
+                lapDistance = _distance[0];
+                velocity = _velocity[0];
+                return;
+            }
+
+            // 2 cases here - closest index is greater than lapMs or closet index is less than lapMs
+            int definedMs = _ms[closestIndex];
+
+            int upperIdx;
+            int lowerIdx;
+
+            if(definedMs == lapMs)
+            {
+                lapDistance = _distance[closestIndex];
+                velocity = _velocity[closestIndex];
+                return;
+            }
+
+            if(definedMs > lapMs)
+            {
+                upperIdx = closestIndex;
+                lowerIdx = closestIndex - 1;
+            }
+            else
+            {
+                upperIdx = closestIndex + 1;
+                lowerIdx = closestIndex;
+            }
+
+            // Linear interpolate distance based on requested ms and bordering ms
+            double propAlongRange = (double)(lapMs - _ms[lowerIdx] ) / (_ms[upperIdx] - _ms[lowerIdx]);
+            lapDistance = _distance[lowerIdx] +  propAlongRange * (_distance[upperIdx] - _distance[lowerIdx]);
+            velocity = _velocity[lowerIdx] + propAlongRange * (_distance[upperIdx] - _distance[lowerIdx]);
+        }
+
+        private void IntegrateVelocity()
+        {
+            _distance = new double[_n];
+
+            _distance[0] = 0;
+
+            for (int i = 1; i < _n; i++)
+            {
+                double dt = (_ms[i] - _ms[i - 1]);
+                _distance[i] = _distance[i - 1] + 0.5 * dt * ((_velocity[i - 1] + _velocity[i]) * _kphToMperMsFactor);
+            }
+
+            // Distance here needs to be scaled to the track length (as racing lines differ from track length)
+            double scaleFactor = _trackLength / _distance[_n - 1];
+
+            for (int i = 0; i < _n; i++)
+            {
+                _distance[i] *= scaleFactor;
+            }
+
+            _isIntegrated = true;
+        }
+
+        public override string ToString()
+        {
+            return $"Lap {_lap}, {_n} samples";
+        }
+
+        // TODO - remove
+        public void DumpToCSV(string dir, string name)
+        {
+            StringBuilder sb = new StringBuilder("Ms,Velocity\n");
+
+            for (int i = 0; i < _n; i++)
+            {
+                sb.AppendLine($"{_ms[i]},{_velocity[i]}");
+            }
+
+            if (!Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
+            File.WriteAllText(Path.Combine(dir, name), sb.ToString());
         }
     }
 }

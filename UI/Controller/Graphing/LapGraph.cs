@@ -1,6 +1,4 @@
-﻿using WhatIfF1.Modelling.Events;
-
-namespace WhatIfF1.UI.Controller.Graphing
+﻿namespace WhatIfF1.UI.Controller.Graphing
 {
     public class LapGraph : XYGraph
     {
@@ -18,7 +16,7 @@ namespace WhatIfF1.UI.Controller.Graphing
             int driverLap = _parentController.Model.GetCurrentLap(_parentController.CurrentTime, TargetDriver);
 
             string xTitle;
-            if(driverLap < leaderLap)
+            if (driverLap < leaderLap)
             {
 
                 string pluralString = leaderLap - driverLap == 1 ? string.Empty : "s";

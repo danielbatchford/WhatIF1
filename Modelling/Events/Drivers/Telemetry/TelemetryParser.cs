@@ -2,16 +2,21 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using WhatIfF1.Util.Extensions;
 
 namespace WhatIfF1.Modelling.Events.Drivers.Telemetry
 {
-    public static class TelemetryParser
+    public class TelemetryParser
     {
-        public static IDictionary<Driver, IList<VelocityDistanceTimeContainer>> ParseTelemetryJson(IEnumerable<Driver> drivers, IDictionary<Driver, ICollection<int>> lapTimes, JObject telemetryJson)
+        private readonly double _trackLength;
+
+        public TelemetryParser(double trackLength)
+        {
+            _trackLength = trackLength;
+        }
+
+        public IDictionary<Driver, IList<VelocityDistanceTimeContainer>> ParseTelemetryJson(IEnumerable<Driver> drivers, IDictionary<Driver, ICollection<int>> lapTimes, JObject telemetryJson)
         {
             JArray channelValues = (JArray)telemetryJson["ChannelValues"];
 
@@ -44,45 +49,118 @@ namespace WhatIfF1.Modelling.Events.Drivers.Telemetry
                 }
             }
 
+            var vdtContainers = BuildVDTContainersDict(rawTimeStampsDict, lapTimes);
+
             // TODO - remove
-            /*
-            foreach(Driver driver in drivers)
+            foreach (var driver in vdtContainers.Keys)
             {
-                string path = Path.Combine(@"C:\Users\Daniel Batchford\Desktop\temp", $"{driver.DriverLetters}.csv");
-
-                StringBuilder stringBuilder = new StringBuilder();
-
-                foreach(var ts in rawTimeStampsDict[driver])
+                for (int i = 0; i < vdtContainers[driver].Count; i++)
                 {
-                    stringBuilder.AppendLine($"{ts.Ms}, {ts.Velocity}");
+                    vdtContainers[driver][i].DumpToCSV($@"C:\Users\Daniel Batchford\Desktop\temp\{driver.DriverLetters}", $"{i + 1}.csv");
                 }
-
-                File.WriteAllText(path, stringBuilder.ToString());
             }
-            */
-
-            return drivers.ToDictionary(driver => driver, driver => BuildVDTContainers(rawTimeStampsDict[driver], lapTimes[driver].ToList()));
+            return vdtContainers;
         }
 
-        public static IList<VelocityDistanceTimeContainer> BuildVDTContainers(IList<TelemetryTimeStamp> timeStamps, IList<int> lapTimes) 
+        private IDictionary<Driver, IList<VelocityDistanceTimeContainer>> BuildVDTContainersDict(IDictionary<Driver, List<TelemetryTimeStamp>> allTimeStampsDict, IDictionary<Driver, ICollection<int>> lapTimesDict)
         {
-            int currentLapIdx = 0;
-            int cumulativeLapSum = lapTimes[0];
+            allTimeStampsDict = CutoffPreRaceTimeStamps(allTimeStampsDict);
 
-            var splitIndexes = new List<int>(lapTimes.Count - 1);
+            var vdtContainersDict = new Dictionary<Driver, IList<VelocityDistanceTimeContainer>>(allTimeStampsDict.Count);
 
-            for (int i = 0; i < timeStamps.Count; i++)
+            foreach (Driver driver in allTimeStampsDict.Keys)
             {
-                if (timeStamps[i].Ms > cumulativeLapSum)
+                vdtContainersDict.Add(driver, BuildVDTContainersList(allTimeStampsDict[driver], lapTimesDict[driver].ToList()));
+            }
+
+            return vdtContainersDict;
+        }
+
+        private IList<VelocityDistanceTimeContainer> BuildVDTContainersList(List<TelemetryTimeStamp> timeStamps, List<int> lapTimes)
+        {
+            var vdtContainers = new List<VelocityDistanceTimeContainer>(lapTimes.Count);
+            int currentLapIdx = 0;
+            int cumulativeLapTime = lapTimes[0];
+            int msLapOffset = 0;
+            var timeStampsForLap = new List<TelemetryTimeStamp>();
+
+            bool nonZeroVelocityFound = false;
+
+            foreach (var timeStamp in timeStamps)
+            {
+                if (timeStamp.Ms < cumulativeLapTime)
                 {
-                    splitIndexes.Add(i);
+                    timeStampsForLap.Add(new TelemetryTimeStamp { Ms = timeStamp.Ms - msLapOffset, Velocity = timeStamp.Velocity });
+
+                    if (timeStamp.Velocity > 0)
+                    {
+                        nonZeroVelocityFound = true;
+                    }
+                }
+                else
+                {
+                    // Move on to next lap
+                    vdtContainers.Add(new VelocityDistanceTimeContainer(currentLapIdx + 1, _trackLength, timeStampsForLap));
+                    msLapOffset += timeStampsForLap[timeStampsForLap.Count - 1].Ms;
+                    timeStampsForLap.Clear();
                     currentLapIdx++;
-                    cumulativeLapSum += lapTimes[currentLapIdx];
+
+                    // If all timestamps have v = 0, the car has retired, or if end of race is reached, return
+                    if (currentLapIdx == lapTimes.Count || !nonZeroVelocityFound)
+                    {
+                        return vdtContainers;
+                    }
+
+                    else
+                    {
+                        cumulativeLapTime += lapTimes[currentLapIdx];
+                        nonZeroVelocityFound = false;
+                    }
                 }
             }
 
-            IList<List<TelemetryTimeStamp>> splitTimeStamps = timeStamps.SplitByIndexList(splitIndexes);
-            return splitTimeStamps.Select(timeStamp => new VelocityDistanceTimeContainer(timeStamp)).ToList();
+            throw new ArgumentException("Provided timestamps range did not fill full range of lap times");
+        }
+
+        /// <summary>
+        /// Cut off all samples from lap to grid / formation lap - first sample should be the start of the race
+        /// </summary>
+        /// <param name="allTimeStampsDict"></param>
+        private IDictionary<Driver, List<TelemetryTimeStamp>> CutoffPreRaceTimeStamps(IDictionary<Driver, List<TelemetryTimeStamp>> allTimeStampsDict)
+        {
+            int nSamples = allTimeStampsDict.First().Value.Count;
+
+            var drivers = allTimeStampsDict.Keys.ToList();
+            var allTimeStamps = allTimeStampsDict.Values.ToList();
+
+            var allCarsStationary = Enumerable.Repeat(true, nSamples).ToList();
+
+
+            foreach (var timestamps in allTimeStamps)
+            {
+                for (int i = 0; i < nSamples; i++)
+                {
+                    allCarsStationary[i] = allCarsStationary[i] && timestamps[i].Velocity == 0;
+                }
+            }
+
+            // The race start index here is defined as the index of the last true value in the allCarsStationary list
+            int lastStationaryIdx = allCarsStationary.LastIndexOf(true);
+
+            int msOffset = allTimeStamps[0][lastStationaryIdx].Ms;
+
+            IDictionary<Driver, List<TelemetryTimeStamp>> outputTimeStamps = new Dictionary<Driver, List<TelemetryTimeStamp>>(drivers.Count);
+
+            for (int driverIdx = 0; driverIdx < drivers.Count; driverIdx++)
+            {
+                var timeStamps = allTimeStamps[driverIdx];
+
+                var offsetCutoffTimeStamps = timeStamps.GetRange(lastStationaryIdx, timeStamps.Count - lastStationaryIdx);
+                offsetCutoffTimeStamps = offsetCutoffTimeStamps.ConvertAll(ts => new TelemetryTimeStamp { Ms = ts.Ms - msOffset, Velocity = ts.Velocity });
+                outputTimeStamps.Add(drivers[driverIdx], offsetCutoffTimeStamps);
+            }
+
+            return outputTimeStamps;
         }
     }
 }

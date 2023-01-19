@@ -1,6 +1,4 @@
-﻿using WhatIfF1.Util;
-
-namespace WhatIfF1.UI.Controller
+﻿namespace WhatIfF1.UI.Controller
 {
     public class PlaybackParameterContainer
     {

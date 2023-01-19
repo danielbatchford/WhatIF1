@@ -77,7 +77,7 @@ namespace WhatIfF1.Modelling.Events
                     // If no element is found, this implies the driver has retired from the race
                     JToken timingObject = lapTimeJson["Timings"].SingleOrDefault(timing => timing["driverId"].ToObject<string>().Equals(driver.DriverID));
 
-                    if(timingObject == default)
+                    if (timingObject == default)
                     {
                         continue;
                     }
@@ -91,7 +91,9 @@ namespace WhatIfF1.Modelling.Events
                 }
             }
 
-            var vdtContainers = TelemetryParser.ParseTelemetryJson(drivers, lapTimes, telemetryJson);
+            var telemetryParser = new TelemetryParser(trackLength);
+
+            var vdtContainers = telemetryParser.ParseTelemetryJson(drivers, lapTimes, telemetryJson);
 
             // Initialise driver models
 
@@ -174,7 +176,7 @@ namespace WhatIfF1.Modelling.Events
 
                 int racePos = i + 1;
 
-                standings.Add(new DriverStanding(driver, racePos, gapToLead, gapToNextCar, carPos.PropOfLap, TireCompoundStore.SoftTyre));
+                standings.Add(new DriverStanding(driver, racePos, gapToLead, gapToNextCar, carPos.LapDistanceFraction, carPos.Velocity, TireCompoundStore.SoftTyre));
             }
 
             return standings;
@@ -204,7 +206,7 @@ namespace WhatIfF1.Modelling.Events
             if (lapDelta == 0)
             {
                 // Return time based off reference forecast and proportion of lap between cars
-                return (int)((reference.PropOfLap - car.PropOfLap) * reference.ForecastLapTime);
+                return (int)((reference.LapDistanceFraction - car.LapDistanceFraction) * reference.ForecastLapTime);
             }
 
             int gap = 0;
@@ -212,7 +214,7 @@ namespace WhatIfF1.Modelling.Events
             if (lapDelta > 0)
             {
                 // Add on delta from car to end of lap
-                gap += (int)((1 - car.PropOfLap) * reference.ForecastLapTime);
+                gap += (int)((1 - car.LapDistanceFraction) * reference.ForecastLapTime);
 
                 // Add on delta from start of lap to reference
                 gap += reference.LapMs;

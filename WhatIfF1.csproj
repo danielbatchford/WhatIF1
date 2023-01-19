@@ -169,6 +169,7 @@
     <Compile Include="UI\Controller\EventControllerException.cs" />
     <Compile Include="UI\Converters\SToMsConverter.cs" />
     <Compile Include="UI\Converters\ToFormattedTimeConverter.cs" />
+    <Compile Include="UI\Converters\ToIntConverter.cs" />
     <Compile Include="Util\CommandHandler.cs" />
     <Compile Include="Util\Enumerables\ObservableRangeCollection.cs" />
     <Compile Include="Util\Enumerables\SortableList.cs" />

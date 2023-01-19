@@ -6,28 +6,31 @@ namespace WhatIfF1.Modelling.Events
     {
         public int TotalMs { get; }
         public int LapMs { get; }
-        public int ForecastLapTime { get; }
         public int Lap { get; }
+        public int ForecastLapTime { get; }
+        public double Velocity { get; }
         public double TotalDistance { get; }
         public double LapDistance { get; }
         public double TrackLength { get; }
-        public double PropOfLap { get; }
+        public double LapDistanceFraction { get; }
 
-        public Position(int totalMs, int lapMs, int lap, int forecastLapTime, double lapFraction, double totalDistance, double lapDistance, double trackLength)
+        public Position(int totalMs, int lapMs, int lap, int forecastLapTime, double velocity, double totalDistance, double lapDistance, double trackLength)
         {
             TotalMs = totalMs;
             LapMs = lapMs;
-            ForecastLapTime = forecastLapTime;
-            PropOfLap = lapFraction;
             Lap = lap;
+            ForecastLapTime = forecastLapTime;
+            Velocity = velocity;
             TotalDistance = totalDistance;
             LapDistance = lapDistance;
             TrackLength = trackLength;
+
+            LapDistanceFraction = lapDistance / trackLength;
         }
 
         public override string ToString()
         {
-            return $"Lap: {Lap}, Total Ms: {TotalMs}, Total Dist: {TotalDistance}, Lap Ms: {LapMs}, Lap Dist: {LapDistance}, Lap %: {PropOfLap}, Forecast Lap Time: {ForecastLapTime}";
+            return $"Lap: {Lap}, Total Ms: {TotalMs}, Total Dist: {TotalDistance}, Lap Ms: {LapMs}, Lap Dist: {LapDistance}, Lap %: {LapDistanceFraction}, Forecast Lap Time: {ForecastLapTime}";
         }
 
         public bool Equals(Position other)
@@ -36,10 +39,11 @@ namespace WhatIfF1.Modelling.Events
                 && LapMs == other.LapMs
                 && TotalMs == other.TotalMs
                 && ForecastLapTime == other.ForecastLapTime
+                && Velocity == other.Velocity
                 && TotalDistance == other.TotalDistance
                 && LapDistance == other.LapDistance
                 && TrackLength == other.TrackLength
-                && PropOfLap == other.PropOfLap;
+                && LapDistanceFraction == other.LapDistanceFraction;
         }
 
         public int CompareTo(Position other)

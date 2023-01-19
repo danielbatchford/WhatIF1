@@ -91,9 +91,9 @@ namespace WhatIfF1.UI.Controller
         public DriverStanding SelectedStanding
         {
             get => _selectedStanding;
-            set 
+            set
             {
-                if(_selectedStanding != null && _selectedStanding.Equals(value))
+                if (_selectedStanding != null && _selectedStanding.Equals(value))
                 {
                     return;
                 }
@@ -109,9 +109,9 @@ namespace WhatIfF1.UI.Controller
         public bool Playing
         {
             get => _playing;
-            set 
+            set
             {
-                if(_playing == value)
+                if (_playing == value)
                 {
                     return;
                 }
@@ -127,7 +127,7 @@ namespace WhatIfF1.UI.Controller
         {
             get
             {
-                if(_playPauseCommand is null)
+                if (_playPauseCommand is null)
                 {
                     _playPauseCommand = new CommandHandler(() => Playing = !Playing, () => true);
                 }
@@ -176,7 +176,7 @@ namespace WhatIfF1.UI.Controller
 
             if (!Standings.SequenceEqual(newStandings))
             {
-                if(Standings.Count() != newStandings.Count())
+                if (Standings.Count() != newStandings.Count())
                 {
                     MapProvider.UpdateRetirements(newStandings, Standings);
                 }

@@ -3,7 +3,6 @@ using System.Configuration;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Threading;
 using WhatIfF1.Logging;
 
 namespace WhatIfF1
@@ -27,7 +26,8 @@ namespace WhatIfF1
 
             Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(syncfusionKey);
 
-            AppDomain.CurrentDomain.UnhandledException += (s, e) => {
+            AppDomain.CurrentDomain.UnhandledException += (s, e) =>
+            {
 
                 Logger.Instance.Exception((Exception)e.ExceptionObject);
             };

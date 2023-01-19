@@ -17,7 +17,7 @@ namespace WhatIfF1.UI.Controller.TrackMaps
         public Point Point
         {
             get => _point;
-            set 
+            set
             {
                 if (_point.Equals(value))
                 {
@@ -60,9 +60,9 @@ namespace WhatIfF1.UI.Controller.TrackMaps
         public double Opacity
         {
             get => _opacity;
-            set 
+            set
             {
-                if(_opacity == value)
+                if (_opacity == value)
                 {
                     return;
                 }

@@ -677,7 +677,10 @@
                     </Grid>
                 </Grid>
 
-                <Grid Grid.Row="1" Grid.Column="0">
+                <Grid
+                    Grid.Row="1"
+                    Grid.Column="0"
+                    IsEnabled="{Binding EventController.SelectedStanding, Converter={StaticResource isNotNullConverter}}">
 
                     <Rectangle
                         Height="2"
@@ -767,6 +770,8 @@
                             <Grid>
 
                                 <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto" />
+                                    <ColumnDefinition Width="auto" />
                                     <ColumnDefinition Width="auto" />
                                     <ColumnDefinition Width="auto" />
                                     <ColumnDefinition Width="auto" />
@@ -941,7 +946,6 @@
 
                                 </Grid>
 
-
                                 <Rectangle
                                     Grid.Row="0"
                                     Grid.Column="5"
@@ -958,6 +962,63 @@
                                         </LinearGradientBrush>
                                     </Rectangle.OpacityMask>
                                 </Rectangle>
+
+                                <Grid
+                                    Grid.Row="0"
+                                    Grid.Column="6"
+                                    Margin="{StaticResource defaultMargin}"
+                                    VerticalAlignment="Center">
+
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="auto" />
+                                        <RowDefinition Height="auto" />
+                                        <RowDefinition Height="auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto" />
+                                        <ColumnDefinition Width="auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock
+                                        Grid.Row="0"
+                                        Grid.Column="0"
+                                        Margin="{StaticResource defaultMargin}"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Center"
+                                        FontFamily="{StaticResource regularFont}"
+                                        FontSize="20"
+                                        Text="Velocity:" />
+                                    <TextBlock
+                                        Grid.Row="0"
+                                        Grid.Column="1"
+                                        Margin="{StaticResource defaultMargin}"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Center"
+                                        FontFamily="{StaticResource regularFont}"
+                                        FontSize="20"
+                                        FontStyle="Italic"
+                                        Text="{Binding Velocity, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0} KPH, Converter={StaticResource toIntConverter}}" />
+
+                                </Grid>
+
+                                <Rectangle
+                                    Grid.Row="0"
+                                    Grid.Column="7"
+                                    Width="2"
+                                    Margin="20,5,20,5"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Stretch"
+                                    Fill="{StaticResource lightColor}">
+                                    <Rectangle.OpacityMask>
+                                        <LinearGradientBrush StartPoint="0.5, 0" EndPoint="0.5,1">
+                                            <GradientStop Offset="0.1" Color="Transparent" />
+                                            <GradientStop Offset="0.5" Color="Black" />
+                                            <GradientStop Offset="0.9" Color="Transparent" />
+                                        </LinearGradientBrush>
+                                    </Rectangle.OpacityMask>
+                                </Rectangle>
+
 
                             </Grid>
 

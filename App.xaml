@@ -26,6 +26,7 @@
         <converters:MsToSConverter x:Key="msToSConverter" />
         <converters:SToMsConverter x:Key="sToMsConverter" />
         <converters:DriverMapPointToPointsConverter x:Key="driverMapPointToPointsConverter" />
+        <converters:ToIntConverter x:Key="toIntConverter" />
 
         <SolidColorBrush x:Key="mainColor" Color="Firebrick" />
         <SolidColorBrush x:Key="lightColor" Color="LightGray" />

@@ -145,7 +145,7 @@ namespace WhatIfF1.UI.Controller.TrackMaps
                 }
             }
 
-            foreach(var driver in newDrivers)
+            foreach (var driver in newDrivers)
             {
                 if (!oldDrivers.Contains(driver))
                 {

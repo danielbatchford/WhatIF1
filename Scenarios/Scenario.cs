@@ -227,7 +227,7 @@ namespace WhatIfF1.Scenarios
             try
             {
                 // Fetches driver data for the event
-                Task < FetchResult > driverTask = APIAdapter.GetFromErgastAPI($"{EventDate.Year}/{Round}/results.json");
+                Task<FetchResult> driverTask = APIAdapter.GetFromErgastAPI($"{EventDate.Year}/{Round}/results.json");
 
                 // Fetches lap time data for the event
                 Task<FetchResult> lapTimesTask = APIAdapter.GetFromErgastAPI($"{EventDate.Year}/{Round}/laps.json?limit=10000");
@@ -239,7 +239,7 @@ namespace WhatIfF1.Scenarios
                 if (telemetryCacheFileExists)
                 {
                     Logger.Instance.Info("Fetching telemetry data from cache");
-                    telemetryTask = FileAdapter.Instance.LoadTelemetryCacheFileAsync(EventName, EventDate); 
+                    telemetryTask = FileAdapter.Instance.LoadTelemetryCacheFileAsync(EventName, EventDate);
                 }
                 else
                 {

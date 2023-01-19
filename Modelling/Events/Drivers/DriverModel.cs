@@ -49,13 +49,13 @@ namespace WhatIfF1.Modelling.Events.Drivers
 
             int lapMs = totalMs;
 
-            var vdtContainer = _vdtContainers[lapIndex];
-
-            vdtContainer.GetVDTData(lapMs, out int forecastLapTime, out double lapFraction, out int lapDistance);
+            _vdtContainers[lapIndex].GetLapDistanceAndVelocity(lapMs, out double lapDistance, out double velocity);
 
             double totalDistance = (lapIndex * _trackLength) + lapDistance;
 
-            position = new Position(totalMs, lapMs, lapIndex + 1, forecastLapTime, lapFraction, totalDistance, lapDistance, _trackLength);
+            int forecastLapTime = _lapTimes[lapIndex];
+
+            position = new Position(totalMs, lapMs, lapIndex + 1, forecastLapTime, velocity, totalDistance, lapDistance, _trackLength);
             return true;
         }
     }

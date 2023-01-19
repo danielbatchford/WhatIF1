@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using WhatIfF1.Modelling.Events;
+﻿using System.Collections.Generic;
 using WhatIfF1.Modelling.Events.Drivers;
 using WhatIfF1.UI.Controller.Graphing.SeriesData;
 using WhatIfF1.Util;
@@ -21,7 +19,7 @@ namespace WhatIfF1.UI.Controller.Graphing
             get => _targetDriver;
             set
             {
-                if(_targetDriver == value)
+                if (_targetDriver == value)
                 {
                     return;
                 }
@@ -37,7 +35,7 @@ namespace WhatIfF1.UI.Controller.Graphing
         public string XTitle
         {
             get => _xTitle;
-            set 
+            set
             {
                 if (_xTitle == value)
                 {
@@ -53,9 +51,9 @@ namespace WhatIfF1.UI.Controller.Graphing
         public string YTitle
         {
             get => _yTitle;
-            set 
+            set
             {
-                if(_yTitle == value)
+                if (_yTitle == value)
                 {
                     return;
                 }
@@ -71,7 +69,7 @@ namespace WhatIfF1.UI.Controller.Graphing
             XTitle = xTitle;
             YTitle = yTitle;
 
-            Data = new List<XYDataPoint<double>> ();
+            Data = new List<XYDataPoint<double>>();
         }
 
         public void Clear()

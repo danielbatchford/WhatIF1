@@ -1,6 +1,4 @@
-﻿using WhatIfF1.Modelling.Events;
-
-namespace WhatIfF1.UI.Controller.Graphing
+﻿namespace WhatIfF1.UI.Controller.Graphing
 {
     public class VelocityLapGraph : LapGraph
     {

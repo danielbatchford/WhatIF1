@@ -103,19 +103,37 @@ namespace WhatIfF1.UI.Controller
             }
         }
 
-        public DriverStanding(Driver driver, int racePosition, int gapToLead, int gapToNextCar, double proportionOfLap, TireCompound tireCompound)
+        private double _velocity;
+
+        public double Velocity
+        {
+            get => _velocity;
+            set 
+            {
+                if(_velocity == value)
+                {
+                    return;
+                }
+                _velocity = value;
+                OnPropertyChanged();
+            }
+        }
+
+
+        public DriverStanding(Driver driver, int racePosition, int gapToLead, int gapToNextCar, double proportionOfLap, double velocity, TireCompound tireCompound)
         {
             Driver = driver;
             RacePosition = racePosition;
             GapToLead = gapToLead;
             GapToNextCar = gapToNextCar;
             ProportionOfLap = proportionOfLap;
+            Velocity = velocity;
             TireCompound = tireCompound;
         }
 
         public bool Equals(DriverStanding other)
         {
-            if(other is null)
+            if (other is null)
             {
                 return false;
             }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using WhatIfF1.Modelling.Events;
 using WhatIfF1.Modelling.Events.Drivers;
 using WhatIfF1.Util;
 
@@ -20,7 +19,7 @@ namespace WhatIfF1.UI.Controller.Graphing
         public XYGraph Graph
         {
             get => _graph;
-            set 
+            set
             {
                 _graph = value;
                 OnPropertyChanged();
@@ -40,11 +39,11 @@ namespace WhatIfF1.UI.Controller.Graphing
         {
             int leaderLap = _parentController.CurrentLap;
 
-            if(leaderLap < 1)
+            if (leaderLap < 1)
             {
                 throw new GraphException("Cannot set lap to lap < 1");
             }
-            if(leaderLap > _parentController.Model.NoOfLaps)
+            if (leaderLap > _parentController.Model.NoOfLaps)
             {
                 throw new GraphException($"Cannot set lap as it exceeded the number of laps in the parent model (Got {leaderLap} laps, model has {_parentController.Model.NoOfLaps} laps)");
             }
