@@ -101,7 +101,6 @@ namespace WhatIfF1.Adapters
             {
                 json = JToken.Parse(responseString);
                 return true;
-
             }
             catch (JsonReaderException e)
             {

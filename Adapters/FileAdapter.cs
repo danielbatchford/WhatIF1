@@ -1,18 +1,14 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using WhatIfF1.Logging;
 
 namespace WhatIfF1.Adapters
 {
     public sealed class FileAdapter
     {
-
         #region LazyInitialization
 
         public static FileAdapter Instance => _lazy.Value;

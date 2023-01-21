@@ -129,7 +129,7 @@ namespace WhatIfF1.Modelling.Events
             {
                 if (_driverModels[driver].TryGetPositionAtTime(timeMs, out Position driverPos))
                 {
-                    driverPositions.Add((a: driver, driverPos));
+                    driverPositions.Add((driver, driverPos));
                 }
             }
 
@@ -205,8 +205,7 @@ namespace WhatIfF1.Modelling.Events
 
             if (lapDelta == 0)
             {
-                // Return time based off reference forecast and proportion of lap between cars
-                return (int)((reference.LapDistanceFraction - car.LapDistanceFraction) * reference.ForecastLapTime);
+                return (int)((reference.LapTimeFraction - car.LapTimeFraction) * reference.ForecastLapTime);
             }
 
             int gap = 0;
@@ -214,7 +213,7 @@ namespace WhatIfF1.Modelling.Events
             if (lapDelta > 0)
             {
                 // Add on delta from car to end of lap
-                gap += (int)((1 - car.LapDistanceFraction) * reference.ForecastLapTime);
+                gap += (int)((1 - car.LapTimeFraction) * reference.ForecastLapTime);
 
                 // Add on delta from start of lap to reference
                 gap += reference.LapMs;
@@ -223,7 +222,6 @@ namespace WhatIfF1.Modelling.Events
             {
                 // Add on complete laps based on reference forecast
                 gap += reference.ForecastLapTime * (lapDelta - 2);
-
             }
 
             return gap;

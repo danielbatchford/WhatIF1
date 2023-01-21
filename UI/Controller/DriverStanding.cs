@@ -108,9 +108,9 @@ namespace WhatIfF1.UI.Controller
         public double Velocity
         {
             get => _velocity;
-            set 
+            set
             {
-                if(_velocity == value)
+                if (_velocity == value)
                 {
                     return;
                 }

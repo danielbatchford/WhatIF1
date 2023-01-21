@@ -13,6 +13,8 @@ namespace WhatIfF1.Modelling.Events
         public double LapDistance { get; }
         public double TrackLength { get; }
         public double LapDistanceFraction { get; }
+        public double LapTimeFraction { get; }
+
 
         public Position(int totalMs, int lapMs, int lap, int forecastLapTime, double velocity, double totalDistance, double lapDistance, double trackLength)
         {
@@ -26,6 +28,7 @@ namespace WhatIfF1.Modelling.Events
             TrackLength = trackLength;
 
             LapDistanceFraction = lapDistance / trackLength;
+            LapTimeFraction = (double)LapMs / ForecastLapTime;
         }
 
         public override string ToString()

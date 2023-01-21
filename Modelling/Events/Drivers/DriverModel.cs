@@ -32,11 +32,12 @@ namespace WhatIfF1.Modelling.Events.Drivers
         public bool TryGetPositionAtTime(int totalMs, out Position position)
         {
             int lapIndex = 0;
+            int msCounter = totalMs;
 
             // Find the lap index based on the total time elapsed
-            while (totalMs >= _lapTimes[lapIndex])
+            while (msCounter >= _lapTimes[lapIndex])
             {
-                totalMs -= _lapTimes[lapIndex];
+                msCounter -= _lapTimes[lapIndex];
                 lapIndex++;
 
                 // Implys car has retired, cannot fetch position for lap greater than the laps travelled by this driver
@@ -47,7 +48,7 @@ namespace WhatIfF1.Modelling.Events.Drivers
                 }
             }
 
-            int lapMs = totalMs;
+            int lapMs = msCounter;
 
             _vdtContainers[lapIndex].GetLapDistanceAndVelocity(lapMs, out double lapDistance, out double velocity);
 

@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using WhatIfF1.Util.Extensions;
 
 namespace WhatIfF1.Modelling.Events.Drivers.Telemetry
@@ -47,13 +44,13 @@ namespace WhatIfF1.Modelling.Events.Drivers.Telemetry
             int closestIndex = _ms.FindClosestIndex(lapMs);
 
             // When requested ms is outside the bounds of the defined ms in the data
-            if(closestIndex == _n - 1)
+            if (closestIndex == _n - 1)
             {
                 lapDistance = _distance[_n - 1];
                 velocity = _velocity[_n - 1];
                 return;
             }
-            else if(closestIndex == 0)
+            else if (closestIndex == 0)
             {
                 lapDistance = _distance[0];
                 velocity = _velocity[0];
@@ -66,14 +63,14 @@ namespace WhatIfF1.Modelling.Events.Drivers.Telemetry
             int upperIdx;
             int lowerIdx;
 
-            if(definedMs == lapMs)
+            if (definedMs == lapMs)
             {
                 lapDistance = _distance[closestIndex];
                 velocity = _velocity[closestIndex];
                 return;
             }
 
-            if(definedMs > lapMs)
+            if (definedMs > lapMs)
             {
                 upperIdx = closestIndex;
                 lowerIdx = closestIndex - 1;
@@ -85,8 +82,8 @@ namespace WhatIfF1.Modelling.Events.Drivers.Telemetry
             }
 
             // Linear interpolate distance based on requested ms and bordering ms
-            double propAlongRange = (double)(lapMs - _ms[lowerIdx] ) / (_ms[upperIdx] - _ms[lowerIdx]);
-            lapDistance = _distance[lowerIdx] +  propAlongRange * (_distance[upperIdx] - _distance[lowerIdx]);
+            double propAlongRange = (double)(lapMs - _ms[lowerIdx]) / (_ms[upperIdx] - _ms[lowerIdx]);
+            lapDistance = _distance[lowerIdx] + propAlongRange * (_distance[upperIdx] - _distance[lowerIdx]);
             velocity = _velocity[lowerIdx] + propAlongRange * (_distance[upperIdx] - _distance[lowerIdx]);
         }
 
@@ -116,23 +113,6 @@ namespace WhatIfF1.Modelling.Events.Drivers.Telemetry
         public override string ToString()
         {
             return $"Lap {_lap}, {_n} samples";
-        }
-
-        // TODO - remove
-        public void DumpToCSV(string dir, string name)
-        {
-            StringBuilder sb = new StringBuilder("Ms,Velocity\n");
-
-            for (int i = 0; i < _n; i++)
-            {
-                sb.AppendLine($"{_ms[i]},{_velocity[i]}");
-            }
-
-            if (!Directory.Exists(dir))
-            {
-                Directory.CreateDirectory(dir);
-            }
-            File.WriteAllText(Path.Combine(dir, name), sb.ToString());
         }
     }
 }

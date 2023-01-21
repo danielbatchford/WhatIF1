@@ -49,17 +49,7 @@ namespace WhatIfF1.Modelling.Events.Drivers.Telemetry
                 }
             }
 
-            var vdtContainers = BuildVDTContainersDict(rawTimeStampsDict, lapTimes);
-
-            // TODO - remove
-            foreach (var driver in vdtContainers.Keys)
-            {
-                for (int i = 0; i < vdtContainers[driver].Count; i++)
-                {
-                    vdtContainers[driver][i].DumpToCSV($@"C:\Users\Daniel Batchford\Desktop\temp\{driver.DriverLetters}", $"{i + 1}.csv");
-                }
-            }
-            return vdtContainers;
+            return BuildVDTContainersDict(rawTimeStampsDict, lapTimes);
         }
 
         private IDictionary<Driver, IList<VelocityDistanceTimeContainer>> BuildVDTContainersDict(IDictionary<Driver, List<TelemetryTimeStamp>> allTimeStampsDict, IDictionary<Driver, ICollection<int>> lapTimesDict)
@@ -134,7 +124,6 @@ namespace WhatIfF1.Modelling.Events.Drivers.Telemetry
             var allTimeStamps = allTimeStampsDict.Values.ToList();
 
             var allCarsStationary = Enumerable.Repeat(true, nSamples).ToList();
-
 
             foreach (var timestamps in allTimeStamps)
             {

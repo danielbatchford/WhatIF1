@@ -305,6 +305,5 @@ namespace WhatIfF1.Scenarios
         {
             return EventName;
         }
-
     }
 }

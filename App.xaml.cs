@@ -28,10 +28,8 @@ namespace WhatIfF1
 
             AppDomain.CurrentDomain.UnhandledException += (s, e) =>
             {
-
                 Logger.Instance.Exception((Exception)e.ExceptionObject);
             };
-
 
             DispatcherUnhandledException += (s, e) =>
             {
