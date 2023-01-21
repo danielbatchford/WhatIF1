@@ -127,8 +127,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Adapters\APIAdapter.cs" />
+    <Compile Include="Adapters\APIEventCacheWorker.cs" />
     <Compile Include="Adapters\FetchResult.cs" />
     <Compile Include="Adapters\FileAdapter.cs" />
+    <Compile Include="Adapters\IApiCacheable.cs" />
     <Compile Include="Logging\Logger.cs" />
     <Compile Include="Modelling\Events\Drivers\Constructor.cs" />
     <Compile Include="Modelling\Events\Drivers\Driver.cs" />
@@ -307,5 +309,15 @@
     <Resource Include="UI\Windows\Icons\Pause.ico" />
     <Resource Include="UI\Windows\Icons\Play.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <ContentWithTargetPath Include="Resources\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\%(RecursiveDir)%(Filename)%(Extension)</TargetPath>
+    </ContentWithTargetPath>
+</ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
 </Project>

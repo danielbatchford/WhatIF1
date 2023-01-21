@@ -94,7 +94,6 @@ namespace WhatIfF1.Adapters
                 Logger.Instance.Error($"Failed to parse live timing response text: {e.Message}");
                 return FetchResult.Fail;
             }
-
         }
         private static bool TryParseResponseJson(string responseString, out JToken json)
         {

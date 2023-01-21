@@ -123,23 +123,23 @@ namespace WhatIfF1.Modelling.Events
 
         public IEnumerable<DriverStanding> GetStandingsAtTime(int timeMs, out int currentLap)
         {
-            var driverPositions = new List<(Driver, Position)>();
+            var driverPositions = new List<(Driver driver, Position position)>();
 
             foreach (Driver driver in _driverModels.Keys)
             {
                 if (_driverModels[driver].TryGetPositionAtTime(timeMs, out Position driverPos))
                 {
-                    driverPositions.Add((driver, driverPos));
+                    driverPositions.Add((a: driver, driverPos));
                 }
             }
 
-            currentLap = driverPositions.Max(tup => tup.Item2.Lap);
+            currentLap = driverPositions.Max(tup => tup.position.Lap);
 
             // Sort positions into current race order
             driverPositions.Sort((tupa, tupb) =>
             {
-                Position a = tupa.Item2;
-                Position b = tupb.Item2;
+                Position a = tupa.position;
+                Position b = tupb.position;
 
                 return a.CompareTo(b);
             });
@@ -150,12 +150,12 @@ namespace WhatIfF1.Modelling.Events
 
             var standings = new List<DriverStanding>(driverPositions.Count);
 
-            Position leadCarPos = driverPositions[0].Item2;
+            Position leadCarPos = driverPositions[0].position;
 
             for (int i = 0; i < driverPositions.Count; i++)
             {
-                Driver driver = driverPositions[i].Item1;
-                Position carPos = driverPositions[i].Item2;
+                Driver driver = driverPositions[i].driver;
+                Position carPos = driverPositions[i].position;
 
                 int gapToNextCar;
                 int gapToLead;
@@ -168,7 +168,7 @@ namespace WhatIfF1.Modelling.Events
                 }
                 else
                 {
-                    Position nextCarPos = driverPositions[i - 1].Item2;
+                    Position nextCarPos = driverPositions[i - 1].position;
 
                     gapToNextCar = CalculateGap(carPos, nextCarPos);
                     gapToLead = CalculateGap(carPos, leadCarPos);

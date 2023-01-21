@@ -226,28 +226,19 @@ namespace WhatIfF1.Scenarios
 
             try
             {
-                // Fetches driver data for the event
-                Task<FetchResult> driverTask = APIAdapter.GetFromErgastAPI($"{EventDate.Year}/{Round}/results.json");
+                var driverApiTask = APIAdapter.GetFromErgastAPI($"{EventDate.Year}/{Round}/results.json");
+                var lapTimesApiTask = APIAdapter.GetFromErgastAPI($"{EventDate.Year}/{Round}/laps.json?limit=10000");
+                var telemetryApiTask = APIAdapter.GetTelemetryJsonFromLiveTimingAPI(EventName, EventDate);
 
-                // Fetches lap time data for the event
-                Task<FetchResult> lapTimesTask = APIAdapter.GetFromErgastAPI($"{EventDate.Year}/{Round}/laps.json?limit=10000");
+                var driverWorker = new APIEventCacheWorker(driverApiTask, "Drivers", "Drivers", $"{EventDate.Year}-{Round:D2}.json");
+                var lapTimesWorker = new APIEventCacheWorker(lapTimesApiTask, "LapTimes", "Lap Times", $"{EventDate.Year}-{Round:D2}.json");
+                var telemetryWorker = new APIEventCacheWorker(telemetryApiTask, "Telemetry", "Telemetry", $"{EventName}-{EventDate:dd-MM-yy}.json");
 
-                // Fetches telemetry data for the event, from the cache if possible
-                Task<FetchResult> telemetryTask;
+                var driverTask = driverWorker.GetDataTask();
+                var lapTimesTask = lapTimesWorker.GetDataTask();
+                var telemetryTask = telemetryWorker.GetDataTask();
 
-                bool telemetryCacheFileExists = FileAdapter.Instance.TelemetryCacheFileExists(EventName, EventDate);
-                if (telemetryCacheFileExists)
-                {
-                    Logger.Instance.Info("Fetching telemetry data from cache");
-                    telemetryTask = FileAdapter.Instance.LoadTelemetryCacheFileAsync(EventName, EventDate);
-                }
-                else
-                {
-                    Logger.Instance.Info("Fetching telemetry data from live timing API");
-                    telemetryTask = APIAdapter.GetTelemetryJsonFromLiveTimingAPI(EventName, EventDate);
-                }
-
-                await Task.WhenAll(driverTask, lapTimesTask, telemetryTask);
+                await Task.WhenAll(driverTask, lapTimesTask, telemetryApiTask);
 
                 if (driverTask.IsFaulted || driverTask.Result.Equals(FetchResult.Fail))
                 {
@@ -276,13 +267,6 @@ namespace WhatIfF1.Scenarios
 
                 JArray lapTimesJson = (JArray)lapTimesTask.Result.Data["MRData"]["RaceTable"]["Races"][0]["Laps"];
                 JObject telemetryJson = (JObject)telemetryTask.Result.Data;
-
-                // Cache this telemetry data if it is not already cached
-                if (!telemetryCacheFileExists)
-                {
-                    Logger.Instance.Info("Writing telemetry data to cache");
-                    _ = Task.Run(() => FileAdapter.Instance.WriteTelemetryCacheFile(EventName, EventDate, telemetryJson));
-                }
 
                 string modelName = $"{EventDate.Year} - {EventName}";
 

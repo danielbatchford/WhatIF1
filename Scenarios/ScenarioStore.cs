@@ -24,7 +24,10 @@ namespace WhatIfF1.Scenarios
                 throw new ScenarioException($"{nameof(ScenarioStore)} singleton has already been initialised");
             }
 
-            FetchResult result = await APIAdapter.GetFromErgastAPI($"{_year.ToString()}.json");
+            var fetchTask = APIAdapter.GetFromErgastAPI($"{_year}.json");
+            var scenarioWorker = new APIEventCacheWorker(fetchTask, "Events", "Events", $"{_year}.json");
+
+            FetchResult result = await scenarioWorker.GetDataTask();
 
             if (!result.Success)
             {
