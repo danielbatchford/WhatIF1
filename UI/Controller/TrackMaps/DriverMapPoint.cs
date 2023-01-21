@@ -8,8 +8,6 @@ namespace WhatIfF1.UI.Controller.TrackMaps
 {
     public class DriverMapPoint : NotifyPropertyChangedWrapper, IDriverMapPoint
     {
-        private const double _retiredOpacity = 0.6;
-
         public IDriver Driver { get; }
 
         public Color Color { get; }
@@ -29,29 +27,18 @@ namespace WhatIfF1.UI.Controller.TrackMaps
             }
         }
 
-        private bool _isRetired;
-        public bool IsRetired
+        private bool _isNotRunning;
+        public bool IsNotRunning
         {
-            get => _isRetired;
+            get => _isNotRunning;
             set
             {
-                if (_isRetired == value)
+                if (_isNotRunning == value)
                 {
                     return;
                 }
 
-                _isRetired = value;
-
-                // Update opacity based on the state of retirement
-                if (value)
-                {
-                    Opacity = _retiredOpacity;
-                }
-                else
-                {
-                    Opacity = 1;
-                }
-
+                _isNotRunning = value;
                 OnPropertyChanged();
             }
         }
@@ -67,7 +54,6 @@ namespace WhatIfF1.UI.Controller.TrackMaps
                 {
                     return;
                 }
-
                 _opacity = value;
                 OnPropertyChanged();
             }
@@ -79,8 +65,6 @@ namespace WhatIfF1.UI.Controller.TrackMaps
             Point = point;
             Color = driver.Constructor.Color;
             Opacity = 1;
-
-            IsRetired = false;
         }
     }
 }

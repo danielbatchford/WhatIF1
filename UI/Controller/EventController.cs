@@ -3,6 +3,7 @@ using System.Linq;
 using System.Windows.Input;
 using System.Windows.Threading;
 using WhatIfF1.Logging;
+using WhatIfF1.Modelling.Events.Drivers;
 using WhatIfF1.Modelling.Events.Interfaces;
 using WhatIfF1.Modelling.Tracks.Interfaces;
 using WhatIfF1.Scenarios.Exceptions;
@@ -20,7 +21,7 @@ namespace WhatIfF1.UI.Controller
     {
         private readonly DispatcherTimer _timer;
 
-        private readonly PlaybackParameterContainer _playbackParams;
+        private readonly IPlaybackParameterContainer _playbackParams;
 
         private IEventModel _model;
 
@@ -174,24 +175,26 @@ namespace WhatIfF1.UI.Controller
 
             if (!Standings.SequenceEqual(newStandings))
             {
-                if (Standings.Count() != newStandings.Count())
-                {
-                    MapProvider.UpdateRetirements(newStandings, Standings);
-                }
-
                 Standings.ReplaceRange(newStandings);
 
-                // Update the selected standing to the lead driver standing if this driver standing is no longer in the race (e.g has retired)
-                if (SelectedStanding != null && !Standings.Contains(SelectedStanding))
+                MapProvider.UpdateNotRunning(Standings);
+
+                // Update the selected standing to the lead driver standing if this driver standing is no longer in the race (e.g has retired or finished)
+                if (SelectedStanding != null && SelectedStanding.State != RunningState.RUNNING)
                 {
-                    SelectedStanding = Standings.First();
+                    var firstOrDefaultStanding = Standings.FirstOrDefault(standing => standing.State == RunningState.RUNNING);
+
+                    if (firstOrDefaultStanding != default)
+                    {
+                        SelectedStanding = firstOrDefaultStanding;
+                    }
                 }
             }
 
             // Update driver positions on the map
             foreach (DriverStanding standing in Standings)
             {
-                MapProvider.UpdateDriverMapPosition(standing.Driver, standing.ProportionOfLap);
+                MapProvider.UpdateDriverMapPosition(standing);
             }
         }
 
@@ -204,10 +207,12 @@ namespace WhatIfF1.UI.Controller
         {
             if (SelectedStanding != null)
             {
+                MapProvider.ToSelectedDriverMode(SelectedStanding.Driver);
                 GraphProvider.UpdateCurrentDriver(SelectedStanding.Driver);
             }
             else
             {
+                MapProvider.ClearSelectedDriverMode();
                 GraphProvider.RemoveCurrentDriver();
             }
         }

@@ -482,6 +482,7 @@
                                                 VerticalAlignment="Center"
                                                 FontFamily="{StaticResource boldFont}"
                                                 FontSize="15"
+                                                IsEnabled="{Binding IsNotRunning, Converter={StaticResource inverseBoolConverter}}"
                                                 Opacity="{Binding Path=Opacity, UpdateSourceTrigger=PropertyChanged}"
                                                 Text="{Binding Path=Driver.DriverLetters}">
                                                 <TextBlock.RenderTransform>
@@ -518,6 +519,7 @@
                                                 Width="30"
                                                 Height="30"
                                                 Fill="{Binding Path=Color, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource colorToBrushConverter}}"
+                                                IsEnabled="{Binding IsNotRunning, Converter={StaticResource inverseBoolConverter}}"
                                                 Opacity="{Binding Path=Opacity, UpdateSourceTrigger=PropertyChanged}"
                                                 Stroke="Black"
                                                 StrokeThickness="3">

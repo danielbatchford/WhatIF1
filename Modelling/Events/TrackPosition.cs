@@ -4,6 +4,11 @@ namespace WhatIfF1.Modelling.Events
 {
     public sealed class TrackPosition : IEquatable<TrackPosition>, IComparable<TrackPosition>
     {
+        public static TrackPosition OnStartLinePosition(int totalMs, int lap, double trackLength)
+        {
+            return new TrackPosition(totalMs, 0, lap, 0, 0, lap * trackLength, 0, trackLength);
+        }
+
         public int TotalMs { get; }
         public int LapMs { get; }
         public int Lap { get; }
@@ -27,7 +32,7 @@ namespace WhatIfF1.Modelling.Events
             TrackLength = trackLength;
 
             LapDistanceFraction = lapDistance / trackLength;
-            LapTimeFraction = (double)LapMs / ForecastLapTime;
+            LapTimeFraction = ForecastLapTime > 0 ? (double)LapMs / ForecastLapTime : 0;
         }
 
         public override string ToString()
@@ -50,7 +55,7 @@ namespace WhatIfF1.Modelling.Events
 
         public int CompareTo(TrackPosition other)
         {
-            return -Math.Sign(TotalMs - other.TotalMs);
+            return -Math.Sign(TotalDistance - other.TotalDistance);
         }
     }
 }

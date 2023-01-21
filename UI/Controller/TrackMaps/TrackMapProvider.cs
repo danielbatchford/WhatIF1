@@ -16,6 +16,8 @@ namespace WhatIfF1.UI.Controller.TrackMaps
 {
     public sealed class TrackMapProvider : NotifyPropertyChangedWrapper, ITrackMapProvider
     {
+        private const double _notFocusedOpacity = 0.3;
+
         private static readonly IDictionary<ITrack, PointCollection> _cachedTracks = new Dictionary<ITrack, PointCollection>();
 
         private static readonly Rect _boundingBox = new Rect(0, 0, 950, 500);
@@ -115,37 +117,51 @@ namespace WhatIfF1.UI.Controller.TrackMaps
             DriverPoints = new ObservableCollection<IDriverMapPoint>(driverPoints);
         }
 
-        public void UpdateDriverMapPosition(IDriver driver, double proportionOfLap)
+        public void UpdateDriverMapPosition(IDriverStanding standing)
         {
-            // Find the closest index in the track points list based on the distance around the lap
-            int trackIndex = (int)Math.Round(proportionOfLap * (TrackPoints.Count - 1), 0);
-
             // Find the index of the requested driver in the driverpoints list
-            int driverIndex = DriverPoints.Select(dp => dp.Driver).ToList().IndexOf(driver);
+            int driverIndex = DriverPoints.Select(dp => dp.Driver).ToList().IndexOf(standing.Driver);
 
-            DriverPoints[driverIndex].Point = TrackPoints[trackIndex];
+            // If the driver has finished, set the position to the start position
+            if (standing.State == RunningState.FINISHED)
+            {
+                DriverPoints[driverIndex].Point = StartPoint;
+                DriverPoints[driverIndex].IsNotRunning = true;
+            }
+            else if (standing.State == RunningState.RETIRED)
+            {
+                DriverPoints[driverIndex].IsNotRunning = true;
+            }
+            else
+            {
+                // Find the closest index in the track points list based on the distance around the lap
+                int trackIndex = (int)Math.Round(standing.ProportionOfLap * (TrackPoints.Count - 1), 0);
+
+                DriverPoints[driverIndex].Point = TrackPoints[trackIndex];
+            }
         }
 
-        public void UpdateRetirements(IEnumerable<IDriverStanding> newStandings, IEnumerable<IDriverStanding> oldStandings)
+        public void UpdateNotRunning(IEnumerable<IDriverStanding> standings)
         {
-            var newDrivers = newStandings.Select(ds => ds.Driver);
-            var oldDrivers = oldStandings.Select(ds => ds.Driver);
-
-            // Find driver retirements
-            foreach (var driver in oldDrivers)
+            foreach (var standing in standings.Where(standing => standing.State != RunningState.RUNNING))
             {
-                if (!newDrivers.Contains(driver))
-                {
-                    DriverPoints.Single(dp => dp.Driver.Equals(driver)).IsRetired = true;
-                }
+                DriverPoints.Single(dp => dp.Driver.Equals(standing.Driver)).IsNotRunning = true;
             }
+        }
 
-            foreach (var driver in newDrivers)
+        public void ToSelectedDriverMode(IDriver driver)
+        {
+            foreach (var driverMapPoint in DriverPoints)
             {
-                if (!oldDrivers.Contains(driver))
-                {
-                    DriverPoints.Single(dp => dp.Driver.Equals(driver)).IsRetired = false;
-                }
+                driverMapPoint.Opacity = driver.Equals(driverMapPoint.Driver) ? 1 : _notFocusedOpacity;
+            }
+        }
+
+        public void ClearSelectedDriverMode()
+        {
+            foreach (var driverMapPoint in DriverPoints)
+            {
+                driverMapPoint.Opacity = 1;
             }
         }
 

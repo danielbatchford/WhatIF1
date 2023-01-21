@@ -18,7 +18,7 @@ namespace WhatIfF1.Modelling.Events
     {
         private readonly IDictionary<IDriver, IDriverModel> _driverModels;
 
-        public int NumDrivers { get; }
+        public int NoOfDrivers { get; }
 
         public string Name { get; }
 
@@ -58,10 +58,8 @@ namespace WhatIfF1.Modelling.Events
         {
             Name = name;
 
-            // Fetch driver list from the response Json
-            IEnumerable<IDriver> drivers = Driver.GetDriverListFromJSON(driversJson);
-
-            NumDrivers = drivers.Count();
+            var drivers = Driver.GetDriversAndRetirementsListFromJSON(driversJson, out IDictionary<IDriver, bool> isDriverRetiredDict);
+            NoOfDrivers = drivers.Count();
 
             var lapTimes = new Dictionary<IDriver, ICollection<int>>();
 
@@ -98,20 +96,20 @@ namespace WhatIfF1.Modelling.Events
 
             var vdtContainers = telemetryParser.ParseTelemetryJson(drivers, lapTimes, telemetryJson);
 
+            // Initialise number of laps as the max of the laps completed by each driver
+            NoOfLaps = lapTimes.Values.Max(lt => lt.Count);
+
             // Initialise driver models
 
-            _driverModels = new Dictionary<IDriver, IDriverModel>(NumDrivers);
+            _driverModels = new Dictionary<IDriver, IDriverModel>(NoOfDrivers);
 
             foreach (IDriver driver in drivers)
             {
-                _driverModels.Add(driver, new DriverModel(lapTimes[driver], vdtContainers[driver], trackLength));
+                _driverModels.Add(driver, new DriverModel(lapTimes[driver], vdtContainers[driver], trackLength, NoOfLaps, isDriverRetiredDict[driver]));
             }
 
-            // Initialise number of laps as the max of the laps completed by each driver
-            NoOfLaps = _driverModels.Values.Max(dModel => dModel.NoOfLaps);
-
             // Initialse the total time as the maximum time of the total times of each driver
-            TotalTime = _driverModels.Values.Max(dMOdel => dMOdel.TotalTime);
+            TotalTime = _driverModels.Values.Max(dMOdel => dMOdel.DriverTotalTime);
         }
 
         public override string ToString()
@@ -126,26 +124,18 @@ namespace WhatIfF1.Modelling.Events
 
         public IEnumerable<IDriverStanding> GetStandingsAtTime(int timeMs, out int currentLap)
         {
-            var driverPositions = new List<(IDriver driver, TrackPosition position)>();
+            var driverPositions = new List<(IDriver driver, TrackPosition position, RunningState runningState)>(NoOfDrivers);
 
             foreach (Driver driver in _driverModels.Keys)
             {
-                if (_driverModels[driver].TryGetPositionAtTime(timeMs, out TrackPosition driverPos))
-                {
-                    driverPositions.Add((driver, driverPos));
-                }
+                TrackPosition trackPosition = _driverModels[driver].GetPositionAndRunningState(timeMs, out RunningState runningState);
+                driverPositions.Add((driver, trackPosition, runningState));
             }
 
-            currentLap = driverPositions.Max(tup => tup.position.Lap);
+            currentLap = driverPositions.Where(tup => tup.runningState == RunningState.RUNNING).Max(tup => tup.position.Lap);
 
             // Sort positions into current race order
-            driverPositions.Sort((tupa, tupb) =>
-            {
-                TrackPosition a = tupa.position;
-                TrackPosition b = tupb.position;
-
-                return a.CompareTo(b);
-            });
+            driverPositions.Sort((tupa, tupb) => tupa.position.CompareTo(tupb.position));
 
             // TODO - tire compound changes
 
@@ -153,53 +143,47 @@ namespace WhatIfF1.Modelling.Events
 
             var standings = new List<DriverStanding>(driverPositions.Count);
 
-            TrackPosition leadCarPos = driverPositions[0].position;
+            int cumulativeGap = 0;
 
             for (int i = 0; i < driverPositions.Count; i++)
             {
                 IDriver driver = driverPositions[i].driver;
                 TrackPosition carPos = driverPositions[i].position;
+                RunningState runningState = driverPositions[i].runningState;
 
                 int gapToNextCar;
-                int gapToLead;
 
                 // Lead car case
                 if (i == 0)
                 {
                     gapToNextCar = 0;
-                    gapToLead = 0;
                 }
                 else
                 {
                     TrackPosition nextCarPos = driverPositions[i - 1].position;
 
                     gapToNextCar = CalculateGap(carPos, nextCarPos);
-                    gapToLead = CalculateGap(carPos, leadCarPos);
+                    cumulativeGap += gapToNextCar;
                 }
 
                 int racePos = i + 1;
-
-                standings.Add(new DriverStanding(driver, racePos, gapToLead, gapToNextCar, carPos.LapDistanceFraction, carPos.Velocity, TireCompoundStore.SoftTyre));
+                standings.Add(new DriverStanding(driver, racePos, cumulativeGap, gapToNextCar, carPos.LapDistanceFraction, carPos.Velocity, TireCompoundStore.SoftTyre, runningState));
             }
 
             return standings;
         }
 
-        public int GetCurrentLap(int timeMs, IDriver driver = null)
+        public bool TryGetCurrentLapForDriver(int currentTime, IDriver targetDriver, out int currentLap)
         {
-            var positions = new List<TrackPosition>();
+            TrackPosition position = _driverModels[targetDriver].GetPositionAndRunningState(currentTime, out RunningState runningState);
 
-            var driversInLapEval = driver is null ? _driverModels.Keys : new List<IDriver> { driver };
-
-            foreach (IDriver driverInEval in driversInLapEval)
+            if (runningState == RunningState.RUNNING)
             {
-                if (_driverModels[driverInEval].TryGetPositionAtTime(timeMs, out TrackPosition driverPos))
-                {
-                    positions.Add(driverPos);
-                }
+                currentLap = position.Lap;
+                return false;
             }
-
-            return positions.Max(pos => pos.Lap);
+            currentLap = -1;
+            return false;
         }
 
         private int CalculateGap(TrackPosition car, TrackPosition reference)

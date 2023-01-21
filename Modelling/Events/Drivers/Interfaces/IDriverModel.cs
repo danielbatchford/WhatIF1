@@ -2,10 +2,11 @@
 {
     public interface IDriverModel
     {
-        int NoOfLaps { get; }
+        int DriverNoOfLaps { get; }
+        int TotalNoOfLaps { get; }
 
-        int TotalTime { get; }
+        int DriverTotalTime { get; }
 
-        bool TryGetPositionAtTime(int totalMs, out TrackPosition position);
+        TrackPosition GetPositionAndRunningState(int totalMs, out RunningState runningState);
     }
 }

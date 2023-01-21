@@ -137,6 +137,7 @@
     <Compile Include="Modelling\Events\Drivers\Constructor.cs" />
     <Compile Include="Modelling\Events\Drivers\Driver.cs" />
     <Compile Include="Modelling\Events\Drivers\DriverModel.cs" />
+    <Compile Include="Modelling\Events\Drivers\RunningState.cs" />
     <Compile Include="Modelling\Events\Drivers\Interfaces\IConstructor.cs" />
     <Compile Include="Modelling\Events\Drivers\Interfaces\IDriver.cs" />
     <Compile Include="Modelling\Events\Drivers\Interfaces\IDriverModel.cs" />

@@ -11,9 +11,10 @@ namespace WhatIfF1.Modelling.Events.Drivers
 {
     public class Driver : NotifyPropertyChangedWrapper, IDriver
     {
-        public static IEnumerable<IDriver> GetDriverListFromJSON(JArray json)
+        public static IEnumerable<IDriver> GetDriversAndRetirementsListFromJSON(JArray json, out IDictionary<IDriver, bool> isDriverRetiredDict)
         {
-            ICollection<IDriver> drivers = new HashSet<IDriver>(json.Count);
+            var drivers = new HashSet<IDriver>(json.Count);
+            isDriverRetiredDict = new Dictionary<IDriver, bool>();
 
             foreach (JObject driverJson in json)
             {
@@ -28,7 +29,12 @@ namespace WhatIfF1.Modelling.Events.Drivers
 
                 JObject constructorJson = driverJson["Constructor"].ToObject<JObject>();
 
-                drivers.Add(new Driver(driverID, driverLetters, firstName, lastName, driverWikiLink, constructorJson, driverNumber));
+                IDriver driver = new Driver(driverID, driverLetters, firstName, lastName, driverWikiLink, constructorJson, driverNumber);
+                drivers.Add(driver);
+
+                bool isDriverRetired = !driverJson["status"].ToObject<string>().Equals("Finished");
+
+                isDriverRetiredDict.Add(driver, isDriverRetired);
             }
 
             return drivers;

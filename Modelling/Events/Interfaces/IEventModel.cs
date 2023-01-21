@@ -7,15 +7,12 @@ namespace WhatIfF1.Modelling.Events.Interfaces
     public interface IEventModel
     {
         string Name { get; }
-        int NumDrivers { get; }
+        int NoOfDrivers { get; }
         int TotalTime { get; }
-
         int NoOfLaps { get; }
 
         IEnumerable<IDriver> GetDrivers();
-
         IEnumerable<IDriverStanding> GetStandingsAtTime(int timeMs, out int currentLap);
-
-        int GetCurrentLap(int timeMs, IDriver driver = null);
+        bool TryGetCurrentLapForDriver(int currentTime, IDriver targetDriver, out int currentLap);
     }
 }

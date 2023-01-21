@@ -173,7 +173,8 @@
                     HorizontalAlignment="Right"
                     VerticalAlignment="Center"
                     FontFamily="{StaticResource regularFont}"
-                    Text="{Binding GapToLead, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource toFormattedTimeConverter}}" />
+                    Opacity="{Binding TimingScreenTextOpacity, UpdateSourceTrigger=PropertyChanged}"
+                    Text="{Binding TimingScreenText, UpdateSourceTrigger=PropertyChanged}" />
 
                 <TextBlock
                     Grid.Row="0"

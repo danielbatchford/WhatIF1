@@ -97,7 +97,7 @@ namespace WhatIfF1.Modelling.Events.Drivers.Telemetry
             for (int i = 1; i < _n; i++)
             {
                 double dt = (_ms[i] - _ms[i - 1]);
-                _distance[i] = _distance[i - 1] + 0.5 * dt * ((_velocity[i - 1] + _velocity[i]) * _kphToMperMsFactor);
+                _distance[i] = _distance[i - 1] + (0.5 * dt * ((_velocity[i - 1] + _velocity[i]) * _kphToMperMsFactor));
             }
 
             // Distance here needs to be scaled to the track length (as racing lines differ from track length)

@@ -6,6 +6,6 @@ namespace WhatIfF1.UI.Controller.TrackMaps.Interfaces
     {
         IDriver Driver { get; }
 
-        bool IsRetired { get; set; }
+        bool IsNotRunning { get; set; }
     }
 }

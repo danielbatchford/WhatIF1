@@ -10,9 +10,19 @@ namespace WhatIfF1.UI.Controller.Graphing
 
         public override void UpdateGraph()
         {
-            int leaderLap = _parentController.CurrentLap;
+            if (TargetDriver is null)
+            {
+                return;
+            }
+
             // this driver may not be on the lead lap
-            int driverLap = _parentController.Model.GetCurrentLap(_parentController.CurrentTime, TargetDriver);
+            if (!_parentController.Model.TryGetCurrentLapForDriver(_parentController.CurrentTime, TargetDriver, out int driverLap))
+            {
+                // TODO - this
+                return;
+            }
+
+            int leaderLap = _parentController.CurrentLap;
 
             string xTitle;
             if (driverLap < leaderLap)

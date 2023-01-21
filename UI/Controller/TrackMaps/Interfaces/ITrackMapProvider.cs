@@ -10,13 +10,12 @@ namespace WhatIfF1.UI.Controller.TrackMaps.Interfaces
     public interface ITrackMapProvider
     {
         PointCollection TrackPoints { get; }
-
         ObservableCollection<IDriverMapPoint> DriverPoints { get; }
-
         Point StartPoint { get; }
 
-        void UpdateDriverMapPosition(IDriver driver, double proportionOfLap);
-
-        void UpdateRetirements(IEnumerable<IDriverStanding> newStandings, IEnumerable<IDriverStanding> oldStandings);
+        void UpdateDriverMapPosition(IDriverStanding standing);
+        void UpdateNotRunning(IEnumerable<IDriverStanding> standings);
+        void ToSelectedDriverMode(IDriver driver);
+        void ClearSelectedDriverMode();
     }
 }
