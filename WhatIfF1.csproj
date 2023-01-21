@@ -253,7 +253,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="UI\Windows\Icons\Copy.png" />
-    <Resource Include="UI\Windows\Icons\Cross.png" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.8">
@@ -296,7 +295,9 @@
     <Resource Include="Resources\Flags\UK.png" />
     <Resource Include="Resources\Flags\USA.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="UI\Windows\Icons\WhiteCross.png" />
+  </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\F1Logo.png" />
   </ItemGroup>
@@ -333,6 +334,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <TargetPath>Resources\%(RecursiveDir)%(Filename)%(Extension)</TargetPath>
     </ContentWithTargetPath>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="UI\Windows\Icons\BlackCross.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

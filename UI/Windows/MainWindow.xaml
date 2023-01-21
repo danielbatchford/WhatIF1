@@ -218,7 +218,7 @@
                                 Height="15"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
-                                Source="Icons/Cross.png" />
+                                Source="Icons/BlackCross.png" />
                         </Button.Content>
                     </Button>
 
@@ -621,8 +621,7 @@
                                 VerticalAlignment="Stretch"
                                 Background="Transparent"
                                 Command="{Binding EventController.PlayPauseCommand}"
-                                Foreground="Transparent"
-                                IsEnabled="{Binding IsModelLoaded, UpdateSourceTrigger=PropertyChanged}">
+                                Foreground="Transparent">
                                 <Button.Content>
                                     <Grid>
 
@@ -874,6 +873,7 @@
                                 <Grid
                                     Grid.Row="0"
                                     Grid.Column="4"
+                                    Width="340"
                                     Margin="{StaticResource defaultMargin}"
                                     VerticalAlignment="Center">
 
@@ -940,7 +940,7 @@
                                         Grid.Row="2"
                                         Grid.Column="1"
                                         Margin="{StaticResource defaultMargin}"
-                                        HorizontalAlignment="Right"
+                                        HorizontalAlignment="Left"
                                         VerticalAlignment="Center"
                                         FontFamily="{StaticResource regularFont}"
                                         FontSize="20"
@@ -969,6 +969,7 @@
                                 <Grid
                                     Grid.Row="0"
                                     Grid.Column="6"
+                                    Width="210"
                                     Margin="{StaticResource defaultMargin}"
                                     VerticalAlignment="Center">
 
@@ -1021,8 +1022,6 @@
                                         </LinearGradientBrush>
                                     </Rectangle.OpacityMask>
                                 </Rectangle>
-
-
                             </Grid>
 
                         </TabItem>
@@ -1062,6 +1061,23 @@
                         <TabItem Header="Traffic" HeaderTemplate="{StaticResource tabItemTemplate}" />
 
                     </TabControl>
+
+                    <Button
+                        Width="40"
+                        Height="40"
+                        Margin="0,0,20,0"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Background="{StaticResource mainColor}"
+                        Command="{Binding EventController.DeselectStandingCommand}">
+                        <Button.Content>
+                            <Image
+                                Width="15"
+                                Height="15"
+                                Source="Icons/WhiteCross.png" />
+                        </Button.Content>
+                    </Button>
+
                 </Grid>
 
             </Grid>

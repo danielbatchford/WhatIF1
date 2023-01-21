@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -17,7 +18,7 @@ using WhatIfF1.Util.Enumerables;
 
 namespace WhatIfF1.UI.Controller
 {
-    public class EventController : NotifyPropertyChangedWrapper, IEventController, IPlayable
+    public class EventController : NotifyPropertyChangedWrapper, IEventController
     {
         private readonly DispatcherTimer _timer;
 
@@ -37,7 +38,7 @@ namespace WhatIfF1.UI.Controller
 
         private int _currentTime;
 
-        public ObservableRangeCollection<IDriverStanding> Standings { get; }
+        public ObservableCollection<IDriverStanding> Standings { get; }
 
         public ITrackMapProvider MapProvider { get; }
 
@@ -140,6 +141,20 @@ namespace WhatIfF1.UI.Controller
             }
         }
 
+        private ICommand _deselectStandingCommand;
+        public ICommand DeselectStandingCommand
+        {
+            get
+            {
+                return _deselectStandingCommand ?? (_deselectStandingCommand = new CommandHandler(() => SelectedStanding = null, () => SelectedStanding != null));
+            }
+            set
+            {
+                _deselectStandingCommand = value;
+                OnPropertyChanged();
+            }
+        }
+
         public EventController(ITrack track, IEventModel model)
         {
             Model = model;
@@ -152,7 +167,7 @@ namespace WhatIfF1.UI.Controller
             var standings = model.GetStandingsAtTime(CurrentTime, out int currentLap);
             CurrentLap = currentLap;
 
-            Standings = new ObservableRangeCollection<IDriverStanding>(standings);
+            Standings = new ObservableCollection<IDriverStanding>(standings);
 
             _playbackParams = PlaybackParameterContainer.GetDefault();
 
@@ -175,20 +190,13 @@ namespace WhatIfF1.UI.Controller
 
             if (!Standings.SequenceEqual(newStandings))
             {
-                Standings.ReplaceRange(newStandings);
+                foreach(var standing in newStandings)
+                {
+                    var standingToUpdate = Standings.Single(s => s.Driver.Equals(standing.Driver));
+                    standingToUpdate.UpdateFromOtherStanding(standing);
+                }
 
                 MapProvider.UpdateNotRunning(Standings);
-
-                // Update the selected standing to the lead driver standing if this driver standing is no longer in the race (e.g has retired or finished)
-                if (SelectedStanding != null && SelectedStanding.State != RunningState.RUNNING)
-                {
-                    var firstOrDefaultStanding = Standings.FirstOrDefault(standing => standing.State == RunningState.RUNNING);
-
-                    if (firstOrDefaultStanding != default)
-                    {
-                        SelectedStanding = firstOrDefaultStanding;
-                    }
-                }
             }
 
             // Update driver positions on the map

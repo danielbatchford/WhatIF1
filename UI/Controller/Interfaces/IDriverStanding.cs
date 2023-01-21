@@ -17,5 +17,7 @@ namespace WhatIfF1.UI.Controller.Interfaces
         RunningState State { get; set; }
         string TimingScreenText { get; set; }
         double TimingScreenTextOpacity { get; set; }
+
+        void UpdateFromOtherStanding(IDriverStanding standing);
     }
 }

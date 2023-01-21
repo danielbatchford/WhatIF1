@@ -21,6 +21,10 @@ namespace WhatIfF1.UI.Controller
             get => _driver;
             set
             {
+                if (_driver.Equals(value))
+                {
+                    return;
+                }
                 _driver = value;
                 OnPropertyChanged();
             }
@@ -196,6 +200,21 @@ namespace WhatIfF1.UI.Controller
             UpdateTimingScreenTextAndOpacity();
         }
 
+        public void UpdateFromOtherStanding(IDriverStanding other)
+        {
+            Driver = other.Driver;
+            RacePosition = other.RacePosition;
+            GapToLead = other.GapToLead;
+            GapToNextCar = other.GapToNextCar;
+            TireCompound = other.TireCompound;
+            ProportionOfLap = other.ProportionOfLap;
+            Velocity = other.Velocity;
+            TimingScreenText = other.TimingScreenText;
+            TimingScreenTextOpacity = other.TimingScreenTextOpacity;
+            State = other.State;
+        }
+
+
         public bool Equals(IDriverStanding other)
         {
             if (other is null)
@@ -206,8 +225,12 @@ namespace WhatIfF1.UI.Controller
             return Driver.Equals(other.Driver)
                 && RacePosition.Equals(other.RacePosition)
                 && GapToLead.Equals(other.GapToLead)
+                && GapToNextCar.Equals(other.GapToNextCar)
                 && TireCompound.Equals(other.TireCompound)
                 && ProportionOfLap.Equals(other.ProportionOfLap)
+                && Velocity.Equals(other.Velocity)
+                && TimingScreenText.Equals(other.TimingScreenText)
+                && TimingScreenTextOpacity.Equals(other.TimingScreenTextOpacity)
                 && State.Equals(other.State);
         }
 

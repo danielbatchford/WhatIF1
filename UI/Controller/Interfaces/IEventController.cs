@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using WhatIfF1.Modelling.Events.Interfaces;
 using WhatIfF1.UI.Controller.Graphing.Interfaces;
 using WhatIfF1.UI.Controller.TrackMaps.Interfaces;
@@ -18,6 +19,6 @@ namespace WhatIfF1.UI.Controller.Interfaces
 
         int CurrentLap { get; set; }
 
-        ObservableRangeCollection<IDriverStanding> Standings { get; }
+        ObservableCollection<IDriverStanding> Standings { get; }
     }
 }
