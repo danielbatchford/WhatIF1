@@ -2,18 +2,18 @@
 using System.Reflection;
 using System.Windows.Media;
 using System.Windows.Threading;
+using WhatIfF1.Logging.Interfaces;
 using WhatIfF1.Util;
 
 namespace WhatIfF1.Logging
 {
-    public sealed class Logger : NotifyPropertyChangedWrapper
+    public sealed class Logger : NotifyPropertyChangedWrapper, IUILogger
     {
         #region LazyInitialization
 
-        public static Logger Instance => _lazy.Value;
+        public static IUILogger Instance => _lazy.Value;
 
-        private readonly static Lazy<Logger> _lazy = new Lazy<Logger>(() => new Logger());
-
+        private readonly static Lazy<IUILogger> _lazy = new Lazy<IUILogger>(() => new Logger());
 
         #endregion LazyInitialization
 
@@ -33,7 +33,7 @@ namespace WhatIfF1.Logging
         public string CurrentMessage
         {
             get => _currentMessage;
-            private set
+            set
             {
                 _currentMessage = value;
                 OnPropertyChanged();
@@ -44,7 +44,7 @@ namespace WhatIfF1.Logging
         public Color CurrentColor
         {
             get => _currentColor;
-            private set
+            set
             {
                 _currentColor = value;
                 OnPropertyChanged();

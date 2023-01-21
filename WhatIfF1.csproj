@@ -128,25 +128,40 @@
     </ApplicationDefinition>
     <Compile Include="Adapters\APIAdapter.cs" />
     <Compile Include="Adapters\APIEventCacheWorker.cs" />
-    <Compile Include="Adapters\FetchResult.cs" />
+    <Compile Include="Adapters\JsonFetchResult.cs" />
     <Compile Include="Adapters\FileAdapter.cs" />
-    <Compile Include="Adapters\IApiCacheable.cs" />
+    <Compile Include="Adapters\Interfaces\IApiCacher.cs" />
+    <Compile Include="Adapters\Interfaces\IFetchResult.cs" />
+    <Compile Include="Logging\Interfaces\IUILogger.cs" />
     <Compile Include="Logging\Logger.cs" />
     <Compile Include="Modelling\Events\Drivers\Constructor.cs" />
     <Compile Include="Modelling\Events\Drivers\Driver.cs" />
     <Compile Include="Modelling\Events\Drivers\DriverModel.cs" />
+    <Compile Include="Modelling\Events\Drivers\Interfaces\IConstructor.cs" />
+    <Compile Include="Modelling\Events\Drivers\Interfaces\IDriver.cs" />
+    <Compile Include="Modelling\Events\Drivers\Interfaces\IDriverModel.cs" />
+    <Compile Include="Modelling\Events\Drivers\Interfaces\IVelocityDistanceTimeContainer.cs" />
+    <Compile Include="Modelling\Events\Drivers\Telemetry\Interfaces\ITelemetryParser.cs" />
+    <Compile Include="Modelling\Events\Drivers\Telemetry\Interfaces\IMsTimeStamp.cs" />
     <Compile Include="Modelling\Events\Drivers\Telemetry\TelemetryParser.cs" />
     <Compile Include="Modelling\Events\Drivers\Telemetry\TelemetryTimeStamp.cs" />
     <Compile Include="Modelling\Events\Drivers\Telemetry\VelocityDistanceTimeContainer.cs" />
     <Compile Include="Modelling\Events\EventModel.cs" />
-    <Compile Include="Modelling\Events\Position.cs" />
+    <Compile Include="Modelling\Events\Interfaces\IEventModel.cs" />
+    <Compile Include="Modelling\Events\TrackPosition.cs" />
+    <Compile Include="Modelling\Tires\Interfaces\ITireCompound.cs" />
     <Compile Include="Modelling\Tires\TireCompound.cs" />
     <Compile Include="Modelling\Tires\TireCompoundStore.cs" />
+    <Compile Include="Modelling\Tracks\Interfaces\ITrack.cs" />
     <Compile Include="Modelling\Tracks\TrackException.cs" />
     <Compile Include="Scenarios\Exceptions\ScenarioException.cs" />
+    <Compile Include="Scenarios\Interfaces\IScenario.cs" />
     <Compile Include="Scenarios\ScenarioType.cs" />
     <Compile Include="TestClass.cs" />
     <Compile Include="UI\Controller\DriverStanding.cs" />
+    <Compile Include="UI\Controller\Graphing\Interfaces\IGraphProvider.cs" />
+    <Compile Include="UI\Controller\Graphing\Interfaces\IXYGraph.cs" />
+    <Compile Include="UI\Controller\Graphing\SeriesData\Interfaces\IXYDataPoint.cs" />
     <Compile Include="UI\Controller\Graphing\XYGraph.cs" />
     <Compile Include="UI\Controller\Graphing\GraphException.cs" />
     <Compile Include="UI\Controller\Graphing\GraphProvider.cs" />
@@ -154,8 +169,15 @@
     <Compile Include="UI\Controller\Graphing\LapGraph.cs" />
     <Compile Include="UI\Controller\Graphing\SeriesData\XYDataPoint.cs" />
     <Compile Include="UI\Controller\Graphing\VelocityLapGraph.cs" />
+    <Compile Include="UI\Controller\Interfaces\IDriverStanding.cs" />
+    <Compile Include="UI\Controller\Interfaces\IEventController.cs" />
+    <Compile Include="UI\Controller\Interfaces\IPlayable.cs" />
+    <Compile Include="UI\Controller\Interfaces\IPlaybackParameterContainer.cs" />
     <Compile Include="UI\Controller\PlaybackParameterContainer.cs" />
     <Compile Include="UI\Controller\TrackMaps\DriverMapPoint.cs" />
+    <Compile Include="UI\Controller\TrackMaps\Interfaces\IDriverMapPoint.cs" />
+    <Compile Include="UI\Controller\TrackMaps\Interfaces\IMapPoint.cs" />
+    <Compile Include="UI\Controller\TrackMaps\Interfaces\ITrackMapProvider.cs" />
     <Compile Include="UI\Controller\TrackMaps\TrackMapProvider.cs" />
     <Compile Include="UI\Converters\BoolToCollapsedVisConverter.cs" />
     <Compile Include="UI\Converters\BoolToHiddenVisConverter.cs" />
@@ -179,7 +201,6 @@
     <Compile Include="Util\Extensions\DateTimeExtensions.cs" />
     <Compile Include="Util\Extensions\ImageExtensions.cs" />
     <Compile Include="Util\Extensions\EnumerableExtensions.cs" />
-    <Compile Include="Util\Extensions\NumberExtensions.cs" />
     <Compile Include="Util\Extensions\StringExtensions.cs" />
     <Compile Include="Util\NotifyPropertyChangedWrapper.cs" />
     <Page Include="UI\Windows\MainWindow.xaml">
@@ -274,10 +295,7 @@
     <Resource Include="Resources\Flags\UK.png" />
     <Resource Include="Resources\Flags\USA.png" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Resources\Tracks\" />
-    <Folder Include="UI\Windows\XamlElements\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Resource Include="Resources\F1Logo.png" />
   </ItemGroup>
@@ -314,7 +332,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <TargetPath>Resources\%(RecursiveDir)%(Filename)%(Extension)</TargetPath>
     </ContentWithTargetPath>
-</ItemGroup>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>

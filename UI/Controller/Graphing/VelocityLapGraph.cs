@@ -1,10 +1,11 @@
-﻿namespace WhatIfF1.UI.Controller.Graphing
+﻿using WhatIfF1.UI.Controller.Interfaces;
+
+namespace WhatIfF1.UI.Controller.Graphing
 {
     public class VelocityLapGraph : LapGraph
     {
-        public VelocityLapGraph(EventController parentController) : base(parentController, "Velocity")
+        public VelocityLapGraph(IEventController parentController) : base(parentController, "Velocity")
         {
         }
-
     }
 }

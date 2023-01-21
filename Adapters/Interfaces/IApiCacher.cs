@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
 
-namespace WhatIfF1.Adapters
+namespace WhatIfF1.Adapters.Interfaces
 {
-    public interface IApiCacheable<T>
+    public interface IApiCacher<T>
     {
         string CachePath { get; }
 

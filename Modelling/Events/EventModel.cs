@@ -4,16 +4,19 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using WhatIfF1.Modelling.Events.Drivers;
+using WhatIfF1.Modelling.Events.Drivers.Interfaces;
 using WhatIfF1.Modelling.Events.Drivers.Telemetry;
+using WhatIfF1.Modelling.Events.Interfaces;
 using WhatIfF1.Modelling.Tires;
 using WhatIfF1.UI.Controller;
+using WhatIfF1.UI.Controller.Interfaces;
 using WhatIfF1.Util;
 
 namespace WhatIfF1.Modelling.Events
 {
-    public class EventModel : NotifyPropertyChangedWrapper
+    public class EventModel : NotifyPropertyChangedWrapper, IEventModel
     {
-        private readonly IDictionary<Driver, DriverModel> _driverModels;
+        private readonly IDictionary<IDriver, IDriverModel> _driverModels;
 
         public int NumDrivers { get; }
 
@@ -56,14 +59,14 @@ namespace WhatIfF1.Modelling.Events
             Name = name;
 
             // Fetch driver list from the response Json
-            IEnumerable<Driver> drivers = Driver.GetDriverListFromJSON(driversJson);
+            IEnumerable<IDriver> drivers = Driver.GetDriverListFromJSON(driversJson);
 
             NumDrivers = drivers.Count();
 
-            var lapTimes = new Dictionary<Driver, ICollection<int>>();
+            var lapTimes = new Dictionary<IDriver, ICollection<int>>();
 
             // Initialise driver times dictionary
-            foreach (Driver driver in drivers)
+            foreach (IDriver driver in drivers)
             {
                 lapTimes.Add(driver, new List<int>());
             }
@@ -97,9 +100,9 @@ namespace WhatIfF1.Modelling.Events
 
             // Initialise driver models
 
-            _driverModels = new Dictionary<Driver, DriverModel>(NumDrivers);
+            _driverModels = new Dictionary<IDriver, IDriverModel>(NumDrivers);
 
-            foreach (Driver driver in drivers)
+            foreach (IDriver driver in drivers)
             {
                 _driverModels.Add(driver, new DriverModel(lapTimes[driver], vdtContainers[driver], trackLength));
             }
@@ -116,18 +119,18 @@ namespace WhatIfF1.Modelling.Events
             return Name;
         }
 
-        public IEnumerable<Driver> GetDrivers()
+        public IEnumerable<IDriver> GetDrivers()
         {
-            return new List<Driver>(_driverModels.Keys);
+            return new List<IDriver>(_driverModels.Keys);
         }
 
-        public IEnumerable<DriverStanding> GetStandingsAtTime(int timeMs, out int currentLap)
+        public IEnumerable<IDriverStanding> GetStandingsAtTime(int timeMs, out int currentLap)
         {
-            var driverPositions = new List<(Driver driver, Position position)>();
+            var driverPositions = new List<(IDriver driver, TrackPosition position)>();
 
             foreach (Driver driver in _driverModels.Keys)
             {
-                if (_driverModels[driver].TryGetPositionAtTime(timeMs, out Position driverPos))
+                if (_driverModels[driver].TryGetPositionAtTime(timeMs, out TrackPosition driverPos))
                 {
                     driverPositions.Add((driver, driverPos));
                 }
@@ -138,8 +141,8 @@ namespace WhatIfF1.Modelling.Events
             // Sort positions into current race order
             driverPositions.Sort((tupa, tupb) =>
             {
-                Position a = tupa.position;
-                Position b = tupb.position;
+                TrackPosition a = tupa.position;
+                TrackPosition b = tupb.position;
 
                 return a.CompareTo(b);
             });
@@ -150,12 +153,12 @@ namespace WhatIfF1.Modelling.Events
 
             var standings = new List<DriverStanding>(driverPositions.Count);
 
-            Position leadCarPos = driverPositions[0].position;
+            TrackPosition leadCarPos = driverPositions[0].position;
 
             for (int i = 0; i < driverPositions.Count; i++)
             {
-                Driver driver = driverPositions[i].driver;
-                Position carPos = driverPositions[i].position;
+                IDriver driver = driverPositions[i].driver;
+                TrackPosition carPos = driverPositions[i].position;
 
                 int gapToNextCar;
                 int gapToLead;
@@ -168,7 +171,7 @@ namespace WhatIfF1.Modelling.Events
                 }
                 else
                 {
-                    Position nextCarPos = driverPositions[i - 1].position;
+                    TrackPosition nextCarPos = driverPositions[i - 1].position;
 
                     gapToNextCar = CalculateGap(carPos, nextCarPos);
                     gapToLead = CalculateGap(carPos, leadCarPos);
@@ -182,15 +185,15 @@ namespace WhatIfF1.Modelling.Events
             return standings;
         }
 
-        public int GetCurrentLap(int timeMs, Driver driver = null)
+        public int GetCurrentLap(int timeMs, IDriver driver = null)
         {
-            var positions = new List<Position>();
+            var positions = new List<TrackPosition>();
 
-            var driversInLapEval = driver is null ? _driverModels.Keys : new List<Driver> { driver };
+            var driversInLapEval = driver is null ? _driverModels.Keys : new List<IDriver> { driver };
 
-            foreach (Driver driverInEval in driversInLapEval)
+            foreach (IDriver driverInEval in driversInLapEval)
             {
-                if (_driverModels[driverInEval].TryGetPositionAtTime(timeMs, out Position driverPos))
+                if (_driverModels[driverInEval].TryGetPositionAtTime(timeMs, out TrackPosition driverPos))
                 {
                     positions.Add(driverPos);
                 }
@@ -199,7 +202,7 @@ namespace WhatIfF1.Modelling.Events
             return positions.Max(pos => pos.Lap);
         }
 
-        private int CalculateGap(Position car, Position reference)
+        private int CalculateGap(TrackPosition car, TrackPosition reference)
         {
             int lapDelta = reference.Lap - car.Lap;
 

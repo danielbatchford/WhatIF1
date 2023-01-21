@@ -1,22 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using WhatIfF1.Modelling.Events.Drivers;
+using WhatIfF1.Modelling.Events.Drivers.Interfaces;
+using WhatIfF1.UI.Controller.Graphing.Interfaces;
+using WhatIfF1.UI.Controller.Interfaces;
 using WhatIfF1.Util;
 
 namespace WhatIfF1.UI.Controller.Graphing
 {
-    public class GraphProvider : NotifyPropertyChangedWrapper
+    public class GraphProvider : NotifyPropertyChangedWrapper, IGraphProvider
     {
-        // TODO - could remove this class completely
-
-        private readonly EventController _parentController;
+        private readonly IEventController _parentController;
 
         public IEnumerable<GraphType> GraphTypes { get; }
 
-        private XYGraph _graph;
+        private IXYGraph _graph;
 
-        public XYGraph Graph
+        public IXYGraph Graph
         {
             get => _graph;
             set
@@ -26,7 +26,7 @@ namespace WhatIfF1.UI.Controller.Graphing
             }
         }
 
-        public GraphProvider(EventController parentController, GraphType graphType)
+        public GraphProvider(IEventController parentController, GraphType graphType)
         {
             _parentController = parentController;
 
@@ -51,7 +51,7 @@ namespace WhatIfF1.UI.Controller.Graphing
             Graph.UpdateGraph();
         }
 
-        public void UpdateCurrentDriver(Driver driver)
+        public void UpdateCurrentDriver(IDriver driver)
         {
             Graph.TargetDriver = driver;
         }
@@ -61,7 +61,7 @@ namespace WhatIfF1.UI.Controller.Graphing
             Graph.Clear();
         }
 
-        private XYGraph GetGraphFromType(EventController parentController, GraphType graphType)
+        private IXYGraph GetGraphFromType(IEventController parentController, GraphType graphType)
         {
             switch (graphType)
             {

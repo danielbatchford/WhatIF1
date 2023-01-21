@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using WhatIfF1.Modelling.Events.Drivers.Interfaces;
 using WhatIfF1.Util.Extensions;
 
 namespace WhatIfF1.Modelling.Events.Drivers.Telemetry
 {
-    public class VelocityDistanceTimeContainer
+    public class VelocityDistanceTimeContainer : IVelocityDistanceTimeContainer
     {
         /// <summary>
         /// Factor for converting kph to meters per millisecond
@@ -83,8 +84,8 @@ namespace WhatIfF1.Modelling.Events.Drivers.Telemetry
 
             // Linear interpolate distance based on requested ms and bordering ms
             double propAlongRange = (double)(lapMs - _ms[lowerIdx]) / (_ms[upperIdx] - _ms[lowerIdx]);
-            lapDistance = _distance[lowerIdx] + propAlongRange * (_distance[upperIdx] - _distance[lowerIdx]);
-            velocity = _velocity[lowerIdx] + propAlongRange * (_distance[upperIdx] - _distance[lowerIdx]);
+            lapDistance = _distance[lowerIdx] + (propAlongRange * (_distance[upperIdx] - _distance[lowerIdx]));
+            velocity = _velocity[lowerIdx] + (propAlongRange * (_distance[upperIdx] - _distance[lowerIdx]));
         }
 
         private void IntegrateVelocity()

@@ -3,25 +3,28 @@ using System.Linq;
 using System.Windows.Input;
 using System.Windows.Threading;
 using WhatIfF1.Logging;
-using WhatIfF1.Modelling.Events;
-using WhatIfF1.Modelling.Tracks;
+using WhatIfF1.Modelling.Events.Interfaces;
+using WhatIfF1.Modelling.Tracks.Interfaces;
 using WhatIfF1.Scenarios.Exceptions;
 using WhatIfF1.UI.Controller.Graphing;
+using WhatIfF1.UI.Controller.Graphing.Interfaces;
+using WhatIfF1.UI.Controller.Interfaces;
 using WhatIfF1.UI.Controller.TrackMaps;
+using WhatIfF1.UI.Controller.TrackMaps.Interfaces;
 using WhatIfF1.Util;
 using WhatIfF1.Util.Enumerables;
 
 namespace WhatIfF1.UI.Controller
 {
-    public class EventController : NotifyPropertyChangedWrapper, IDisposable
+    public class EventController : NotifyPropertyChangedWrapper, IEventController, IPlayable
     {
         private readonly DispatcherTimer _timer;
 
         private readonly PlaybackParameterContainer _playbackParams;
 
-        private EventModel _model;
+        private IEventModel _model;
 
-        public EventModel Model
+        public IEventModel Model
         {
             get => _model;
             set
@@ -33,11 +36,11 @@ namespace WhatIfF1.UI.Controller
 
         private int _currentTime;
 
-        public ObservableRangeCollection<DriverStanding> Standings { get; }
+        public ObservableRangeCollection<IDriverStanding> Standings { get; }
 
-        public TrackMapProvider MapProvider { get; }
+        public ITrackMapProvider MapProvider { get; }
 
-        public GraphProvider VelocityLapGraphProvider { get; }
+        public IGraphProvider GraphProvider { get; }
 
         public int CurrentTime
         {
@@ -73,7 +76,7 @@ namespace WhatIfF1.UI.Controller
         public int CurrentLap
         {
             get => _currentLap;
-            private set
+            set
             {
                 if (value > Model.NoOfLaps)
                 {
@@ -86,14 +89,14 @@ namespace WhatIfF1.UI.Controller
             }
         }
 
-        private DriverStanding _selectedStanding;
+        private IDriverStanding _selectedStanding;
 
-        public DriverStanding SelectedStanding
+        public IDriverStanding SelectedStanding
         {
             get => _selectedStanding;
             set
             {
-                if (_selectedStanding != null && _selectedStanding.Equals(value))
+                if (_selectedStanding?.Equals(value) == true)
                 {
                     return;
                 }
@@ -127,12 +130,7 @@ namespace WhatIfF1.UI.Controller
         {
             get
             {
-                if (_playPauseCommand is null)
-                {
-                    _playPauseCommand = new CommandHandler(() => Playing = !Playing, () => true);
-                }
-
-                return _playPauseCommand;
+                return _playPauseCommand ?? (_playPauseCommand = new CommandHandler(() => Playing = !Playing, () => true));
             }
             set
             {
@@ -141,19 +139,19 @@ namespace WhatIfF1.UI.Controller
             }
         }
 
-        public EventController(Track track, EventModel model)
+        public EventController(ITrack track, IEventModel model)
         {
             Model = model;
 
             MapProvider = new TrackMapProvider(track, model.GetDrivers());
-            VelocityLapGraphProvider = new GraphProvider(this, GraphType.VELOCITY_TIME);
+            GraphProvider = new GraphProvider(this, GraphType.VELOCITY_TIME);
 
             CurrentTime = 0;
 
             var standings = model.GetStandingsAtTime(CurrentTime, out int currentLap);
             CurrentLap = currentLap;
 
-            Standings = new ObservableRangeCollection<DriverStanding>(standings);
+            Standings = new ObservableRangeCollection<IDriverStanding>(standings);
 
             _playbackParams = PlaybackParameterContainer.GetDefault();
 
@@ -199,18 +197,18 @@ namespace WhatIfF1.UI.Controller
 
         private void OnCurrentLapChanged()
         {
-            VelocityLapGraphProvider.UpdateGraph();
+            GraphProvider.UpdateGraph();
         }
 
         private void OnSelectedStandingChanged()
         {
             if (SelectedStanding != null)
             {
-                VelocityLapGraphProvider.UpdateCurrentDriver(SelectedStanding.Driver);
+                GraphProvider.UpdateCurrentDriver(SelectedStanding.Driver);
             }
             else
             {
-                VelocityLapGraphProvider.RemoveCurrentDriver();
+                GraphProvider.RemoveCurrentDriver();
             }
         }
 

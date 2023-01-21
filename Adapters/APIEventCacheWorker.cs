@@ -3,23 +3,24 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using WhatIfF1.Adapters.Interfaces;
 using WhatIfF1.Logging;
 
 namespace WhatIfF1.Adapters
 {
-    public class APIEventCacheWorker : IApiCacheable<FetchResult>
+    public class APIEventCacheWorker : IApiCacher<JsonFetchResult>
     {
         public readonly static string _cacheRoot = FileAdapter.Instance.CacheRoot;
 
         private readonly string _debugTypeString;
 
-        public Task<FetchResult> ApiFetchTask { get; }
+        public Task<JsonFetchResult> ApiFetchTask { get; }
 
         public string CachePath { get; }
 
         public bool CachedDataExists { get; }
 
-        public APIEventCacheWorker(Task<FetchResult> apiFetchTask, string localCacheDirName, string debugTypeString, string cacheFileName)
+        public APIEventCacheWorker(Task<JsonFetchResult> apiFetchTask, string localCacheDirName, string debugTypeString, string cacheFileName)
         {
             ApiFetchTask = apiFetchTask;
 
@@ -38,7 +39,7 @@ namespace WhatIfF1.Adapters
             CachedDataExists = File.Exists(CachePath);
         }
 
-        public Task<FetchResult> GetDataTask()
+        public Task<JsonFetchResult> GetDataTask()
         {
             if (FileAdapter.Instance.UseCaching && CachedDataExists)
             {
@@ -55,7 +56,7 @@ namespace WhatIfF1.Adapters
                         return;
                     }
 
-                    FetchResult result = fetchResultTask.Result;
+                    JsonFetchResult result = fetchResultTask.Result;
 
                     if (!result.Success)
                     {
@@ -96,14 +97,14 @@ namespace WhatIfF1.Adapters
             }
         }
 
-        private async Task<FetchResult> ReadFromCache()
+        private async Task<JsonFetchResult> ReadFromCache()
         {
             using (StreamReader file = File.OpenText(CachePath))
             {
                 using (JsonTextReader jsonReader = new JsonTextReader(file))
                 {
                     JToken loaded = await JToken.ReadFromAsync(jsonReader);
-                    return new FetchResult(loaded);
+                    return new JsonFetchResult(loaded);
                 }
             }
         }

@@ -1,6 +1,8 @@
-﻿namespace WhatIfF1.UI.Controller
+﻿using WhatIfF1.UI.Controller.Interfaces;
+
+namespace WhatIfF1.UI.Controller
 {
-    public class PlaybackParameterContainer
+    public struct PlaybackParameterContainer : IPlaybackParameterContainer
     {
         public int FrameRate { get; }
 
@@ -25,6 +27,15 @@
             PlaybackSpeed = playbackSpeed;
             MsIncrement = (int)(1000 * playbackSpeed / frameRate);
             TimerUpdateMsIncrement = 1000 / frameRate;
+        }
+
+        public bool Equals(IPlaybackParameterContainer other)
+        {
+            return other is PlaybackParameterContainer pt &&
+                pt.FrameRate == FrameRate &&
+                pt.PlaybackSpeed == PlaybackSpeed &&
+                pt.MsIncrement == MsIncrement &&
+                pt.TimerUpdateMsIncrement == TimerUpdateMsIncrement;
         }
     }
 }

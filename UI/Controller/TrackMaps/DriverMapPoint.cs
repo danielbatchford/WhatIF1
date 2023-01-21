@@ -1,15 +1,16 @@
 ﻿using System.Windows;
 using System.Windows.Media;
-using WhatIfF1.Modelling.Events.Drivers;
+using WhatIfF1.Modelling.Events.Drivers.Interfaces;
+using WhatIfF1.UI.Controller.TrackMaps.Interfaces;
 using WhatIfF1.Util;
 
 namespace WhatIfF1.UI.Controller.TrackMaps
 {
-    public class DriverMapPoint : NotifyPropertyChangedWrapper
+    public class DriverMapPoint : NotifyPropertyChangedWrapper, IDriverMapPoint
     {
         private const double _retiredOpacity = 0.6;
 
-        public Driver Driver { get; }
+        public IDriver Driver { get; }
 
         public Color Color { get; }
 
@@ -72,8 +73,7 @@ namespace WhatIfF1.UI.Controller.TrackMaps
             }
         }
 
-
-        public DriverMapPoint(Driver driver, Point point)
+        public DriverMapPoint(IDriver driver, Point point)
         {
             Driver = driver;
             Point = point;

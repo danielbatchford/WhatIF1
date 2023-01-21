@@ -3,11 +3,13 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using WhatIfF1.Modelling.Events.Drivers.Interfaces;
+using WhatIfF1.Modelling.Events.Drivers.Telemetry.Interfaces;
 using WhatIfF1.Util.Extensions;
 
 namespace WhatIfF1.Modelling.Events.Drivers.Telemetry
 {
-    public class TelemetryParser
+    public class TelemetryParser : ITelemetryParser<JObject>
     {
         private readonly double _trackLength;
 
@@ -16,7 +18,7 @@ namespace WhatIfF1.Modelling.Events.Drivers.Telemetry
             _trackLength = trackLength;
         }
 
-        public IDictionary<Driver, IList<VelocityDistanceTimeContainer>> ParseTelemetryJson(IEnumerable<Driver> drivers, IDictionary<Driver, ICollection<int>> lapTimes, JObject telemetryJson)
+        public IDictionary<IDriver, IList<IVelocityDistanceTimeContainer>> ParseTelemetryJson(IEnumerable<IDriver> drivers, IDictionary<IDriver, ICollection<int>> lapTimes, JObject telemetryJson)
         {
             JArray channelValues = (JArray)telemetryJson["ChannelValues"];
 
@@ -52,11 +54,11 @@ namespace WhatIfF1.Modelling.Events.Drivers.Telemetry
             return BuildVDTContainersDict(rawTimeStampsDict, lapTimes);
         }
 
-        private IDictionary<Driver, IList<VelocityDistanceTimeContainer>> BuildVDTContainersDict(IDictionary<Driver, List<TelemetryTimeStamp>> allTimeStampsDict, IDictionary<Driver, ICollection<int>> lapTimesDict)
+        private IDictionary<IDriver, IList<IVelocityDistanceTimeContainer>> BuildVDTContainersDict(IDictionary<IDriver, List<TelemetryTimeStamp>> allTimeStampsDict, IDictionary<IDriver, ICollection<int>> lapTimesDict)
         {
             allTimeStampsDict = CutoffPreRaceTimeStamps(allTimeStampsDict);
 
-            var vdtContainersDict = new Dictionary<Driver, IList<VelocityDistanceTimeContainer>>(allTimeStampsDict.Count);
+            var vdtContainersDict = new Dictionary<IDriver, IList<IVelocityDistanceTimeContainer>>(allTimeStampsDict.Count);
 
             foreach (Driver driver in allTimeStampsDict.Keys)
             {
@@ -66,9 +68,9 @@ namespace WhatIfF1.Modelling.Events.Drivers.Telemetry
             return vdtContainersDict;
         }
 
-        private IList<VelocityDistanceTimeContainer> BuildVDTContainersList(List<TelemetryTimeStamp> timeStamps, List<int> lapTimes)
+        private List<IVelocityDistanceTimeContainer> BuildVDTContainersList(List<TelemetryTimeStamp> timeStamps, List<int> lapTimes)
         {
-            var vdtContainers = new List<VelocityDistanceTimeContainer>(lapTimes.Count);
+            var vdtContainers = new List<IVelocityDistanceTimeContainer>(lapTimes.Count);
             int currentLapIdx = 0;
             int cumulativeLapTime = lapTimes[0];
             int msLapOffset = 0;
@@ -100,7 +102,6 @@ namespace WhatIfF1.Modelling.Events.Drivers.Telemetry
                     {
                         return vdtContainers;
                     }
-
                     else
                     {
                         cumulativeLapTime += lapTimes[currentLapIdx];
@@ -116,7 +117,7 @@ namespace WhatIfF1.Modelling.Events.Drivers.Telemetry
         /// Cut off all samples from lap to grid / formation lap - first sample should be the start of the race
         /// </summary>
         /// <param name="allTimeStampsDict"></param>
-        private IDictionary<Driver, List<TelemetryTimeStamp>> CutoffPreRaceTimeStamps(IDictionary<Driver, List<TelemetryTimeStamp>> allTimeStampsDict)
+        private IDictionary<IDriver, List<TelemetryTimeStamp>> CutoffPreRaceTimeStamps(IDictionary<IDriver, List<TelemetryTimeStamp>> allTimeStampsDict)
         {
             int nSamples = allTimeStampsDict.First().Value.Count;
 
@@ -138,7 +139,7 @@ namespace WhatIfF1.Modelling.Events.Drivers.Telemetry
 
             int msOffset = allTimeStamps[0][lastStationaryIdx].Ms;
 
-            IDictionary<Driver, List<TelemetryTimeStamp>> outputTimeStamps = new Dictionary<Driver, List<TelemetryTimeStamp>>(drivers.Count);
+            var outputTimeStamps = new Dictionary<IDriver, List<TelemetryTimeStamp>>(drivers.Count);
 
             for (int driverIdx = 0; driverIdx < drivers.Count; driverIdx++)
             {

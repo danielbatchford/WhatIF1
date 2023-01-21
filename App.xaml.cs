@@ -26,10 +26,7 @@ namespace WhatIfF1
 
             Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(syncfusionKey);
 
-            AppDomain.CurrentDomain.UnhandledException += (s, e) =>
-            {
-                Logger.Instance.Exception((Exception)e.ExceptionObject);
-            };
+            AppDomain.CurrentDomain.UnhandledException += (s, e) => Logger.Instance.Exception((Exception)e.ExceptionObject);
 
             DispatcherUnhandledException += (s, e) =>
             {

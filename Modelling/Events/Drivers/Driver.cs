@@ -1,20 +1,19 @@
 ﻿using Newtonsoft.Json.Linq;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Windows.Input;
 using WhatIfF1.Adapters;
+using WhatIfF1.Modelling.Events.Drivers.Interfaces;
 using WhatIfF1.Util;
 using WhatIfF1.Util.Extensions;
 
 namespace WhatIfF1.Modelling.Events.Drivers
 {
-    public class Driver : NotifyPropertyChangedWrapper, IEquatable<Driver>
+    public class Driver : NotifyPropertyChangedWrapper, IDriver
     {
-
-        public static IEnumerable<Driver> GetDriverListFromJSON(JArray json)
+        public static IEnumerable<IDriver> GetDriverListFromJSON(JArray json)
         {
-            ICollection<Driver> drivers = new HashSet<Driver>(json.Count);
+            ICollection<IDriver> drivers = new HashSet<IDriver>(json.Count);
 
             foreach (JObject driverJson in json)
             {
@@ -43,7 +42,7 @@ namespace WhatIfF1.Modelling.Events.Drivers
         public string ImagePath { get; }
         public string WikiLink { get; }
 
-        public Constructor Constructor { get; }
+        public IConstructor Constructor { get; }
 
         public int DriverNumber { get; }
 
@@ -66,9 +65,6 @@ namespace WhatIfF1.Modelling.Events.Drivers
                 OnPropertyChanged();
             }
         }
-
-
-
 
         public Driver(string driverID, string driverLetters, string firstName, string lastName, string wikiLink, JObject constructorJson, int driverNumber)
         {
@@ -95,7 +91,7 @@ namespace WhatIfF1.Modelling.Events.Drivers
             DriverNumber = driverNumber;
         }
 
-        public bool Equals(Driver other)
+        public bool Equals(IDriver other)
         {
             return DriverID.Equals(other.DriverID);
         }

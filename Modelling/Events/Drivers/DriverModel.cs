@@ -1,22 +1,22 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using WhatIfF1.Modelling.Events.Drivers.Telemetry;
+using WhatIfF1.Modelling.Events.Drivers.Interfaces;
 
 namespace WhatIfF1.Modelling.Events.Drivers
 {
-    public class DriverModel
+    public class DriverModel : IDriverModel
     {
         private readonly double _trackLength;
 
         private readonly IList<int> _lapTimes;
 
-        private readonly IList<VelocityDistanceTimeContainer> _vdtContainers;
+        private readonly IList<IVelocityDistanceTimeContainer> _vdtContainers;
 
         public int NoOfLaps { get; }
 
         public int TotalTime { get; }
 
-        public DriverModel(IEnumerable<int> lapTimes, IEnumerable<VelocityDistanceTimeContainer> vdtContainers, double trackLength)
+        public DriverModel(IEnumerable<int> lapTimes, IEnumerable<IVelocityDistanceTimeContainer> vdtContainers, double trackLength)
         {
             _lapTimes = lapTimes.ToList();
 
@@ -29,7 +29,7 @@ namespace WhatIfF1.Modelling.Events.Drivers
             TotalTime = _lapTimes.Sum();
         }
 
-        public bool TryGetPositionAtTime(int totalMs, out Position position)
+        public bool TryGetPositionAtTime(int totalMs, out TrackPosition position)
         {
             int lapIndex = 0;
             int msCounter = totalMs;
@@ -56,7 +56,7 @@ namespace WhatIfF1.Modelling.Events.Drivers
 
             int forecastLapTime = _lapTimes[lapIndex];
 
-            position = new Position(totalMs, lapMs, lapIndex + 1, forecastLapTime, velocity, totalDistance, lapDistance, _trackLength);
+            position = new TrackPosition(totalMs, lapMs, lapIndex + 1, forecastLapTime, velocity, totalDistance, lapDistance, _trackLength);
             return true;
         }
     }

@@ -1,15 +1,15 @@
-﻿using System;
-using WhatIfF1.Modelling.Events.Drivers;
-using WhatIfF1.Modelling.Tires;
+﻿using WhatIfF1.Modelling.Events.Drivers.Interfaces;
+using WhatIfF1.Modelling.Tires.Interfaces;
+using WhatIfF1.UI.Controller.Interfaces;
 using WhatIfF1.Util;
 
 namespace WhatIfF1.UI.Controller
 {
-    public class DriverStanding : NotifyPropertyChangedWrapper, IEquatable<DriverStanding>
+    public class DriverStanding : NotifyPropertyChangedWrapper, IDriverStanding
     {
-        private Driver _driver;
+        private IDriver _driver;
 
-        public Driver Driver
+        public IDriver Driver
         {
             get => _driver;
             set
@@ -70,9 +70,9 @@ namespace WhatIfF1.UI.Controller
             }
         }
 
-        private TireCompound _tireCompound;
+        private ITireCompound _tireCompound;
 
-        public TireCompound TireCompound
+        public ITireCompound TireCompound
         {
             get => _tireCompound;
             set
@@ -119,8 +119,7 @@ namespace WhatIfF1.UI.Controller
             }
         }
 
-
-        public DriverStanding(Driver driver, int racePosition, int gapToLead, int gapToNextCar, double proportionOfLap, double velocity, TireCompound tireCompound)
+        public DriverStanding(IDriver driver, int racePosition, int gapToLead, int gapToNextCar, double proportionOfLap, double velocity, ITireCompound tireCompound)
         {
             Driver = driver;
             RacePosition = racePosition;
@@ -131,7 +130,7 @@ namespace WhatIfF1.UI.Controller
             TireCompound = tireCompound;
         }
 
-        public bool Equals(DriverStanding other)
+        public bool Equals(IDriverStanding other)
         {
             if (other is null)
             {

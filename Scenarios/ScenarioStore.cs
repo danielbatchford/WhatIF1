@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using WhatIfF1.Adapters;
 using WhatIfF1.Scenarios.Exceptions;
+using WhatIfF1.Scenarios.Interfaces;
 using WhatIfF1.Util;
 using WhatIfF1.Util.Enumerables;
 
@@ -11,7 +12,7 @@ namespace WhatIfF1.Scenarios
 {
     public sealed class ScenarioStore : NotifyPropertyChangedWrapper
     {
-        private static readonly int _year = 2022;
+        private const int _year = 2022;
 
         #region StaticInitialization
 
@@ -27,7 +28,7 @@ namespace WhatIfF1.Scenarios
             var fetchTask = APIAdapter.GetFromErgastAPI($"{_year}.json");
             var scenarioWorker = new APIEventCacheWorker(fetchTask, "Events", "Events", $"{_year}.json");
 
-            FetchResult result = await scenarioWorker.GetDataTask();
+            JsonFetchResult result = await scenarioWorker.GetDataTask();
 
             if (!result.Success)
             {
@@ -39,7 +40,7 @@ namespace WhatIfF1.Scenarios
             // Access inner race table data from the response
             JArray races = (JArray)rawJson["MRData"]["RaceTable"]["Races"];
 
-            ICollection<Scenario> scenarios = new List<Scenario>(races.Count);
+            ICollection<IScenario> scenarios = new List<IScenario>(races.Count);
 
             foreach (JObject raceJson in races.Cast<JObject>())
             {
@@ -53,11 +54,11 @@ namespace WhatIfF1.Scenarios
 
         #endregion StaticInitialization
 
-        public ObservableRangeCollection<Scenario> Scenarios { get; }
+        public ObservableRangeCollection<IScenario> Scenarios { get; }
 
-        private Scenario _activeScenario;
+        private IScenario _activeScenario;
 
-        public Scenario ActiveScenario
+        public IScenario ActiveScenario
         {
             get => _activeScenario;
             set
@@ -67,9 +68,9 @@ namespace WhatIfF1.Scenarios
             }
         }
 
-        private ScenarioStore(IEnumerable<Scenario> scenarios)
+        private ScenarioStore(IEnumerable<IScenario> scenarios)
         {
-            Scenarios = new ObservableRangeCollection<Scenario>(scenarios);
+            Scenarios = new ObservableRangeCollection<IScenario>(scenarios);
 
             // Auto select the first scenario
             if (Scenarios.Count > 0)
@@ -78,14 +79,14 @@ namespace WhatIfF1.Scenarios
             }
         }
 
-        public void RemoveScenario(Scenario scenario)
+        public void RemoveScenario(IScenario scenario)
         {
             Scenarios.Remove(scenario);
         }
 
-        public void CloneScenario(Scenario original)
+        public void CloneScenario(IScenario original)
         {
-            Scenarios.Add((Scenario)original.Clone());
+            Scenarios.Add((IScenario)original.Clone());
         }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace WhatIfF1.Modelling.Events
 {
-    public sealed class Position : IEquatable<Position>, IComparable<Position>
+    public sealed class TrackPosition : IEquatable<TrackPosition>, IComparable<TrackPosition>
     {
         public int TotalMs { get; }
         public int LapMs { get; }
@@ -15,8 +15,7 @@ namespace WhatIfF1.Modelling.Events
         public double LapDistanceFraction { get; }
         public double LapTimeFraction { get; }
 
-
-        public Position(int totalMs, int lapMs, int lap, int forecastLapTime, double velocity, double totalDistance, double lapDistance, double trackLength)
+        public TrackPosition(int totalMs, int lapMs, int lap, int forecastLapTime, double velocity, double totalDistance, double lapDistance, double trackLength)
         {
             TotalMs = totalMs;
             LapMs = lapMs;
@@ -36,7 +35,7 @@ namespace WhatIfF1.Modelling.Events
             return $"Lap: {Lap}, Total Ms: {TotalMs}, Total Dist: {TotalDistance}, Lap Ms: {LapMs}, Lap Dist: {LapDistance}, Lap %: {LapDistanceFraction}, Forecast Lap Time: {ForecastLapTime}";
         }
 
-        public bool Equals(Position other)
+        public bool Equals(TrackPosition other)
         {
             return Lap == other.Lap
                 && LapMs == other.LapMs
@@ -49,9 +48,9 @@ namespace WhatIfF1.Modelling.Events
                 && LapDistanceFraction == other.LapDistanceFraction;
         }
 
-        public int CompareTo(Position other)
+        public int CompareTo(TrackPosition other)
         {
-            return -Math.Sign(TotalDistance - other.TotalDistance);
+            return -Math.Sign(TotalMs - other.TotalMs);
         }
     }
 }
