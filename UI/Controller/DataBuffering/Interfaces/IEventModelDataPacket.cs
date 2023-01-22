@@ -5,7 +5,7 @@ namespace WhatIfF1.UI.Controller.DataBuffering.Interfaces
 {
     public interface IEventModelDataPacket : IBufferedDataPacket
     {
-        IEnumerable<IDriverStanding> Standings { get; }
+        IList<IDriverStanding> Standings { get; }
         int CurrentLap { get; }
     }
 }

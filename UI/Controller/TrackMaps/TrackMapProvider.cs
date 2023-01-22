@@ -142,10 +142,21 @@ namespace WhatIfF1.UI.Controller.TrackMaps
             }
             else
             {
-                // Find the closest index in the track points list based on the distance around the lap
-                int trackIndex = (int)Math.Round(standing.ProportionOfLap * (TrackPoints.Count - 1), 0);
+                double distanceAlongCollection = standing.ProportionOfLap * (TrackPoints.Count - 1);
 
-                DriverPoints[driverIndex].Point = TrackPoints[trackIndex];
+                // Find the closest lower index in the track points list based on the distance around the lap
+                int trackIndex = (int)(distanceAlongCollection);
+
+                if (trackIndex == TrackPoints.Count - 1)
+                {
+                    DriverPoints[driverIndex].Point = TrackPoints[trackIndex];
+                }
+                else
+                {
+                    double fractionBetweenPoints = distanceAlongCollection - Math.Truncate(distanceAlongCollection);
+
+                    DriverPoints[driverIndex].Point = InterpolatePoint(TrackPoints[trackIndex], TrackPoints[trackIndex + 1], fractionBetweenPoints);
+                }
             }
         }
 
@@ -270,6 +281,15 @@ namespace WhatIfF1.UI.Controller.TrackMaps
 
                 return points.Select(point => new Point(point.X + dx, point.Y));
             }
+        }
+
+        private Point InterpolatePoint(Point start, Point end, double fraction)
+        {
+            return new Point
+            {
+                X = start.X + ((end.X - start.X) * fraction),
+                Y = start.Y + ((end.Y - start.Y) * fraction)
+            };
         }
     }
 }

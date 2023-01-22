@@ -11,8 +11,7 @@ namespace WhatIfF1.UI.Controller.DataBuffering
     public class EventModelDataProvider : IEventModelDataProvider
     {
         private const int _lookaheadAmount = 20;
-        private const int _maxCacheSize = 100;
-        private const int _removeAmount = 100;
+        private const int _maxCacheSize = 1000;
         private const int _adjacentSkipAmount = 2;
 
         public int MinFrame { get; }
@@ -75,24 +74,19 @@ namespace WhatIfF1.UI.Controller.DataBuffering
 
         private bool TryRemoveOldestFramesFromCache()
         {
+            // Currently removes all buffered frames
+
             if (NoOfBufferedFrames <= _maxCacheSize)
             {
                 return false;
             }
 
-            var toRemove = Buffer.Keys.ToList();
-            toRemove.Sort();
-            toRemove.GetRange(0, _removeAmount);
-
             lock (Buffer)
             {
-                foreach (var key in toRemove)
-                {
-                    Buffer.Remove(key);
-                }
+                Buffer.Clear();
             }
 
-            Logger.Instance.Debug($"Removed {_removeAmount} frames from cache");
+            Logger.Instance.Debug($"Removed {_maxCacheSize} frames from cache");
 
             return true;
         }

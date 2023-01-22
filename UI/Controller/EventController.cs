@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows.Input;
 using System.Windows.Threading;
 using WhatIfF1.Logging;
+using WhatIfF1.Modelling.Events.Drivers.Interfaces;
 using WhatIfF1.Modelling.Events.Interfaces;
 using WhatIfF1.Modelling.Tracks.Interfaces;
 using WhatIfF1.Scenarios.Exceptions;
@@ -74,6 +76,10 @@ namespace WhatIfF1.UI.Controller
                 if (value > DataProvider.Model.NoOfLaps)
                 {
                     throw new EventControllerException($"Attempted to set max lap to {value} while only {DataProvider.Model.NoOfLaps} existed");
+                }
+                if(value == _currentLap)
+                {
+                    return;
                 }
 
                 _currentLap = value;
@@ -161,7 +167,6 @@ namespace WhatIfF1.UI.Controller
 
             Standings = new ObservableCollection<IDriverStanding>(standings);
 
-
             _timer = new DispatcherTimer(TimeSpan.FromMilliseconds(_playbackParams.TimerUpdateMsIncrement), DispatcherPriority.ApplicationIdle, TimerTick, Dispatcher.CurrentDispatcher);
             // Don't start timer by default
             _timer.Stop();
@@ -179,16 +184,19 @@ namespace WhatIfF1.UI.Controller
             // Update current lap
             CurrentLap = frame.CurrentLap;
 
-            if (!Standings.SequenceEqual(frame.Standings))
-            {
-                foreach(var standing in frame.Standings)
-                {
-                    var standingToUpdate = Standings.Single(s => s.Driver.Equals(standing.Driver));
-                    standingToUpdate.UpdateFromOtherStanding(standing);
-                }
+            IDriver oldSelectedDriver = SelectedStanding?.Driver;
 
-                MapProvider.UpdateNotRunning(Standings);
+            for (int i = 0; i < Standings.Count; i++)
+            {
+                Standings[i].UpdateFromOtherStanding(frame.Standings[i]);
             }
+
+            if (oldSelectedDriver != null)
+            {
+                SelectedStanding = Standings.Single(standing => standing.Driver.Equals(oldSelectedDriver));
+            }
+            
+            MapProvider.UpdateNotRunning(Standings);
 
             // Update driver positions on the map
             foreach (DriverStanding standing in Standings)

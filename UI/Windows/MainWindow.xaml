@@ -668,7 +668,7 @@
                                 Orientation="Horizontal"
                                 ShowRange="False"
                                 SnapsTo="StepValues"
-                                StepFrequency="1"
+                                StepFrequency="0.01"
                                 ThumbStyle="{StaticResource thumbStyle}"
                                 ThumbToolTipPlacement="TopLeft"
                                 ThumbToolTipPrecision="0"
@@ -969,40 +969,81 @@
                                 <Grid
                                     Grid.Row="0"
                                     Grid.Column="6"
-                                    Width="210"
                                     Margin="{StaticResource defaultMargin}"
                                     VerticalAlignment="Center">
 
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="auto" />
-                                        <RowDefinition Height="auto" />
-                                        <RowDefinition Height="auto" />
+                                        <RowDefinition Height="35" />
                                     </Grid.RowDefinitions>
 
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="auto" />
-                                        <ColumnDefinition Width="auto" />
                                     </Grid.ColumnDefinitions>
 
-                                    <TextBlock
+                                    <sf:SfCircularGauge
                                         Grid.Row="0"
                                         Grid.Column="0"
-                                        Margin="{StaticResource defaultMargin}"
-                                        HorizontalAlignment="Right"
-                                        VerticalAlignment="Center"
-                                        FontFamily="{StaticResource regularFont}"
-                                        FontSize="20"
-                                        Text="Velocity:" />
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Stretch"
+                                        HeaderAlignment="Center">
+                                        <sf:SfCircularGauge.GaugeHeader>
+                                            <TextBlock
+                                                Margin="0,70,0,0"
+                                                FontFamily="{StaticResource regularFont}"
+                                                Foreground="{StaticResource lightColor}"
+                                                Text="{Binding Velocity, Converter={StaticResource toIntConverter}}" />
+                                        </sf:SfCircularGauge.GaugeHeader>
+                                        <sf:SfCircularGauge.Scales>
+                                            <sf:CircularScale
+                                                EndValue="300"
+                                                Interval="50"
+                                                MinorTicksPerInterval="3"
+                                                RimStroke="White"
+                                                RimStrokeThickness="2"
+                                                ShowLabels="False"
+                                                StartAngle="135"
+                                                StartValue="0"
+                                                SweepAngle="270"
+                                                SweepDirection="Clockwise">
+                                                <sf:CircularScale.MinorTickSettings>
+                                                    <sf:MinorTickSetting
+                                                        Length="5"
+                                                        Stroke="{StaticResource lightColor}"
+                                                        StrokeThickness="1" />
+                                                </sf:CircularScale.MinorTickSettings>
+                                                <sf:CircularScale.MajorTickSettings>
+                                                    <sf:MajorTickSetting
+                                                        Length="10"
+                                                        Stroke="{StaticResource lightColor}"
+                                                        StrokeThickness="1" />
+                                                </sf:CircularScale.MajorTickSettings>
+                                                <sf:CircularScale.Pointers>
+                                                    <sf:CircularPointer
+                                                        KnobFill="{StaticResource mainColor}"
+                                                        KnobStroke="{StaticResource mainColor}"
+                                                        NeedleLengthFactor="0.9"
+                                                        NeedlePointerStroke="{StaticResource mainColor}"
+                                                        NeedlePointerStrokeThickness="4"
+                                                        NeedlePointerType="Triangle"
+                                                        PointerCapDiameter="20"
+                                                        PointerType="NeedlePointer"
+                                                        Value="{Binding Velocity, UpdateSourceTrigger=PropertyChanged}" />
+                                                </sf:CircularScale.Pointers>
+                                            </sf:CircularScale>
+                                        </sf:SfCircularGauge.Scales>
+                                    </sf:SfCircularGauge>
+
                                     <TextBlock
-                                        Grid.Row="0"
-                                        Grid.Column="1"
+                                        Grid.Row="1"
+                                        Grid.Column="0"
                                         Margin="{StaticResource defaultMargin}"
-                                        HorizontalAlignment="Right"
+                                        HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
                                         FontFamily="{StaticResource regularFont}"
                                         FontSize="20"
-                                        FontStyle="Italic"
-                                        Text="{Binding Velocity, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0} KPH, Converter={StaticResource toIntConverter}}" />
+                                        Text="Kph" />
+
 
                                 </Grid>
 
