@@ -43,9 +43,11 @@ namespace WhatIfF1.UI.Controller.Graphing
             {
                 throw new GraphException("Cannot set lap to lap < 1");
             }
-            if (leaderLap > _parentController.Model.NoOfLaps)
+
+            int numLaps = _parentController.DataProvider.Model.NoOfLaps;
+            if (leaderLap > numLaps)
             {
-                throw new GraphException($"Cannot set lap as it exceeded the number of laps in the parent model (Got {leaderLap} laps, model has {_parentController.Model.NoOfLaps} laps)");
+                throw new GraphException($"Cannot set lap as it exceeded the number of laps in the parent model (Got {leaderLap} laps, model has {numLaps} laps)");
             }
 
             Graph.UpdateGraph();

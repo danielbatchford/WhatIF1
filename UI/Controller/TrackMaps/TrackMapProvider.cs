@@ -22,6 +22,8 @@ namespace WhatIfF1.UI.Controller.TrackMaps
 
         private static readonly Rect _boundingBox = new Rect(0, 0, 950, 500);
 
+        private readonly IDictionary<IDriver, int> _driverToIndexMapping;
+
         public PointCollection TrackPoints { get; }
 
         public ObservableCollection<IDriverMapPoint> DriverPoints { get; }
@@ -115,12 +117,18 @@ namespace WhatIfF1.UI.Controller.TrackMaps
             maxY = translatedPoints.Max(point => point.Y);
 
             DriverPoints = new ObservableCollection<IDriverMapPoint>(driverPoints);
+
+            _driverToIndexMapping = new Dictionary<IDriver, int>();
+
+            for (int i = 0; i < drivers.Count(); i++)
+            {
+                _driverToIndexMapping.Add(driverPoints[i].Driver, i);
+            }
         }
 
         public void UpdateDriverMapPosition(IDriverStanding standing)
         {
-            // Find the index of the requested driver in the driverpoints list
-            int driverIndex = DriverPoints.Select(dp => dp.Driver).ToList().IndexOf(standing.Driver);
+            int driverIndex = _driverToIndexMapping[standing.Driver];
 
             // If the driver has finished, set the position to the start position
             if (standing.State == RunningState.FINISHED)
@@ -143,9 +151,12 @@ namespace WhatIfF1.UI.Controller.TrackMaps
 
         public void UpdateNotRunning(IEnumerable<IDriverStanding> standings)
         {
-            foreach (var standing in standings.Where(standing => standing.State != RunningState.RUNNING))
+            foreach(var standing in standings)
             {
-                DriverPoints.Single(dp => dp.Driver.Equals(standing.Driver)).IsNotRunning = true;
+                if(standing.State != RunningState.RUNNING)
+                {
+                    DriverPoints[_driverToIndexMapping[standing.Driver]].IsNotRunning = true;
+                }
             }
         }
 

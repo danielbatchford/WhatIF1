@@ -575,7 +575,7 @@
                                         <TextBlock
                                             FontFamily="{StaticResource boldFont}"
                                             FontSize="20"
-                                            Text="{Binding EventController.Model.NoOfLaps}" />
+                                            Text="{Binding EventController.DataProvider.Model.NoOfLaps}" />
 
                                     </StackPanel>
 
@@ -662,7 +662,7 @@
                                 ActiveMinorTickStroke="{StaticResource mainColor}"
                                 ActiveTrackStyle="{StaticResource activeTrackStyle}"
                                 InactiveTrackStyle="{StaticResource inactiveTrackStyle}"
-                                Maximum="{Binding EventController.Model.TotalTime, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource msToSConverter}}"
+                                Maximum="{Binding EventController.DataProvider.Model.TotalTime, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource msToSConverter}}"
                                 Minimum="0"
                                 MinorTickFrequency="10"
                                 Orientation="Horizontal"

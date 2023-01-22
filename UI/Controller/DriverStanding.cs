@@ -214,7 +214,6 @@ namespace WhatIfF1.UI.Controller
             State = other.State;
         }
 
-
         public bool Equals(IDriverStanding other)
         {
             if (other is null)

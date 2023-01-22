@@ -4,10 +4,11 @@ using System.Linq;
 using System.Windows.Input;
 using System.Windows.Threading;
 using WhatIfF1.Logging;
-using WhatIfF1.Modelling.Events.Drivers;
 using WhatIfF1.Modelling.Events.Interfaces;
 using WhatIfF1.Modelling.Tracks.Interfaces;
 using WhatIfF1.Scenarios.Exceptions;
+using WhatIfF1.UI.Controller.DataBuffering;
+using WhatIfF1.UI.Controller.DataBuffering.Interfaces;
 using WhatIfF1.UI.Controller.Graphing;
 using WhatIfF1.UI.Controller.Graphing.Interfaces;
 using WhatIfF1.UI.Controller.Interfaces;
@@ -24,17 +25,7 @@ namespace WhatIfF1.UI.Controller
 
         private readonly IPlaybackParameterContainer _playbackParams;
 
-        private IEventModel _model;
-
-        public IEventModel Model
-        {
-            get => _model;
-            set
-            {
-                _model = value;
-                OnPropertyChanged();
-            }
-        }
+        public IEventModelDataProvider DataProvider { get; }
 
         private int _currentTime;
 
@@ -61,9 +52,9 @@ namespace WhatIfF1.UI.Controller
                 }
 
                 // If the current time exceeds the maximum time in the model, throw an exception
-                if (value > Model.TotalTime)
+                if (value > DataProvider.Model.TotalTime)
                 {
-                    throw new EventControllerException($"Requested current time exceeds the maximum model time (Requested {value}, Max time is {Model.TotalTime}");
+                    throw new EventControllerException($"Requested current time exceeds the maximum model time (Requested {value}, Max time is {DataProvider.Model.TotalTime}");
                 }
 
                 _currentTime = value;
@@ -80,9 +71,9 @@ namespace WhatIfF1.UI.Controller
             get => _currentLap;
             set
             {
-                if (value > Model.NoOfLaps)
+                if (value > DataProvider.Model.NoOfLaps)
                 {
-                    throw new EventControllerException($"Attempted to set max lap to {value} while only {Model.NoOfLaps} existed");
+                    throw new EventControllerException($"Attempted to set max lap to {value} while only {DataProvider.Model.NoOfLaps} existed");
                 }
 
                 _currentLap = value;
@@ -157,8 +148,9 @@ namespace WhatIfF1.UI.Controller
 
         public EventController(ITrack track, IEventModel model)
         {
-            Model = model;
+            _playbackParams = PlaybackParameterContainer.GetDefault();
 
+            DataProvider = new EventModelDataProvider(model, _playbackParams);
             MapProvider = new TrackMapProvider(track, model.GetDrivers());
             GraphProvider = new GraphProvider(this, GraphType.VELOCITY_TIME);
 
@@ -169,7 +161,6 @@ namespace WhatIfF1.UI.Controller
 
             Standings = new ObservableCollection<IDriverStanding>(standings);
 
-            _playbackParams = PlaybackParameterContainer.GetDefault();
 
             _timer = new DispatcherTimer(TimeSpan.FromMilliseconds(_playbackParams.TimerUpdateMsIncrement), DispatcherPriority.ApplicationIdle, TimerTick, Dispatcher.CurrentDispatcher);
             // Don't start timer by default
@@ -181,16 +172,16 @@ namespace WhatIfF1.UI.Controller
             Playing = false;
         }
 
-        private void OnCurrentTimeChanged()
+        private async void OnCurrentTimeChanged()
         {
-            var newStandings = Model.GetStandingsAtTime(CurrentTime, out int currentLap);
+            IEventModelDataPacket frame = await DataProvider.GetDataAtTime(CurrentTime);
 
             // Update current lap
-            CurrentLap = currentLap;
+            CurrentLap = frame.CurrentLap;
 
-            if (!Standings.SequenceEqual(newStandings))
+            if (!Standings.SequenceEqual(frame.Standings))
             {
-                foreach(var standing in newStandings)
+                foreach(var standing in frame.Standings)
                 {
                     var standingToUpdate = Standings.Single(s => s.Driver.Equals(standing.Driver));
                     standingToUpdate.UpdateFromOtherStanding(standing);

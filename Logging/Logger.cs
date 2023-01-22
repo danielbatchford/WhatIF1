@@ -128,6 +128,15 @@ namespace WhatIfF1.Logging
             ResetTimerCountdown();
         }
 
+        public void Debug(object obj)
+        {
+            string message = obj.ToString();
+
+            _logger.Error(message);
+            Console.WriteLine(message);
+        }
+
+
         private void ResetTimerCountdown()
         {
             _timeoutTimer.Stop();

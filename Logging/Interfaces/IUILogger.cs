@@ -12,5 +12,6 @@ namespace WhatIfF1.Logging.Interfaces
         void Info(object obj);
         void Warn(object obj);
         void Error(object obj);
+        void Debug(object obj);
     }
 }

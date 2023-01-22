@@ -15,8 +15,9 @@ namespace WhatIfF1.UI.Controller.Graphing
                 return;
             }
 
+            // TODO - need to run through data provider here
             // this driver may not be on the lead lap
-            if (!_parentController.Model.TryGetCurrentLapForDriver(_parentController.CurrentTime, TargetDriver, out int driverLap))
+            if (!_parentController.DataProvider.Model.TryGetCurrentLapForDriver(_parentController.CurrentTime, TargetDriver, out int driverLap))
             {
                 // TODO - this
                 return;

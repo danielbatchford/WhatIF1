@@ -159,6 +159,12 @@
     <Compile Include="Scenarios\Interfaces\IScenario.cs" />
     <Compile Include="Scenarios\ScenarioType.cs" />
     <Compile Include="TestClass.cs" />
+    <Compile Include="UI\Controller\DataBuffering\EventModelDataProvider.cs" />
+    <Compile Include="UI\Controller\DataBuffering\EventModelDataPacket.cs" />
+    <Compile Include="UI\Controller\DataBuffering\Interfaces\IBufferableDataProvider.cs" />
+    <Compile Include="UI\Controller\DataBuffering\Interfaces\IBufferedDataPacket.cs" />
+    <Compile Include="UI\Controller\DataBuffering\Interfaces\IEventModelDataPacket.cs" />
+    <Compile Include="UI\Controller\DataBuffering\Interfaces\IEventModelDataProvider.cs" />
     <Compile Include="UI\Controller\DriverStanding.cs" />
     <Compile Include="UI\Controller\Graphing\Interfaces\IGraphProvider.cs" />
     <Compile Include="UI\Controller\Graphing\Interfaces\IXYGraph.cs" />
@@ -338,6 +344,7 @@
   <ItemGroup>
     <Resource Include="UI\Windows\Icons\BlackCross.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>
