@@ -1,22 +1,23 @@
 ﻿using Newtonsoft.Json.Linq;
+using WhatIfF1.Adapters.Interfaces;
 
 namespace WhatIfF1.Adapters
 {
-    public class FetchResult
+    public class JsonFetchResult : IFetchResult<JToken>
     {
         public JToken Data { get; }
 
         public bool Success { get; }
 
-        public static FetchResult Fail => new FetchResult();
+        public static JsonFetchResult Fail => new JsonFetchResult();
 
-        public FetchResult(JToken data)
+        public JsonFetchResult(JToken data)
         {
             Data = data;
             Success = true;
         }
 
-        private FetchResult()
+        private JsonFetchResult()
         {
             Success = false;
         }

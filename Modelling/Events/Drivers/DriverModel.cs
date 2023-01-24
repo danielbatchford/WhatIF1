@@ -1,22 +1,29 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using WhatIfF1.Modelling.Events.Drivers.Telemetry;
+using WhatIfF1.Modelling.Events.Drivers.Interfaces;
 
 namespace WhatIfF1.Modelling.Events.Drivers
 {
-    public class DriverModel
+    public class DriverModel : IDriverModel
     {
         private readonly double _trackLength;
 
         private readonly IList<int> _lapTimes;
 
-        private readonly IList<VelocityDistanceTimeContainer> _vdtContainers;
+        private readonly IList<IVelocityDistanceTimeContainer> _vdtContainers;
 
-        public int NoOfLaps { get; }
+        /// <summary>
+        /// Either where a position over the finishing line, or the position where the car retired
+        /// </summary>
+        private readonly TrackPosition _restingPosition;
 
-        public int TotalTime { get; }
+        public int DriverNoOfLaps { get; }
 
-        public DriverModel(IEnumerable<int> lapTimes, IEnumerable<VelocityDistanceTimeContainer> vdtContainers, double trackLength)
+        public int TotalNoOfLaps { get; }
+
+        public int DriverTotalTime { get; }
+
+        public DriverModel(IEnumerable<int> lapTimes, IEnumerable<IVelocityDistanceTimeContainer> vdtContainers, double trackLength, int totalNoOfLaps, bool isDriverRetired)
         {
             _lapTimes = lapTimes.ToList();
 
@@ -24,30 +31,29 @@ namespace WhatIfF1.Modelling.Events.Drivers
 
             _trackLength = trackLength;
 
-            NoOfLaps = _lapTimes.Count;
+            DriverNoOfLaps = _lapTimes.Count;
+            TotalNoOfLaps = totalNoOfLaps;
 
-            TotalTime = _lapTimes.Sum();
+            DriverTotalTime = _lapTimes.Sum();
+
+            if (isDriverRetired)
+            {
+                _restingPosition = TrackPosition.OnStartLinePosition(DriverTotalTime, DriverNoOfLaps, trackLength);
+            }
+            else
+            {
+                _restingPosition = TrackPosition.OnStartLinePosition(DriverTotalTime, DriverNoOfLaps + 1, trackLength);
+            }
         }
 
-        public bool TryGetPositionAtTime(int totalMs, out Position position)
+        public TrackPosition GetPositionAndRunningState(int totalMs, out RunningState runningState)
         {
-            int lapIndex = 0;
-
-            // Find the lap index based on the total time elapsed
-            while (totalMs >= _lapTimes[lapIndex])
+            if (!TryGetLapInfo(totalMs, out int lapMs, out int lapIndex))
             {
-                totalMs -= _lapTimes[lapIndex];
-                lapIndex++;
-
-                // Implys car has retired, cannot fetch position for lap greater than the laps travelled by this driver
-                if (lapIndex == NoOfLaps)
-                {
-                    position = null;
-                    return false;
-                }
+                // Implys car has retired or finished, cannot fetch lap data for lap greater than the laps travelled by this driver
+                runningState = lapIndex == TotalNoOfLaps ? RunningState.FINISHED : RunningState.RETIRED;
+                return _restingPosition;
             }
-
-            int lapMs = totalMs;
 
             _vdtContainers[lapIndex].GetLapDistanceAndVelocity(lapMs, out double lapDistance, out double velocity);
 
@@ -55,8 +61,35 @@ namespace WhatIfF1.Modelling.Events.Drivers
 
             int forecastLapTime = _lapTimes[lapIndex];
 
-            position = new Position(totalMs, lapMs, lapIndex + 1, forecastLapTime, velocity, totalDistance, lapDistance, _trackLength);
+            runningState = RunningState.RUNNING;
+            int lap = lapIndex + 1;
+            return new TrackPosition(totalMs, lapMs, lap, forecastLapTime, velocity, totalDistance, lapDistance, _trackLength);
+        }
+
+        private bool TryGetLapInfo(int totalMs, out int lapMs, out int lapIndex)
+        {
+            int idx = 0;
+            int msCounter = totalMs;
+
+            // Find the lap index based on the total time elapsed
+            while (msCounter >= _lapTimes[idx])
+            {
+                msCounter -= _lapTimes[idx];
+                idx++;
+
+                // Implys car has retired or finished, cannot fetch lap data for lap greater than the laps travelled by this driver
+                if (idx == DriverNoOfLaps)
+                {
+                    lapMs = default;
+                    lapIndex = default;
+                    return false;
+                }
+            }
+
+            lapMs = msCounter;
+            lapIndex = idx;
             return true;
+
         }
     }
 }

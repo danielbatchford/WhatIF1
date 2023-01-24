@@ -1,8 +1,8 @@
-﻿using System;
+﻿using WhatIfF1.UI.Controller.Graphing.SeriesData.Interfaces;
 
 namespace WhatIfF1.UI.Controller.Graphing.SeriesData
 {
-    public class XYDataPoint<T> : IEquatable<XYDataPoint<T>>
+    public class XYDataPoint<T> : IXYDataPoint<T>
     {
         public T XValue { get; }
         public T YValue { get; }
@@ -18,7 +18,7 @@ namespace WhatIfF1.UI.Controller.Graphing.SeriesData
             return $"{XValue}, {YValue}";
         }
 
-        public bool Equals(XYDataPoint<T> other)
+        public bool Equals(IXYDataPoint<T> other)
         {
             return other.XValue.Equals(XValue) && other.YValue.Equals(YValue);
         }

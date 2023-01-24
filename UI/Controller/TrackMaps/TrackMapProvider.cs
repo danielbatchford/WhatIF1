@@ -6,26 +6,31 @@ using System.Windows;
 using System.Windows.Media;
 using WhatIfF1.Adapters;
 using WhatIfF1.Modelling.Events.Drivers;
-using WhatIfF1.Modelling.Tracks;
+using WhatIfF1.Modelling.Events.Drivers.Interfaces;
+using WhatIfF1.Modelling.Tracks.Interfaces;
+using WhatIfF1.UI.Controller.Interfaces;
+using WhatIfF1.UI.Controller.TrackMaps.Interfaces;
 using WhatIfF1.Util;
 
 namespace WhatIfF1.UI.Controller.TrackMaps
 {
-    public sealed class TrackMapProvider : NotifyPropertyChangedWrapper
+    public sealed class TrackMapProvider : NotifyPropertyChangedWrapper, ITrackMapProvider
     {
-        private static readonly IDictionary<Track, PointCollection> _cachedTracks = new Dictionary<Track, PointCollection>();
+        private const double _notFocusedOpacity = 0.3;
+
+        private static readonly IDictionary<ITrack, PointCollection> _cachedTracks = new Dictionary<ITrack, PointCollection>();
 
         private static readonly Rect _boundingBox = new Rect(0, 0, 950, 500);
 
-        private static readonly int _pointsReductionFactor = 15;
+        private readonly IDictionary<IDriver, int> _driverToIndexMapping;
 
         public PointCollection TrackPoints { get; }
 
-        public ObservableCollection<DriverMapPoint> DriverPoints { get; }
+        public ObservableCollection<IDriverMapPoint> DriverPoints { get; }
 
         public Point StartPoint { get; }
 
-        public TrackMapProvider(Track track, IEnumerable<Driver> drivers)
+        public TrackMapProvider(ITrack track, IEnumerable<IDriver> drivers)
         {
             // If the track has already been parsed, use the cached version.
             if (_cachedTracks.TryGetValue(track, out PointCollection trackPoints))
@@ -42,12 +47,6 @@ namespace WhatIfF1.UI.Controller.TrackMaps
             var rawPoints = new List<Point>();
 
             const char delimiter = ',';
-
-            int increment = lines.Count() / _pointsReductionFactor;
-            for (int i = 0; i < lines.Count(); i += increment)
-            {
-
-            }
 
             foreach (string line in lines)
             {
@@ -117,40 +116,74 @@ namespace WhatIfF1.UI.Controller.TrackMaps
             maxX = translatedPoints.Max(point => point.X);
             maxY = translatedPoints.Max(point => point.Y);
 
-            DriverPoints = new ObservableCollection<DriverMapPoint>(driverPoints);
-        }
+            DriverPoints = new ObservableCollection<IDriverMapPoint>(driverPoints);
 
-        public void UpdateDriverMapPosition(Driver driver, double proportionOfLap)
-        {
-            // Find the closest index in the track points list based on the distance around the lap
-            int trackIndex = (int)Math.Round(proportionOfLap * (TrackPoints.Count - 1), 0);
+            _driverToIndexMapping = new Dictionary<IDriver, int>();
 
-            // Find the index of the requested driver in the driverpoints list
-            int driverIndex = DriverPoints.Select(dp => dp.Driver).ToList().IndexOf(driver);
-
-            DriverPoints[driverIndex].Point = TrackPoints[trackIndex];
-        }
-
-        public void UpdateRetirements(IEnumerable<DriverStanding> newStandings, IEnumerable<DriverStanding> oldStandings)
-        {
-            var newDrivers = newStandings.Select(ds => ds.Driver);
-            var oldDrivers = oldStandings.Select(ds => ds.Driver);
-
-            // Find driver retirements
-            foreach (var driver in oldDrivers)
+            for (int i = 0; i < drivers.Count(); i++)
             {
-                if (!newDrivers.Contains(driver))
+                _driverToIndexMapping.Add(driverPoints[i].Driver, i);
+            }
+        }
+
+        public void UpdateDriverMapPosition(IDriverStanding standing)
+        {
+            int driverIndex = _driverToIndexMapping[standing.Driver];
+
+            // If the driver has finished, set the position to the start position
+            if (standing.State == RunningState.FINISHED)
+            {
+                DriverPoints[driverIndex].Point = StartPoint;
+                DriverPoints[driverIndex].IsNotRunning = true;
+            }
+            else if (standing.State == RunningState.RETIRED)
+            {
+                DriverPoints[driverIndex].IsNotRunning = true;
+            }
+            else
+            {
+                double distanceAlongCollection = standing.ProportionOfLap * (TrackPoints.Count - 1);
+
+                // Find the closest lower index in the track points list based on the distance around the lap
+                int trackIndex = (int)(distanceAlongCollection);
+
+                if (trackIndex == TrackPoints.Count - 1)
                 {
-                    DriverPoints.Single(dp => dp.Driver.Equals(driver)).IsRetired = true;
+                    DriverPoints[driverIndex].Point = TrackPoints[trackIndex];
+                }
+                else
+                {
+                    double fractionBetweenPoints = distanceAlongCollection - Math.Truncate(distanceAlongCollection);
+
+                    DriverPoints[driverIndex].Point = InterpolatePoint(TrackPoints[trackIndex], TrackPoints[trackIndex + 1], fractionBetweenPoints);
                 }
             }
+        }
 
-            foreach (var driver in newDrivers)
+        public void UpdateNotRunning(IEnumerable<IDriverStanding> standings)
+        {
+            foreach (var standing in standings)
             {
-                if (!oldDrivers.Contains(driver))
+                if (standing.State != RunningState.RUNNING)
                 {
-                    DriverPoints.Single(dp => dp.Driver.Equals(driver)).IsRetired = false;
+                    DriverPoints[_driverToIndexMapping[standing.Driver]].IsNotRunning = true;
                 }
+            }
+        }
+
+        public void ToSelectedDriverMode(IDriver driver)
+        {
+            foreach (var driverMapPoint in DriverPoints)
+            {
+                driverMapPoint.Opacity = driver.Equals(driverMapPoint.Driver) ? 1 : _notFocusedOpacity;
+            }
+        }
+
+        public void ClearSelectedDriverMode()
+        {
+            foreach (var driverMapPoint in DriverPoints)
+            {
+                driverMapPoint.Opacity = 1;
             }
         }
 
@@ -174,7 +207,7 @@ namespace WhatIfF1.UI.Controller.TrackMaps
             double maxX = points.Max(p => p.X);
             double maxY = points.Max(p => p.Y);
 
-            Point origin = new Point(minX + (maxX - minX) / 2, minY + (maxY - minY) / 2);
+            Point origin = new Point(minX + ((maxX - minX) / 2), minY + ((maxY - minY) / 2));
 
             for (double testAngle = 0; testAngle < 2 * Math.PI; testAngle += radIncrement)
             {
@@ -186,7 +219,7 @@ namespace WhatIfF1.UI.Controller.TrackMaps
                     dy = points[i].Y - origin.Y;
 
                     double angleToHoriz = Math.Atan2(dy, dx);
-                    double distToOrigin = Math.Sqrt(dx * dx + dy * dy);
+                    double distToOrigin = Math.Sqrt((dx * dx) + (dy * dy));
 
                     double horizDist = distToOrigin * Math.Abs(Math.Cos(testAngle + angleToHoriz));
 
@@ -220,8 +253,8 @@ namespace WhatIfF1.UI.Controller.TrackMaps
                 dx = point.X - origin.X;
                 dy = point.Y - origin.Y;
 
-                double x = cosTheta * dx - sinTheta * dy + origin.X;
-                double y = sinTheta * dx + cosTheta * dy + origin.Y;
+                double x = (cosTheta * dx) - (sinTheta * dy) + origin.X;
+                double y = (sinTheta * dx) + (cosTheta * dy) + origin.Y;
                 rotatedPoints.Add(new Point(x, y));
             }
 
@@ -248,6 +281,15 @@ namespace WhatIfF1.UI.Controller.TrackMaps
 
                 return points.Select(point => new Point(point.X + dx, point.Y));
             }
+        }
+
+        private Point InterpolatePoint(Point start, Point end, double fraction)
+        {
+            return new Point
+            {
+                X = start.X + ((end.X - start.X) * fraction),
+                Y = start.Y + ((end.Y - start.Y) * fraction)
+            };
         }
     }
 }

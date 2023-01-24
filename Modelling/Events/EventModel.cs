@@ -4,18 +4,79 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using WhatIfF1.Modelling.Events.Drivers;
+using WhatIfF1.Modelling.Events.Drivers.Interfaces;
 using WhatIfF1.Modelling.Events.Drivers.Telemetry;
+using WhatIfF1.Modelling.Events.Interfaces;
 using WhatIfF1.Modelling.Tires;
 using WhatIfF1.UI.Controller;
+using WhatIfF1.UI.Controller.Interfaces;
 using WhatIfF1.Util;
 
 namespace WhatIfF1.Modelling.Events
 {
-    public class EventModel : NotifyPropertyChangedWrapper
+    public class EventModel : NotifyPropertyChangedWrapper, IEventModel
     {
-        private readonly IDictionary<Driver, DriverModel> _driverModels;
+        public static EventModel GetModel(string name, double trackLength, JArray driversJson, JArray lapTimesJson, JObject telemetryJson)
+        {
+            var drivers = Driver.GetDriversAndRetirementsListFromJSON(driversJson, out IDictionary<IDriver, bool> isDriverRetiredDict);
+            int noOfDrivers = drivers.Count();
 
-        public int NumDrivers { get; }
+            var lapTimes = new Dictionary<IDriver, ICollection<int>>();
+
+            // Initialise driver times dictionary
+            foreach (IDriver driver in drivers)
+            {
+                lapTimes.Add(driver, new List<int>());
+            }
+
+            const string timeFormat = @"m\:ss\.fff";
+
+            foreach (JObject lapTimeJson in lapTimesJson)
+            {
+                foreach (Driver driver in drivers)
+                {
+                    // If no element is found, this implies the driver has retired from the race
+                    JToken timingObject = lapTimeJson["Timings"].SingleOrDefault(timing => timing["driverId"].ToObject<string>().Equals(driver.DriverID));
+
+                    if (timingObject == default)
+                    {
+                        continue;
+                    }
+
+                    string timingString = timingObject["time"].ToObject<string>();
+
+                    // Convert this timing string from format minute:second.millisecond to milliseconds
+                    TimeSpan timeSpan = TimeSpan.ParseExact(timingString, timeFormat, CultureInfo.InvariantCulture);
+
+                    lapTimes[driver].Add((int)timeSpan.TotalMilliseconds);
+                }
+            }
+
+            var telemetryParser = new TelemetryParser(trackLength);
+
+            var vdtContainers = telemetryParser.ParseTelemetryJson(drivers, lapTimes, telemetryJson);
+
+            // Initialise number of laps as the max of the laps completed by each driver
+            int noOfLaps = lapTimes.Values.Max(lt => lt.Count);
+
+            // Initialise driver models
+
+            var driverModels = new Dictionary<IDriver, IDriverModel>(noOfDrivers);
+
+            foreach (IDriver driver in drivers)
+            {
+                driverModels.Add(driver, new DriverModel(lapTimes[driver], vdtContainers[driver], trackLength, noOfLaps, isDriverRetiredDict[driver]));
+            }
+
+            // Initialse the total time as the maximum time of the total times of each driver
+            int totalTime = driverModels.Values.Max(dMOdel => dMOdel.DriverTotalTime);
+
+            return new EventModel(name, noOfDrivers, noOfLaps, totalTime, driverModels);
+        }
+
+        private readonly IDictionary<IDriver, IDriverModel> _driverModels;
+
+        public int NoOfDrivers { get; }
 
         public string Name { get; }
 
@@ -51,64 +112,14 @@ namespace WhatIfF1.Modelling.Events
             }
         }
 
-        public EventModel(string name, double trackLength, JArray driversJson, JArray lapTimesJson, JObject telemetryJson)
+        private EventModel(string name, int noOfDrivers, int noOfLaps, int totalTime, IDictionary<IDriver, IDriverModel> driverModels)
         {
             Name = name;
+            NoOfDrivers = noOfDrivers;
 
-            // Fetch driver list from the response Json
-            IEnumerable<Driver> drivers = Driver.GetDriverListFromJSON(driversJson);
-
-            NumDrivers = drivers.Count();
-
-            var lapTimes = new Dictionary<Driver, ICollection<int>>();
-
-            // Initialise driver times dictionary
-            foreach (Driver driver in drivers)
-            {
-                lapTimes.Add(driver, new List<int>());
-            }
-
-            const string timeFormat = @"m\:ss\.fff";
-
-            foreach (JObject lapTimeJson in lapTimesJson)
-            {
-                foreach (Driver driver in drivers)
-                {
-                    // If no element is found, this implies the driver has retired from the race
-                    JToken timingObject = lapTimeJson["Timings"].SingleOrDefault(timing => timing["driverId"].ToObject<string>().Equals(driver.DriverID));
-
-                    if (timingObject == default)
-                    {
-                        continue;
-                    }
-
-                    string timingString = timingObject["time"].ToObject<string>();
-
-                    // Convert this timing string from format minute:second.millisecond to milliseconds
-                    TimeSpan timeSpan = TimeSpan.ParseExact(timingString, timeFormat, CultureInfo.InvariantCulture);
-
-                    lapTimes[driver].Add((int)timeSpan.TotalMilliseconds);
-                }
-            }
-
-            var telemetryParser = new TelemetryParser(trackLength);
-
-            var vdtContainers = telemetryParser.ParseTelemetryJson(drivers, lapTimes, telemetryJson);
-
-            // Initialise driver models
-
-            _driverModels = new Dictionary<Driver, DriverModel>(NumDrivers);
-
-            foreach (Driver driver in drivers)
-            {
-                _driverModels.Add(driver, new DriverModel(lapTimes[driver], vdtContainers[driver], trackLength));
-            }
-
-            // Initialise number of laps as the max of the laps completed by each driver
-            NoOfLaps = _driverModels.Values.Max(dModel => dModel.NoOfLaps);
-
-            // Initialse the total time as the maximum time of the total times of each driver
-            TotalTime = _driverModels.Values.Max(dMOdel => dMOdel.TotalTime);
+            _noOfLaps = noOfLaps;
+            _totalTime = totalTime;
+            _driverModels = driverModels;
         }
 
         public override string ToString()
@@ -116,33 +127,25 @@ namespace WhatIfF1.Modelling.Events
             return Name;
         }
 
-        public IEnumerable<Driver> GetDrivers()
+        public IEnumerable<IDriver> GetDrivers()
         {
-            return new List<Driver>(_driverModels.Keys);
+            return new List<IDriver>(_driverModels.Keys);
         }
 
-        public IEnumerable<DriverStanding> GetStandingsAtTime(int timeMs, out int currentLap)
+        public IEnumerable<IDriverStanding> GetStandingsAtTime(int timeMs, out int currentLap)
         {
-            var driverPositions = new List<(Driver, Position)>();
+            var driverPositions = new List<(IDriver driver, TrackPosition position, RunningState runningState)>(NoOfDrivers);
 
             foreach (Driver driver in _driverModels.Keys)
             {
-                if (_driverModels[driver].TryGetPositionAtTime(timeMs, out Position driverPos))
-                {
-                    driverPositions.Add((driver, driverPos));
-                }
+                TrackPosition trackPosition = _driverModels[driver].GetPositionAndRunningState(timeMs, out RunningState runningState);
+                driverPositions.Add((driver, trackPosition, runningState));
             }
 
-            currentLap = driverPositions.Max(tup => tup.Item2.Lap);
+            currentLap = driverPositions.Where(tup => tup.runningState == RunningState.RUNNING).Max(tup => tup.position.Lap);
 
             // Sort positions into current race order
-            driverPositions.Sort((tupa, tupb) =>
-            {
-                Position a = tupa.Item2;
-                Position b = tupb.Item2;
-
-                return a.CompareTo(b);
-            });
+            driverPositions.Sort((tupa, tupb) => tupa.position.CompareTo(tupb.position));
 
             // TODO - tire compound changes
 
@@ -150,63 +153,56 @@ namespace WhatIfF1.Modelling.Events
 
             var standings = new List<DriverStanding>(driverPositions.Count);
 
-            Position leadCarPos = driverPositions[0].Item2;
+            int cumulativeGap = 0;
 
             for (int i = 0; i < driverPositions.Count; i++)
             {
-                Driver driver = driverPositions[i].Item1;
-                Position carPos = driverPositions[i].Item2;
+                IDriver driver = driverPositions[i].driver;
+                TrackPosition carPos = driverPositions[i].position;
+                RunningState runningState = driverPositions[i].runningState;
 
                 int gapToNextCar;
-                int gapToLead;
 
                 // Lead car case
                 if (i == 0)
                 {
                     gapToNextCar = 0;
-                    gapToLead = 0;
                 }
                 else
                 {
-                    Position nextCarPos = driverPositions[i - 1].Item2;
+                    TrackPosition nextCarPos = driverPositions[i - 1].position;
 
                     gapToNextCar = CalculateGap(carPos, nextCarPos);
-                    gapToLead = CalculateGap(carPos, leadCarPos);
+                    cumulativeGap += gapToNextCar;
                 }
 
                 int racePos = i + 1;
-
-                standings.Add(new DriverStanding(driver, racePos, gapToLead, gapToNextCar, carPos.LapDistanceFraction, carPos.Velocity, TireCompoundStore.SoftTyre));
+                standings.Add(new DriverStanding(driver, racePos, cumulativeGap, gapToNextCar, carPos.LapDistanceFraction, carPos.Velocity, TireCompoundStore.SoftTyre, runningState));
             }
 
             return standings;
         }
 
-        public int GetCurrentLap(int timeMs, Driver driver = null)
+        public bool TryGetCurrentLapForDriver(int currentTime, IDriver targetDriver, out int currentLap)
         {
-            var positions = new List<Position>();
+            TrackPosition position = _driverModels[targetDriver].GetPositionAndRunningState(currentTime, out RunningState runningState);
 
-            var driversInLapEval = driver is null ? _driverModels.Keys : new List<Driver> { driver };
-
-            foreach (Driver driverInEval in driversInLapEval)
+            if (runningState == RunningState.RUNNING)
             {
-                if (_driverModels[driverInEval].TryGetPositionAtTime(timeMs, out Position driverPos))
-                {
-                    positions.Add(driverPos);
-                }
+                currentLap = position.Lap;
+                return false;
             }
-
-            return positions.Max(pos => pos.Lap);
+            currentLap = -1;
+            return false;
         }
 
-        private int CalculateGap(Position car, Position reference)
+        private int CalculateGap(TrackPosition car, TrackPosition reference)
         {
             int lapDelta = reference.Lap - car.Lap;
 
             if (lapDelta == 0)
             {
-                // Return time based off reference forecast and proportion of lap between cars
-                return (int)((reference.LapDistanceFraction - car.LapDistanceFraction) * reference.ForecastLapTime);
+                return (int)((reference.LapTimeFraction - car.LapTimeFraction) * reference.ForecastLapTime);
             }
 
             int gap = 0;
@@ -214,7 +210,7 @@ namespace WhatIfF1.Modelling.Events
             if (lapDelta > 0)
             {
                 // Add on delta from car to end of lap
-                gap += (int)((1 - car.LapDistanceFraction) * reference.ForecastLapTime);
+                gap += (int)((1 - car.LapTimeFraction) * reference.ForecastLapTime);
 
                 // Add on delta from start of lap to reference
                 gap += reference.LapMs;
@@ -223,7 +219,6 @@ namespace WhatIfF1.Modelling.Events
             {
                 // Add on complete laps based on reference forecast
                 gap += reference.ForecastLapTime * (lapDelta - 2);
-
             }
 
             return gap;

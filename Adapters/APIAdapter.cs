@@ -17,7 +17,7 @@ namespace WhatIfF1.Adapters
         private static readonly string _ergastAPIRoot = (string)Properties.Settings.Default["ergastAPIRoot"];
         private static readonly string _liveTimingAPIRoot = (string)Properties.Settings.Default["liveTimingAPIRoot"];
 
-        private static async Task<FetchResult> GetJson(string baseAddress, string relativeAddress)
+        private static async Task<JsonFetchResult> GetJson(string baseAddress, string relativeAddress)
         {
             HttpResponseMessage response;
 
@@ -31,7 +31,7 @@ namespace WhatIfF1.Adapters
                 if (!response.IsSuccessStatusCode)
                 {
                     Logger.Instance.Error($"Received invalid success code: {response.ReasonPhrase}");
-                    return FetchResult.Fail;
+                    return JsonFetchResult.Fail;
                 }
             }
 
@@ -46,21 +46,21 @@ namespace WhatIfF1.Adapters
 
             if (TryParseResponseJson(responseString, out JToken json))
             {
-                return new FetchResult(json);
+                return new JsonFetchResult(json);
             }
             else
             {
                 Logger.Instance.Error("Failed to parse the response json");
-                return FetchResult.Fail;
+                return JsonFetchResult.Fail;
             }
         }
 
-        public static async Task<FetchResult> GetFromErgastAPI(string relativeAddress)
+        public static async Task<JsonFetchResult> GetFromErgastAPI(string relativeAddress)
         {
             return await GetJson(_ergastAPIRoot, relativeAddress);
         }
 
-        public static async Task<FetchResult> GetTelemetryJsonFromLiveTimingAPI(string eventName, DateTime eventDate)
+        public static async Task<JsonFetchResult> GetTelemetryJsonFromLiveTimingAPI(string eventName, DateTime eventDate)
         {
             string dateString = eventDate.ToString("yyyy-MM-dd");
 
@@ -77,7 +77,7 @@ namespace WhatIfF1.Adapters
                 if (!response.IsSuccessStatusCode)
                 {
                     Logger.Instance.Error($"Received invalid success code: {response.ReasonPhrase}");
-                    return FetchResult.Fail;
+                    return JsonFetchResult.Fail;
                 }
             }
 
@@ -87,14 +87,13 @@ namespace WhatIfF1.Adapters
             {
                 // Response data needs to be decoded here
                 JToken json = DecodeLiveTimingAPIResultToJson(responseString);
-                return new FetchResult(json);
+                return new JsonFetchResult(json);
             }
             catch (Exception e)
             {
                 Logger.Instance.Error($"Failed to parse live timing response text: {e.Message}");
-                return FetchResult.Fail;
+                return JsonFetchResult.Fail;
             }
-
         }
         private static bool TryParseResponseJson(string responseString, out JToken json)
         {
@@ -102,7 +101,6 @@ namespace WhatIfF1.Adapters
             {
                 json = JToken.Parse(responseString);
                 return true;
-
             }
             catch (JsonReaderException e)
             {
@@ -195,6 +193,5 @@ namespace WhatIfF1.Adapters
                 ["ChannelValues"] = outputArray
             };
         }
-
     }
 }

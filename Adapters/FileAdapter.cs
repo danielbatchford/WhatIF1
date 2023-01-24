@@ -1,18 +1,14 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using WhatIfF1.Logging;
 
 namespace WhatIfF1.Adapters
 {
     public sealed class FileAdapter
     {
-
         #region LazyInitialization
 
         public static FileAdapter Instance => _lazy.Value;
@@ -31,12 +27,15 @@ namespace WhatIfF1.Adapters
 
         public string ConstructorPicsRoot { get; }
 
-        public string TelemetryCacheRoot { get; }
+        public string TrackMarkerIconsRoot { get; }
+
+        public string CacheRoot { get; }
+
+        public bool UseCaching { get; }
 
         private FileAdapter()
         {
-            // TODO - THIS!!!!
-            _resourcesRoot = Path.Combine(@"C:\Users\Daniel Batchford\Desktop\WhatIF1Root\WhatIfF1", "Resources");
+            _resourcesRoot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources");
 
             if (!Directory.Exists(_resourcesRoot))
             {
@@ -47,14 +46,18 @@ namespace WhatIfF1.Adapters
             TrackLayoutsRoot = GetAndDebugResourcePath("Tracks", "tracks");
             DriverPicsRoot = GetAndDebugResourcePath("Drivers", "drivers");
             ConstructorPicsRoot = GetAndDebugResourcePath("Constructors", "constructors");
+            TrackMarkerIconsRoot = GetAndDebugResourcePath("TrackMarkers", "track markers");
 
             string roamingPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            TelemetryCacheRoot = Path.Combine(roamingPath, ((App)System.Windows.Application.Current).AppName, "TelemetryCache");
+            CacheRoot = Path.Combine(roamingPath, ((App)System.Windows.Application.Current).AppName);
 
-            if (!Directory.Exists(TelemetryCacheRoot))
+            // Can be set accordingly
+            UseCaching = true;
+
+            if (UseCaching && !Directory.Exists(CacheRoot))
             {
-                Directory.CreateDirectory(TelemetryCacheRoot);
-                Logger.Instance.Info($"Created cache root at \"{TelemetryCacheRoot}\" as it did not exist");
+                Directory.CreateDirectory(CacheRoot);
+                Logger.Instance.Info($"Created cache root at \"{CacheRoot}\" as it did not exist");
             }
         }
 
@@ -72,41 +75,8 @@ namespace WhatIfF1.Adapters
             }
         }
 
-        public bool TelemetryCacheFileExists(string eventName, DateTime eventDate)
-        {
-            return File.Exists(GetCacheFileName(eventName, eventDate));
-        }
-
-        public async Task<FetchResult> LoadTelemetryCacheFileAsync(string eventName, DateTime eventDate)
-        {
-            string cachePath = GetCacheFileName(eventName, eventDate);
-
-            using (StreamReader file = File.OpenText(cachePath))
-            {
-                using (JsonTextReader jsonReader = new JsonTextReader(file))
-                {
-                    JToken loaded = await JToken.ReadFromAsync(jsonReader);
-                    return new FetchResult(loaded);
-                }
-            }
-        }
-
-        public void WriteTelemetryCacheFile(string eventName, DateTime eventDate, JToken telemetryJson)
-        {
-            string cachePath = GetCacheFileName(eventName, eventDate);
-
-            using (FileStream stream = new FileStream(cachePath, FileMode.Create))
-            {
-                using (StreamWriter streamWriter = new StreamWriter(stream))
-                {
-                    streamWriter.Write(telemetryJson.ToString(Formatting.Indented));
-                }
-            }
-        }
-
         private string GetAndDebugResourcePath(string folderName, string debugName)
         {
-
             string fullPath = Path.Combine(_resourcesRoot, folderName);
 
             if (!Directory.Exists(fullPath))
@@ -115,11 +85,6 @@ namespace WhatIfF1.Adapters
             }
 
             return fullPath;
-        }
-
-        private string GetCacheFileName(string eventName, DateTime eventDate)
-        {
-            return Path.Combine(TelemetryCacheRoot, $"{eventName} - {eventDate.Year}.json");
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 namespace WhatIfF1.Util
@@ -18,6 +19,6 @@ namespace WhatIfF1.Util
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public event CollectionChangeEventHandler CollectionChanged;
+        public event EventHandler<CollectionChangeEventArgs> CollectionChanged;
     }
 }
