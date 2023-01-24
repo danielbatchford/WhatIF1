@@ -1,13 +1,13 @@
 ﻿using Newtonsoft.Json.Linq;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using WhatIfF1.Adapters;
 using WhatIfF1.Logging;
+using WhatIfF1.Modelling.Tracks.Interfaces;
 
 namespace WhatIfF1.Modelling.Tracks
 {
-    public class Track : IEquatable<Track>
+    public class Track : ITrack
     {
         public string TrackName { get; }
         public double TrackLength { get; }
@@ -54,7 +54,7 @@ namespace WhatIfF1.Modelling.Tracks
             if (!File.Exists(TrackFilePath))
             {
                 Logger.Instance.Error($"Could not find the track file at \"{TrackFilePath}\". Using default file");
-                TrackFilePath = Path.Combine(tracksFolder, $"default.txt");
+                TrackFilePath = Path.Combine(tracksFolder, "default.txt");
             }
 
             // TODO - this
@@ -66,13 +66,7 @@ namespace WhatIfF1.Modelling.Tracks
             return TrackName;
         }
 
-        public override bool Equals(object obj)
-        {
-            return obj is Track track &&
-                   TrackName == track.TrackName;
-        }
-
-        public bool Equals(Track other)
+        public bool Equals(ITrack other)
         {
             return Equals(other);
         }

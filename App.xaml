@@ -4,16 +4,12 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:converters="clr-namespace:WhatIfF1.UI.Converters"
     xmlns:local="clr-namespace:WhatIfF1"
-    xmlns:sf="http://schemas.syncfusion.com/wpf"
     ShutdownMode="OnMainWindowClose"
     StartupUri="UI/Windows/MainWindow.xaml">
-
     <Application.Resources>
-
         <FontFamily x:Key="regularFont">Resources/Fonts/Formula1-Regular.otf #Formula1 Display Regular</FontFamily>
         <FontFamily x:Key="boldFont">Resources/Fonts/Formula1-Bold.otf #Formula1 Display Bold</FontFamily>
         <FontFamily x:Key="wideFont">Resources/Fonts/Formula1-Wide.otf #Formula1 Display Wide</FontFamily>
-
         <converters:IsNotNullConverter x:Key="isNotNullConverter" />
         <converters:ColorToBrushConverter x:Key="colorToBrushConverter" />
         <converters:InverseBoolConverter x:Key="inverseBoolConverter" />
@@ -23,33 +19,157 @@
         <converters:InverseBoolToHiddenVisConverter x:Key="inverseBoolToHiddenVisConverter" />
         <converters:ScenarioTypeToStringConverter x:Key="scenarioTypeToStringConverter" />
         <converters:ToFormattedTimeConverter x:Key="toFormattedTimeConverter" />
-        <converters:MsToSConverter x:Key="msToSConverter" />
-        <converters:SToMsConverter x:Key="sToMsConverter" />
+        <converters:MsToHundredSecConverter x:Key="msToHundredSecConverter" />
         <converters:DriverMapPointToPointsConverter x:Key="driverMapPointToPointsConverter" />
         <converters:ToIntConverter x:Key="toIntConverter" />
-
         <SolidColorBrush x:Key="mainColor" Color="Firebrick" />
         <SolidColorBrush x:Key="lightColor" Color="LightGray" />
-
         <Thickness
             x:Key="defaultMargin"
             Bottom="5"
             Left="5"
             Right="5"
             Top="5" />
+        <DataTemplate x:Key="markerItemTemplate">
+            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*" MinWidth="100" />
+                </Grid.ColumnDefinitions>
+                <Rectangle
+                    Grid.Row="0"
+                    Grid.RowSpan="4"
+                    Grid.Column="0"
+                    Width="2"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Stretch"
+                    Fill="{Binding Color, Converter={StaticResource colorToBrushConverter}}">
+                    <Rectangle.OpacityMask>
+                        <LinearGradientBrush StartPoint="0.5, 0" EndPoint="0.5,1">
+                            <GradientStop Offset="0" Color="Transparent" />
+                            <GradientStop Offset="1" Color="Black" />
+                        </LinearGradientBrush>
+                    </Rectangle.OpacityMask>
+                </Rectangle>
+                <Rectangle
+                    Grid.Row="0"
+                    Grid.RowSpan="4"
+                    Grid.Column="0"
+                    Width="2"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Stretch"
+                    Fill="{Binding Color, Converter={StaticResource colorToBrushConverter}}">
+                    <Rectangle.OpacityMask>
+                        <LinearGradientBrush StartPoint="0.5, 0" EndPoint="0.5,1">
+                            <GradientStop Offset="0" Color="Transparent" />
+                            <GradientStop Offset="1" Color="Black" />
+                        </LinearGradientBrush>
+                    </Rectangle.OpacityMask>
+                </Rectangle>
 
+                <Ellipse
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    Width="30"
+                    Height="30"
+                    Margin="15,2,15,2"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch">
+                    <Ellipse.Fill>
+                        <ImageBrush ImageSource="{Binding TrackMarkerIconFilePath}" Stretch="Fill" />
+                    </Ellipse.Fill>
+                </Ellipse>
+                <TextBlock
+                    Grid.Row="1"
+                    Grid.Column="0"
+                    Margin="15,2,15,2"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    FontFamily="{StaticResource boldFont}"
+                    Foreground="{StaticResource lightColor}"
+                    Text="{Binding DisplayName}" />
+                <TextBlock
+                    Grid.Row="2"
+                    Grid.Column="0"
+                    Margin="15,2,15,2"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    FontFamily="{StaticResource regularFont}"
+                    Foreground="{StaticResource lightColor}"
+                    Text="{Binding SupportingTextA}" />
+                <TextBlock
+                    Grid.Row="3"
+                    Grid.Column="0"
+                    Margin="15,2,15,2"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    FontFamily="{StaticResource regularFont}"
+                    Foreground="{StaticResource lightColor}"
+                    Text="{Binding SupportingTextB}" />
+
+            </Grid>
+        </DataTemplate>
         <DataTemplate x:Key="scenarioItemTemplate">
             <Grid HorizontalAlignment="Stretch">
-
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1*" />
                     <RowDefinition Height="2" />
                 </Grid.RowDefinitions>
-
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*" />
                 </Grid.ColumnDefinitions>
-
+                <StackPanel
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    Orientation="Horizontal">
+                    <Ellipse
+                        Width="8"
+                        Height="8"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Fill="{StaticResource mainColor}"
+                        StrokeThickness="0"
+                        Visibility="{Binding IsModelLoaded, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolToCollapsedVisConverter}}" />
+                    <TextBlock
+                        Margin="5"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center"
+                        FontFamily="{StaticResource regularFont}"
+                        Text="{Binding EventName}" />
+                    <StackPanel.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem
+                                Grid.Row="1"
+                                Grid.Column="0"
+                                Command="{Binding LoadRaceCommand}">
+                                <MenuItem.Header>
+                                    <TextBlock Text="{Binding ScenarioType, Converter={StaticResource scenarioTypeToStringConverter}, StringFormat=Load {0}}" />
+                                </MenuItem.Header>
+                            </MenuItem>
+                            <MenuItem
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Command="{Binding RemoveScenarioCommand}">
+                                <MenuItem.Header>
+                                    <TextBlock Text="{Binding ScenarioType, Converter={StaticResource scenarioTypeToStringConverter}, StringFormat=Remove {0}}" />
+                                </MenuItem.Header>
+                            </MenuItem>
+                            <MenuItem
+                                Grid.Row="1"
+                                Grid.Column="0"
+                                Command="{Binding CloneScenarioCommand}">
+                                <MenuItem.Header>
+                                    <TextBlock Text="{Binding ScenarioType, Converter={StaticResource scenarioTypeToStringConverter}, StringFormat=Clone {0}}" />
+                                </MenuItem.Header>
+                            </MenuItem>
+                        </ContextMenu>
+                    </StackPanel.ContextMenu>
+                </StackPanel>
                 <Rectangle
                     Grid.Row="1"
                     Grid.Column="0"
@@ -63,81 +183,19 @@
                         </LinearGradientBrush>
                     </Rectangle.OpacityMask>
                 </Rectangle>
-
-                <StackPanel
-                    Grid.Row="0"
-                    Grid.Column="0"
-                    Orientation="Horizontal">
-
-                    <Ellipse
-                        Width="8"
-                        Height="8"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        Fill="{StaticResource mainColor}"
-                        StrokeThickness="0"
-                        Visibility="{Binding IsModelLoaded, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolToCollapsedVisConverter}}" />
-
-                    <TextBlock
-                        Margin="5"
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Center"
-                        FontFamily="{StaticResource regularFont}"
-                        Text="{Binding EventName}" />
-
-                    <StackPanel.ContextMenu>
-                        <ContextMenu>
-
-                            <MenuItem
-                                Grid.Row="1"
-                                Grid.Column="0"
-                                Command="{Binding LoadRaceCommand}">
-                                <MenuItem.Header>
-                                    <TextBlock Text="{Binding ScenarioType, Converter={StaticResource scenarioTypeToStringConverter}, StringFormat=Load {0}}" />
-                                </MenuItem.Header>
-                            </MenuItem>
-
-                            <MenuItem
-                                Grid.Row="0"
-                                Grid.Column="0"
-                                Command="{Binding RemoveScenarioCommand}">
-                                <MenuItem.Header>
-                                    <TextBlock Text="{Binding ScenarioType, Converter={StaticResource scenarioTypeToStringConverter}, StringFormat=Remove {0}}" />
-                                </MenuItem.Header>
-                            </MenuItem>
-
-                            <MenuItem
-                                Grid.Row="1"
-                                Grid.Column="0"
-                                Command="{Binding CloneScenarioCommand}">
-                                <MenuItem.Header>
-                                    <TextBlock Text="{Binding ScenarioType, Converter={StaticResource scenarioTypeToStringConverter}, StringFormat=Clone {0}}" />
-                                </MenuItem.Header>
-                            </MenuItem>
-
-                        </ContextMenu>
-                    </StackPanel.ContextMenu>
-
-                </StackPanel>
-
             </Grid>
-
         </DataTemplate>
-
         <DataTemplate x:Key="driverStandingsTemplate">
             <Grid>
-
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="40" />
                     <ColumnDefinition Width="50" />
                     <ColumnDefinition Width="85" />
                     <ColumnDefinition Width="1*" />
                 </Grid.ColumnDefinitions>
-
                 <Grid.RowDefinitions>
                     <RowDefinition Height="25" />
                 </Grid.RowDefinitions>
-
                 <Rectangle
                     Grid.Row="0"
                     Grid.Column="0"
@@ -146,7 +204,6 @@
                     HorizontalAlignment="Left"
                     VerticalAlignment="Stretch"
                     Fill="{Binding Driver.Constructor.Color, Converter={StaticResource colorToBrushConverter}}" />
-
                 <TextBlock
                     Grid.Row="0"
                     Grid.Column="0"
@@ -156,7 +213,6 @@
                     FontFamily="{StaticResource boldFont}"
                     Foreground="{StaticResource lightColor}"
                     Text="{Binding RacePosition, UpdateSourceTrigger=PropertyChanged}" />
-
                 <TextBlock
                     Grid.Row="0"
                     Grid.Column="1"
@@ -165,7 +221,6 @@
                     VerticalAlignment="Center"
                     FontFamily="{StaticResource boldFont}"
                     Text="{Binding Driver.DriverLetters, UpdateSourceTrigger=PropertyChanged}" />
-
                 <TextBlock
                     Grid.Row="0"
                     Grid.Column="2"
@@ -174,7 +229,6 @@
                     VerticalAlignment="Center"
                     FontFamily="{StaticResource regularFont}"
                     Text="{Binding GapToLead, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource toFormattedTimeConverter}}" />
-
                 <TextBlock
                     Grid.Row="0"
                     Grid.Column="3"
@@ -184,10 +238,8 @@
                     FontFamily="{StaticResource boldFont}"
                     Foreground="{Binding TireCompound.ScreenColor, Converter={StaticResource colorToBrushConverter}}"
                     Text="{Binding TireCompound.ScreenCharacter, UpdateSourceTrigger=PropertyChanged}" />
-
             </Grid>
         </DataTemplate>
-
         <DataTemplate x:Key="tabItemTemplate">
             <StackPanel>
                 <TextBlock
@@ -196,23 +248,18 @@
                     VerticalAlignment="Center"
                     Text="{Binding}" />
             </StackPanel>
-
         </DataTemplate>
-
         <Style x:Key="inactiveTrackStyle" TargetType="{x:Type Rectangle}">
-            <Setter Property="Height" Value="10" />
             <Setter Property="Fill" Value="{StaticResource lightColor}" />
-        </Style>
-
-        <Style x:Key="activeTrackStyle" TargetType="{x:Type Rectangle}">
             <Setter Property="Height" Value="10" />
-            <Setter Property="Fill" Value="{StaticResource mainColor}" />
         </Style>
-
+        <Style x:Key="activeTrackStyle" TargetType="{x:Type Rectangle}">
+            <Setter Property="Fill" Value="{StaticResource mainColor}" />
+            <Setter Property="Height" Value="10" />
+        </Style>
         <Style x:Key="thumbStyle" TargetType="{x:Type Thumb}">
-            <Setter Property="Width" Value="13" />
-            <Setter Property="Height" Value="13" />
             <Setter Property="Background" Value="White" />
+            <Setter Property="Height" Value="13" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Thumb}">
@@ -223,7 +270,7 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+            <Setter Property="Width" Value="13" />
         </Style>
-
     </Application.Resources>
 </Application>

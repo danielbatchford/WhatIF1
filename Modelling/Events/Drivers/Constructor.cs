@@ -4,12 +4,13 @@ using System.IO;
 using System.Windows.Input;
 using System.Windows.Media;
 using WhatIfF1.Adapters;
+using WhatIfF1.Modelling.Events.Drivers.Interfaces;
 using WhatIfF1.Util;
 using WhatIfF1.Util.Extensions;
 
 namespace WhatIfF1.Modelling.Events.Drivers
 {
-    public class Constructor : NotifyPropertyChangedWrapper
+    public class Constructor : NotifyPropertyChangedWrapper, IConstructor
     {
         private static readonly IDictionary<string, Color> _constructorColorMap = new Dictionary<string, Color>()
         {
@@ -81,6 +82,5 @@ namespace WhatIfF1.Modelling.Events.Drivers
                 ImagePath = Path.Combine(constructorFolder, "default.png");
             }
         }
-
     }
 }

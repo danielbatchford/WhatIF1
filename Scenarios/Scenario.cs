@@ -10,21 +10,24 @@ using WhatIfF1.Adapters;
 using WhatIfF1.Logging;
 using WhatIfF1.Modelling.Events;
 using WhatIfF1.Modelling.Tracks;
+using WhatIfF1.Modelling.Tracks.Interfaces;
 using WhatIfF1.Scenarios.Exceptions;
+using WhatIfF1.Scenarios.Interfaces;
 using WhatIfF1.UI.Controller;
+using WhatIfF1.UI.Controller.Interfaces;
 using WhatIfF1.Util;
 using WhatIfF1.Util.Extensions;
 
 namespace WhatIfF1.Scenarios
 {
-    public class Scenario : NotifyPropertyChangedWrapper, ICloneable, IEquatable<Scenario>
+    public class Scenario : NotifyPropertyChangedWrapper, IScenario
     {
         /// <summary>
         /// Used for equality checks
         /// </summary>
         public Guid Id { get; }
         public string EventName { get; }
-        public Track Track { get; }
+        public ITrack Track { get; }
         public DateTime EventDate { get; }
         public string WikipediaLink { get; }
 
@@ -61,7 +64,7 @@ namespace WhatIfF1.Scenarios
         public bool IsModelLoading
         {
             get => _isModelLoading;
-            private set
+            set
             {
                 _isModelLoading = value;
                 OnPropertyChanged();
@@ -73,7 +76,7 @@ namespace WhatIfF1.Scenarios
         public bool IsModelLoaded
         {
             get => _isModelLoaded;
-            private set
+            set
             {
                 _isModelLoaded = value;
                 OnPropertyChanged();
@@ -86,14 +89,9 @@ namespace WhatIfF1.Scenarios
         {
             get
             {
-                if (_loadRaceCommand is null)
-                {
-                    _loadRaceCommand = new CommandHandler(
+                return _loadRaceCommand ?? (_loadRaceCommand = new CommandHandler(
                         () => LoadRace(),
-                        () => !IsModelLoading && !IsModelLoaded);
-                }
-
-                return _loadRaceCommand;
+                        () => !IsModelLoading && !IsModelLoaded));
             }
             set
             {
@@ -108,15 +106,7 @@ namespace WhatIfF1.Scenarios
         {
             get
             {
-                if (_removeScenarioCommand is null)
-                {
-                    _removeScenarioCommand = new CommandHandler(() =>
-                    {
-                        ScenarioStore.Instance.RemoveScenario(this);
-                    }, () => true);
-                }
-
-                return _removeScenarioCommand;
+                return _removeScenarioCommand ?? (_removeScenarioCommand = new CommandHandler(() => ScenarioStore.Instance.RemoveScenario(this), () => true));
             }
             set
             {
@@ -129,18 +119,7 @@ namespace WhatIfF1.Scenarios
 
         public ICommand CloneScenarioCommand
         {
-            get
-            {
-                if (_cloneScenarioCommand is null)
-                {
-                    _cloneScenarioCommand = new CommandHandler(() =>
-                    {
-                        ScenarioStore.Instance.CloneScenario(this);
-                    }, () => true);
-                }
-
-                return _cloneScenarioCommand;
-            }
+            get => _cloneScenarioCommand ?? (_cloneScenarioCommand = new CommandHandler(() => ScenarioStore.Instance.CloneScenario(this), () => true));
             set
             {
                 _removeScenarioCommand = value;
@@ -169,12 +148,12 @@ namespace WhatIfF1.Scenarios
             }
         }
 
-        private EventController _eventController;
+        private IEventController _eventController;
 
-        public EventController EventController
+        public IEventController EventController
         {
             get => _eventController;
-            protected set
+            set
             {
                 _eventController = value;
                 OnPropertyChanged();
@@ -226,40 +205,31 @@ namespace WhatIfF1.Scenarios
 
             try
             {
-                // Fetches driver data for the event
-                Task<FetchResult> driverTask = APIAdapter.GetFromErgastAPI($"{EventDate.Year}/{Round}/results.json");
+                var driverApiTask = APIAdapter.GetFromErgastAPI($"{EventDate.Year}/{Round}/results.json");
+                var lapTimesApiTask = APIAdapter.GetFromErgastAPI($"{EventDate.Year}/{Round}/laps.json?limit=10000");
+                var telemetryApiTask = APIAdapter.GetTelemetryJsonFromLiveTimingAPI(EventName, EventDate);
 
-                // Fetches lap time data for the event
-                Task<FetchResult> lapTimesTask = APIAdapter.GetFromErgastAPI($"{EventDate.Year}/{Round}/laps.json?limit=10000");
+                var driverWorker = new APIEventCacheWorker(driverApiTask, "Drivers", "Drivers", $"{EventDate.Year}-{Round:D2}.json");
+                var lapTimesWorker = new APIEventCacheWorker(lapTimesApiTask, "LapTimes", "Lap Times", $"{EventDate.Year}-{Round:D2}.json");
+                var telemetryWorker = new APIEventCacheWorker(telemetryApiTask, "Telemetry", "Telemetry", $"{EventName}-{EventDate:dd-MM-yy}.json");
 
-                // Fetches telemetry data for the event, from the cache if possible
-                Task<FetchResult> telemetryTask;
+                var driverTask = driverWorker.GetDataTask();
+                var lapTimesTask = lapTimesWorker.GetDataTask();
+                var telemetryTask = telemetryWorker.GetDataTask();
 
-                bool telemetryCacheFileExists = FileAdapter.Instance.TelemetryCacheFileExists(EventName, EventDate);
-                if (telemetryCacheFileExists)
-                {
-                    Logger.Instance.Info("Fetching telemetry data from cache");
-                    telemetryTask = FileAdapter.Instance.LoadTelemetryCacheFileAsync(EventName, EventDate);
-                }
-                else
-                {
-                    Logger.Instance.Info("Fetching telemetry data from live timing API");
-                    telemetryTask = APIAdapter.GetTelemetryJsonFromLiveTimingAPI(EventName, EventDate);
-                }
+                await Task.WhenAll(driverTask, lapTimesTask, telemetryApiTask);
 
-                await Task.WhenAll(driverTask, lapTimesTask, telemetryTask);
-
-                if (driverTask.IsFaulted || driverTask.Result.Equals(FetchResult.Fail))
+                if (driverTask.IsFaulted || driverTask.Result.Equals(JsonFetchResult.Fail))
                 {
                     throw new ScenarioException($"Failed to fetch driver data for {this}");
                 }
 
-                if (lapTimesTask.IsFaulted || lapTimesTask.Result.Equals(FetchResult.Fail))
+                if (lapTimesTask.IsFaulted || lapTimesTask.Result.Equals(JsonFetchResult.Fail))
                 {
                     throw new ScenarioException($"Failed to fetch lap time data for {this}");
                 }
 
-                if (telemetryTask.IsFaulted || telemetryTask.Result.Equals(FetchResult.Fail))
+                if (telemetryTask.IsFaulted || telemetryTask.Result.Equals(JsonFetchResult.Fail))
                 {
                     throw new ScenarioException($"Failed to fetch telemetry data for {this}");
                 }
@@ -277,19 +247,12 @@ namespace WhatIfF1.Scenarios
                 JArray lapTimesJson = (JArray)lapTimesTask.Result.Data["MRData"]["RaceTable"]["Races"][0]["Laps"];
                 JObject telemetryJson = (JObject)telemetryTask.Result.Data;
 
-                // Cache this telemetry data if it is not already cached
-                if (!telemetryCacheFileExists)
-                {
-                    Logger.Instance.Info("Writing telemetry data to cache");
-                    _ = Task.Run(() => FileAdapter.Instance.WriteTelemetryCacheFile(EventName, EventDate, telemetryJson));
-                }
-
                 string modelName = $"{EventDate.Year} - {EventName}";
 
                 int numLaps = driversJson.Max((driver) => driver["laps"].ToObject<int>());
 
                 // Create a new event model from the raw json
-                EventModel model = new EventModel(modelName, Track.TrackLength, driversJson, lapTimesJson, telemetryJson);
+                EventModel model = await Task.Run(() => EventModel.GetModel(modelName, Track.TrackLength, driversJson, lapTimesJson, telemetryJson));
 
                 // Create a new EventController using the event model
                 EventController = new EventController(Track, model);
@@ -312,15 +275,15 @@ namespace WhatIfF1.Scenarios
         {
             throw new NotImplementedException();
         }
-        public bool Equals(Scenario other)
+
+        public bool Equals(IScenario other)
         {
-            return Guid.Equals(Id, other.Id);
+            return Equals(Id, other.Id);
         }
 
         public override string ToString()
         {
             return EventName;
         }
-
     }
 }

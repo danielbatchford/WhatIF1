@@ -1,20 +1,21 @@
 ﻿using System.Collections.Generic;
-using WhatIfF1.Modelling.Events.Drivers;
-using WhatIfF1.UI.Controller.Graphing.SeriesData;
+using WhatIfF1.Modelling.Events.Drivers.Interfaces;
+using WhatIfF1.UI.Controller.Graphing.Interfaces;
+using WhatIfF1.UI.Controller.Graphing.SeriesData.Interfaces;
+using WhatIfF1.UI.Controller.Interfaces;
 using WhatIfF1.Util;
 
 namespace WhatIfF1.UI.Controller.Graphing
 {
-    public abstract class XYGraph : NotifyPropertyChangedWrapper
+    public abstract class XYGraph : NotifyPropertyChangedWrapper, IXYGraph
     {
-        public List<XYDataPoint<double>> Data { get; }
+        public IList<IXYDataPoint<double>> Data { get; }
 
-        protected EventController _parentController;
+        protected IEventController _parentController;
 
-        private Driver _targetDriver;
+        private IDriver _targetDriver;
 
-
-        public Driver TargetDriver
+        public IDriver TargetDriver
         {
             get => _targetDriver;
             set
@@ -62,14 +63,13 @@ namespace WhatIfF1.UI.Controller.Graphing
             }
         }
 
-
-        protected XYGraph(EventController parentController, string xTitle, string yTitle)
+        protected XYGraph(IEventController parentController, string xTitle, string yTitle)
         {
             _parentController = parentController;
             XTitle = xTitle;
             YTitle = yTitle;
 
-            Data = new List<XYDataPoint<double>>();
+            Data = new List<IXYDataPoint<double>>();
         }
 
         public void Clear()
@@ -79,8 +79,6 @@ namespace WhatIfF1.UI.Controller.Graphing
             YTitle = string.Empty;
         }
 
-        public virtual void UpdateGraph()
-        {
-        }
+        public abstract void UpdateGraph();
     }
 }

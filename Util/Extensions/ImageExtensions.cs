@@ -14,7 +14,7 @@ namespace WhatIfF1.Util.Extensions
         /// </summary>
         public static IEnumerable<Color> GetDominantColors(this Image image)
         {
-            int nSamples = 20;
+            const int nSamples = 20;
             Random random = new Random();
 
             Bitmap bitmap = (Bitmap)image;

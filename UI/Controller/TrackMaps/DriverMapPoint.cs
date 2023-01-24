@@ -1,15 +1,14 @@
 ﻿using System.Windows;
 using System.Windows.Media;
-using WhatIfF1.Modelling.Events.Drivers;
+using WhatIfF1.Modelling.Events.Drivers.Interfaces;
+using WhatIfF1.UI.Controller.TrackMaps.Interfaces;
 using WhatIfF1.Util;
 
 namespace WhatIfF1.UI.Controller.TrackMaps
 {
-    public class DriverMapPoint : NotifyPropertyChangedWrapper
+    public class DriverMapPoint : NotifyPropertyChangedWrapper, IDriverMapPoint
     {
-        private const double _retiredOpacity = 0.6;
-
-        public Driver Driver { get; }
+        public IDriver Driver { get; }
 
         public Color Color { get; }
 
@@ -28,29 +27,18 @@ namespace WhatIfF1.UI.Controller.TrackMaps
             }
         }
 
-        private bool _isRetired;
-        public bool IsRetired
+        private bool _isNotRunning;
+        public bool IsNotRunning
         {
-            get => _isRetired;
+            get => _isNotRunning;
             set
             {
-                if (_isRetired == value)
+                if (_isNotRunning == value)
                 {
                     return;
                 }
 
-                _isRetired = value;
-
-                // Update opacity based on the state of retirement
-                if (value)
-                {
-                    Opacity = _retiredOpacity;
-                }
-                else
-                {
-                    Opacity = 1;
-                }
-
+                _isNotRunning = value;
                 OnPropertyChanged();
             }
         }
@@ -66,21 +54,17 @@ namespace WhatIfF1.UI.Controller.TrackMaps
                 {
                     return;
                 }
-
                 _opacity = value;
                 OnPropertyChanged();
             }
         }
 
-
-        public DriverMapPoint(Driver driver, Point point)
+        public DriverMapPoint(IDriver driver, Point point)
         {
             Driver = driver;
             Point = point;
             Color = driver.Constructor.Color;
             Opacity = 1;
-
-            IsRetired = false;
         }
     }
 }

@@ -1,19 +1,30 @@
-﻿using System;
-using WhatIfF1.Modelling.Events.Drivers;
-using WhatIfF1.Modelling.Tires;
+﻿using WhatIfF1.Modelling.Events.Drivers;
+using WhatIfF1.Modelling.Events.Drivers.Interfaces;
+using WhatIfF1.Modelling.Tires.Interfaces;
+using WhatIfF1.UI.Controller.Interfaces;
 using WhatIfF1.Util;
+using WhatIfF1.Util.Extensions;
 
 namespace WhatIfF1.UI.Controller
 {
-    public class DriverStanding : NotifyPropertyChangedWrapper, IEquatable<DriverStanding>
+    public class DriverStanding : NotifyPropertyChangedWrapper, IDriverStanding
     {
-        private Driver _driver;
+        public static IDriverStanding GetNonRunningStanding(Driver driver, RunningState nonRunningState)
+        {
+            return new DriverStanding(driver, nonRunningState);
+        }
 
-        public Driver Driver
+        private IDriver _driver;
+
+        public IDriver Driver
         {
             get => _driver;
             set
             {
+                if (_driver.Equals(value))
+                {
+                    return;
+                }
                 _driver = value;
                 OnPropertyChanged();
             }
@@ -50,6 +61,7 @@ namespace WhatIfF1.UI.Controller
                     return;
                 }
                 _gapToLead = value;
+                UpdateTimingScreenTextAndOpacity();
                 OnPropertyChanged();
             }
         }
@@ -70,9 +82,9 @@ namespace WhatIfF1.UI.Controller
             }
         }
 
-        private TireCompound _tireCompound;
+        private ITireCompound _tireCompound;
 
-        public TireCompound TireCompound
+        public ITireCompound TireCompound
         {
             get => _tireCompound;
             set
@@ -108,9 +120,9 @@ namespace WhatIfF1.UI.Controller
         public double Velocity
         {
             get => _velocity;
-            set 
+            set
             {
-                if(_velocity == value)
+                if (_velocity == value)
                 {
                     return;
                 }
@@ -119,19 +131,90 @@ namespace WhatIfF1.UI.Controller
             }
         }
 
+        private RunningState _state;
 
-        public DriverStanding(Driver driver, int racePosition, int gapToLead, int gapToNextCar, double proportionOfLap, double velocity, TireCompound tireCompound)
+        public RunningState State
         {
-            Driver = driver;
-            RacePosition = racePosition;
-            GapToLead = gapToLead;
-            GapToNextCar = gapToNextCar;
-            ProportionOfLap = proportionOfLap;
-            Velocity = velocity;
-            TireCompound = tireCompound;
+            get { return _state; }
+            set
+            {
+                if (_state == value)
+                {
+                    return;
+                }
+                _state = value;
+                OnPropertyChanged();
+            }
         }
 
-        public bool Equals(DriverStanding other)
+        private string _timingScreenText;
+
+        public string TimingScreenText
+        {
+            get => _timingScreenText;
+            set
+            {
+                if (_timingScreenText?.Equals(value) == true)
+                {
+                    return;
+                }
+                _timingScreenText = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private double _timingScreenTextOpacity;
+
+        public double TimingScreenTextOpacity
+        {
+            get => _timingScreenTextOpacity;
+            set
+            {
+                if (_timingScreenTextOpacity == value)
+                {
+                    return;
+                }
+                _timingScreenTextOpacity = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private DriverStanding(Driver driver, RunningState state)
+        {
+            Driver = driver;
+            State = state;
+        }
+
+        public DriverStanding(IDriver driver, int racePosition, int gapToLead, int gapToNextCar, double proportionOfLap, double velocity, ITireCompound tireCompound, RunningState state)
+        {
+            _driver = driver;
+            _racePosition = racePosition;
+            _gapToLead = gapToLead;
+            _gapToNextCar = gapToNextCar;
+            _proportionOfLap = proportionOfLap;
+            _velocity = velocity;
+            _tireCompound = tireCompound;
+            _state = state;
+
+            // Update timing screen text initially
+            UpdateTimingScreenTextAndOpacity();
+        }
+
+        public void UpdateFromOtherStanding(IDriverStanding other)
+        {
+            Driver = other.Driver;
+            RacePosition = other.RacePosition;
+            GapToLead = other.GapToLead;
+            GapToNextCar = other.GapToNextCar;
+            TireCompound = other.TireCompound;
+            ProportionOfLap = other.ProportionOfLap;
+            Velocity = other.Velocity;
+            TimingScreenText = other.TimingScreenText;
+            TimingScreenTextOpacity = other.TimingScreenTextOpacity;
+            State = other.State;
+        }
+
+        public bool Equals(IDriverStanding other)
         {
             if (other is null)
             {
@@ -141,8 +224,42 @@ namespace WhatIfF1.UI.Controller
             return Driver.Equals(other.Driver)
                 && RacePosition.Equals(other.RacePosition)
                 && GapToLead.Equals(other.GapToLead)
+                && GapToNextCar.Equals(other.GapToNextCar)
                 && TireCompound.Equals(other.TireCompound)
-                && ProportionOfLap.Equals(other.ProportionOfLap);
+                && ProportionOfLap.Equals(other.ProportionOfLap)
+                && Velocity.Equals(other.Velocity)
+                && TimingScreenText.Equals(other.TimingScreenText)
+                && TimingScreenTextOpacity.Equals(other.TimingScreenTextOpacity)
+                && State.Equals(other.State);
+        }
+
+        private void UpdateTimingScreenTextAndOpacity()
+        {
+            switch (State)
+            {
+                case RunningState.RETIRED:
+                    TimingScreenText = "OUT";
+                    TimingScreenTextOpacity = 0.7;
+                    break;
+
+                case RunningState.FINISHED:
+                    TimingScreenText = "Finished";
+                    TimingScreenTextOpacity = 1;
+                    break;
+
+                case RunningState.RUNNING:
+                    TimingScreenTextOpacity = 1;
+
+                    if (RacePosition == 1)
+                    {
+                        TimingScreenText = "Interval";
+                    }
+                    else
+                    {
+                        TimingScreenText = StringExtensions.ToF1TimingScreenFormat(GapToLead);
+                    }
+                    break;
+            }
         }
 
         public override string ToString()

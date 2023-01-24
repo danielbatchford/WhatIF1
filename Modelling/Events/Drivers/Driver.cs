@@ -1,20 +1,21 @@
 ﻿using Newtonsoft.Json.Linq;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Windows.Input;
+using System.Windows.Media;
 using WhatIfF1.Adapters;
+using WhatIfF1.Modelling.Events.Drivers.Interfaces;
 using WhatIfF1.Util;
 using WhatIfF1.Util.Extensions;
 
 namespace WhatIfF1.Modelling.Events.Drivers
 {
-    public class Driver : NotifyPropertyChangedWrapper, IEquatable<Driver>
+    public class Driver : NotifyPropertyChangedWrapper, IDriver
     {
-
-        public static IEnumerable<Driver> GetDriverListFromJSON(JArray json)
+        public static IEnumerable<IDriver> GetDriversAndRetirementsListFromJSON(JArray json, out IDictionary<IDriver, bool> isDriverRetiredDict)
         {
-            ICollection<Driver> drivers = new HashSet<Driver>(json.Count);
+            var drivers = new HashSet<IDriver>(json.Count);
+            isDriverRetiredDict = new Dictionary<IDriver, bool>();
 
             foreach (JObject driverJson in json)
             {
@@ -29,7 +30,12 @@ namespace WhatIfF1.Modelling.Events.Drivers
 
                 JObject constructorJson = driverJson["Constructor"].ToObject<JObject>();
 
-                drivers.Add(new Driver(driverID, driverLetters, firstName, lastName, driverWikiLink, constructorJson, driverNumber));
+                IDriver driver = new Driver(driverID, driverLetters, firstName, lastName, driverWikiLink, constructorJson, driverNumber);
+                drivers.Add(driver);
+
+                bool isDriverRetired = !driverJson["status"].ToObject<string>().Equals("Finished");
+
+                isDriverRetiredDict.Add(driver, isDriverRetired);
             }
 
             return drivers;
@@ -43,7 +49,9 @@ namespace WhatIfF1.Modelling.Events.Drivers
         public string ImagePath { get; }
         public string WikiLink { get; }
 
-        public Constructor Constructor { get; }
+        public Color Color { get; }
+
+        public IConstructor Constructor { get; }
 
         public int DriverNumber { get; }
 
@@ -67,9 +75,6 @@ namespace WhatIfF1.Modelling.Events.Drivers
             }
         }
 
-
-
-
         public Driver(string driverID, string driverLetters, string firstName, string lastName, string wikiLink, JObject constructorJson, int driverNumber)
         {
             DriverID = driverID;
@@ -92,10 +97,11 @@ namespace WhatIfF1.Modelling.Events.Drivers
 
             Constructor = new Constructor(constructorJson);
 
+            Color = Constructor.Color;
             DriverNumber = driverNumber;
         }
 
-        public bool Equals(Driver other)
+        public bool Equals(IDriver other)
         {
             return DriverID.Equals(other.DriverID);
         }

@@ -59,11 +59,11 @@ namespace WhatIfF1.Util.Extensions
             int mid = 0;
 
             // value outside the bounds of the array
-            if(value <= sortedList[0])
+            if (value <= sortedList[0])
             {
                 return 0;
             }
-            if(value >= sortedList[n - 1])
+            if (value >= sortedList[n - 1])
             {
                 return n - 1;
             }
@@ -81,7 +81,7 @@ namespace WhatIfF1.Util.Extensions
                 {
                     if (mid > 0 && value > sortedList[mid - 1])
                     {
-                        return value - sortedList[mid - 1] >= value - sortedList[mid] ? mid : mid - 1; 
+                        return value - sortedList[mid - 1] >= value - sortedList[mid] ? mid : mid - 1;
                     }
 
                     j = mid;
@@ -90,7 +90,7 @@ namespace WhatIfF1.Util.Extensions
                 {
                     if (mid < n - 1 && value < sortedList[mid + 1])
                     {
-                        return value - sortedList[mid] >= sortedList[mid + 1] - value ? mid + 1: mid;
+                        return value - sortedList[mid] >= sortedList[mid + 1] - value ? mid + 1 : mid;
                     }
 
                     i = mid + 1;
