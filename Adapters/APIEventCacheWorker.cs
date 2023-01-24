@@ -104,9 +104,12 @@ namespace WhatIfF1.Adapters
                 using (JsonTextReader jsonReader = new JsonTextReader(file))
                 {
                     JToken loaded = await JToken.ReadFromAsync(jsonReader);
+
                     return new JsonFetchResult(loaded);
                 }
             }
+
+
         }
     }
 }

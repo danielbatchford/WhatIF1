@@ -30,6 +30,7 @@ namespace WhatIfF1.Modelling.Events.Drivers.Telemetry
         {
             _lap = lap;
             _trackLength = trackLength;
+
             _ms = timeStamps.Select(ts => ts.Ms).ToArray();
             _velocity = timeStamps.Select(ts => ts.Velocity).ToArray();
             _n = _ms.Length;
@@ -43,26 +44,7 @@ namespace WhatIfF1.Modelling.Events.Drivers.Telemetry
             }
 
             int closestIndex = _ms.FindClosestIndex(lapMs);
-
-            // When requested ms is outside the bounds of the defined ms in the data
-            if (closestIndex == _n - 1)
-            {
-                lapDistance = _distance[_n - 1];
-                velocity = _velocity[_n - 1];
-                return;
-            }
-            else if (closestIndex == 0)
-            {
-                lapDistance = _distance[0];
-                velocity = _velocity[0];
-                return;
-            }
-
-            // 2 cases here - closest index is greater than lapMs or closet index is less than lapMs
             int definedMs = _ms[closestIndex];
-
-            int upperIdx;
-            int lowerIdx;
 
             if (definedMs == lapMs)
             {
@@ -71,7 +53,20 @@ namespace WhatIfF1.Modelling.Events.Drivers.Telemetry
                 return;
             }
 
-            if (definedMs > lapMs)
+            int upperIdx;
+            int lowerIdx;
+
+            if (closestIndex == 0)
+            {
+                upperIdx = 1;
+                lowerIdx = 0;
+            }
+            else if (closestIndex == _n - 1)
+            {
+                upperIdx = _n - 1;
+                lowerIdx = _n - 2;
+            }
+            else if (definedMs > lapMs)
             {
                 upperIdx = closestIndex;
                 lowerIdx = closestIndex - 1;
@@ -85,7 +80,7 @@ namespace WhatIfF1.Modelling.Events.Drivers.Telemetry
             // Linear interpolate distance based on requested ms and bordering ms
             double propAlongRange = (double)(lapMs - _ms[lowerIdx]) / (_ms[upperIdx] - _ms[lowerIdx]);
             lapDistance = _distance[lowerIdx] + (propAlongRange * (_distance[upperIdx] - _distance[lowerIdx]));
-            velocity = _velocity[lowerIdx] + (propAlongRange * (_distance[upperIdx] - _distance[lowerIdx]));
+            velocity = _velocity[lowerIdx] + (propAlongRange * (_velocity[upperIdx] - _velocity[lowerIdx]));
         }
 
         private void IntegrateVelocity()

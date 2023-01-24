@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -14,10 +13,11 @@ using WhatIfF1.UI.Controller.DataBuffering.Interfaces;
 using WhatIfF1.UI.Controller.Graphing;
 using WhatIfF1.UI.Controller.Graphing.Interfaces;
 using WhatIfF1.UI.Controller.Interfaces;
+using WhatIfF1.UI.Controller.Markers;
+using WhatIfF1.UI.Controller.Markers.Interfaces;
 using WhatIfF1.UI.Controller.TrackMaps;
 using WhatIfF1.UI.Controller.TrackMaps.Interfaces;
 using WhatIfF1.Util;
-using WhatIfF1.Util.Enumerables;
 
 namespace WhatIfF1.UI.Controller
 {
@@ -36,6 +36,8 @@ namespace WhatIfF1.UI.Controller
         public ITrackMapProvider MapProvider { get; }
 
         public IGraphProvider GraphProvider { get; }
+
+        public IMarkerProvider MarkerProvider { get; }
 
         public int CurrentTime
         {
@@ -77,7 +79,7 @@ namespace WhatIfF1.UI.Controller
                 {
                     throw new EventControllerException($"Attempted to set max lap to {value} while only {DataProvider.Model.NoOfLaps} existed");
                 }
-                if(value == _currentLap)
+                if (value == _currentLap)
                 {
                     return;
                 }
@@ -159,10 +161,11 @@ namespace WhatIfF1.UI.Controller
             DataProvider = new EventModelDataProvider(model, _playbackParams);
             MapProvider = new TrackMapProvider(track, model.GetDrivers());
             GraphProvider = new GraphProvider(this, GraphType.VELOCITY_TIME);
+            MarkerProvider = new MarkerProvider(DataProvider);
 
             CurrentTime = 0;
 
-            var standings = model.GetStandingsAtTime(CurrentTime, out int currentLap);
+            var standings = DataProvider.Model.GetStandingsAtTime(CurrentTime, out int currentLap);
             CurrentLap = currentLap;
 
             Standings = new ObservableCollection<IDriverStanding>(standings);
@@ -195,7 +198,7 @@ namespace WhatIfF1.UI.Controller
             {
                 SelectedStanding = Standings.Single(standing => standing.Driver.Equals(oldSelectedDriver));
             }
-            
+
             MapProvider.UpdateNotRunning(Standings);
 
             // Update driver positions on the map

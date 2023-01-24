@@ -74,8 +74,8 @@ namespace WhatIfF1.Modelling.Events.Drivers.Telemetry
             int currentLapIdx = 0;
             int cumulativeLapTime = lapTimes[0];
             int msLapOffset = 0;
-            var timeStampsForLap = new List<TelemetryTimeStamp>();
 
+            var timeStampsForLap = new List<TelemetryTimeStamp>();
             bool nonZeroVelocityFound = false;
 
             foreach (var timeStamp in timeStamps)
@@ -92,6 +92,11 @@ namespace WhatIfF1.Modelling.Events.Drivers.Telemetry
                 else
                 {
                     // Move on to next lap
+
+                    // Add in time stamps for very start and end of lap
+                    timeStampsForLap.Insert(0, new TelemetryTimeStamp { Ms = 0, Velocity = timeStampsForLap[0].Velocity });
+                    timeStampsForLap.Add(new TelemetryTimeStamp { Ms = lapTimes[currentLapIdx], Velocity = timeStampsForLap.Last().Velocity });
+
                     vdtContainers.Add(new VelocityDistanceTimeContainer(currentLapIdx + 1, _trackLength, timeStampsForLap));
                     msLapOffset += timeStampsForLap[timeStampsForLap.Count - 1].Ms;
                     timeStampsForLap.Clear();

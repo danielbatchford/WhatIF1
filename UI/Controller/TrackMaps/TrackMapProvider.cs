@@ -162,9 +162,9 @@ namespace WhatIfF1.UI.Controller.TrackMaps
 
         public void UpdateNotRunning(IEnumerable<IDriverStanding> standings)
         {
-            foreach(var standing in standings)
+            foreach (var standing in standings)
             {
-                if(standing.State != RunningState.RUNNING)
+                if (standing.State != RunningState.RUNNING)
                 {
                     DriverPoints[_driverToIndexMapping[standing.Driver]].IsNotRunning = true;
                 }

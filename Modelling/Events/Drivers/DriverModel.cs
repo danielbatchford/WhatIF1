@@ -48,24 +48,12 @@ namespace WhatIfF1.Modelling.Events.Drivers
 
         public TrackPosition GetPositionAndRunningState(int totalMs, out RunningState runningState)
         {
-            int lapIndex = 0;
-            int msCounter = totalMs;
-
-            // Find the lap index based on the total time elapsed
-            while (msCounter >= _lapTimes[lapIndex])
+            if (!TryGetLapInfo(totalMs, out int lapMs, out int lapIndex))
             {
-                msCounter -= _lapTimes[lapIndex];
-                lapIndex++;
-
-                // Implys car has retired or finished, cannot fetch position for lap greater than the laps travelled by this driver
-                if (lapIndex == DriverNoOfLaps)
-                {
-                    runningState = lapIndex == TotalNoOfLaps ? RunningState.FINISHED : RunningState.RETIRED;
-                    return _restingPosition;
-                }
+                // Implys car has retired or finished, cannot fetch lap data for lap greater than the laps travelled by this driver
+                runningState = lapIndex == TotalNoOfLaps ? RunningState.FINISHED : RunningState.RETIRED;
+                return _restingPosition;
             }
-
-            int lapMs = msCounter;
 
             _vdtContainers[lapIndex].GetLapDistanceAndVelocity(lapMs, out double lapDistance, out double velocity);
 
@@ -74,7 +62,34 @@ namespace WhatIfF1.Modelling.Events.Drivers
             int forecastLapTime = _lapTimes[lapIndex];
 
             runningState = RunningState.RUNNING;
-            return new TrackPosition(totalMs, lapMs, lapIndex + 1, forecastLapTime, velocity, totalDistance, lapDistance, _trackLength);
+            int lap = lapIndex + 1;
+            return new TrackPosition(totalMs, lapMs, lap, forecastLapTime, velocity, totalDistance, lapDistance, _trackLength);
+        }
+
+        private bool TryGetLapInfo(int totalMs, out int lapMs, out int lapIndex)
+        {
+            int idx = 0;
+            int msCounter = totalMs;
+
+            // Find the lap index based on the total time elapsed
+            while (msCounter >= _lapTimes[idx])
+            {
+                msCounter -= _lapTimes[idx];
+                idx++;
+
+                // Implys car has retired or finished, cannot fetch lap data for lap greater than the laps travelled by this driver
+                if (idx == DriverNoOfLaps)
+                {
+                    lapMs = default;
+                    lapIndex = default;
+                    return false;
+                }
+            }
+
+            lapMs = msCounter;
+            lapIndex = idx;
+            return true;
+
         }
     }
 }

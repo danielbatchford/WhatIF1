@@ -252,7 +252,7 @@ namespace WhatIfF1.Scenarios
                 int numLaps = driversJson.Max((driver) => driver["laps"].ToObject<int>());
 
                 // Create a new event model from the raw json
-                EventModel model = new EventModel(modelName, Track.TrackLength, driversJson, lapTimesJson, telemetryJson);
+                EventModel model = await Task.Run(() => EventModel.GetModel(modelName, Track.TrackLength, driversJson, lapTimesJson, telemetryJson));
 
                 // Create a new EventController using the event model
                 EventController = new EventController(Track, model);
@@ -275,6 +275,7 @@ namespace WhatIfF1.Scenarios
         {
             throw new NotImplementedException();
         }
+
         public bool Equals(IScenario other)
         {
             return Equals(Id, other.Id);

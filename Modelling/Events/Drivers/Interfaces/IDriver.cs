@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows.Media;
 
 namespace WhatIfF1.Modelling.Events.Drivers.Interfaces
 {
@@ -13,5 +14,6 @@ namespace WhatIfF1.Modelling.Events.Drivers.Interfaces
         string WikiLink { get; }
         IConstructor Constructor { get; }
         int DriverNumber { get; }
+        Color Color { get; }
     }
 }

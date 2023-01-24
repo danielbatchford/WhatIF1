@@ -25,14 +25,14 @@ namespace WhatIfF1.Scenarios
                 throw new ScenarioException($"{nameof(ScenarioStore)} singleton has already been initialised");
             }
 
-            var fetchTask = APIAdapter.GetFromErgastAPI($"{_year}.json");
-            var scenarioWorker = new APIEventCacheWorker(fetchTask, "Events", "Events", $"{_year}.json");
+            var apiFetchTask = APIAdapter.GetFromErgastAPI($"{_year}.json");
+            var scenarioWorker = new APIEventCacheWorker(apiFetchTask, "Events", "Events", $"{_year}.json");
 
             JsonFetchResult result = await scenarioWorker.GetDataTask();
 
             if (!result.Success)
             {
-                throw new ScenarioException($"Failed to load scenarios from {_year} as the API call failed");
+                throw new ScenarioException($"Failed to load scenarios from {_year} as the data load call failed");
             }
 
             JToken rawJson = result.Data;

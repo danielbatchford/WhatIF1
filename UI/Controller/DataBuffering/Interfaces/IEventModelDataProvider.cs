@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using WhatIfF1.Modelling.Events.Interfaces;
+﻿using WhatIfF1.Modelling.Events.Interfaces;
 
 namespace WhatIfF1.UI.Controller.DataBuffering.Interfaces
 {

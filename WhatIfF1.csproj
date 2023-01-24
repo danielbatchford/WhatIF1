@@ -14,6 +14,7 @@
     <WarningLevel>4</WarningLevel>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -26,7 +27,6 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -61,34 +61,37 @@
       <HintPath>packages\log4net.2.0.15\lib\net45\log4net.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>packages\Newtonsoft.Json.13.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Syncfusion.Licensing, Version=20.4460.0.44, Culture=neutral, PublicKeyToken=632609b4d040f6b4, processorArchitecture=MSIL">
       <HintPath>packages\Syncfusion.Licensing.20.4.0.44\lib\net46\Syncfusion.Licensing.dll</HintPath>
     </Reference>
-    <Reference Include="Syncfusion.SfAccordion.WPF, Version=20.2460.0.46, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
-      <HintPath>packages\Syncfusion.SfAccordion.WPF.20.2.0.46\lib\net46\Syncfusion.SfAccordion.WPF.dll</HintPath>
+    <Reference Include="Syncfusion.SfAccordion.WPF, Version=20.4460.0.44, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.SfAccordion.WPF.20.4.0.44\lib\net46\Syncfusion.SfAccordion.WPF.dll</HintPath>
     </Reference>
-    <Reference Include="Syncfusion.SfChart.WPF, Version=20.4460.0.42, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
-      <HintPath>packages\Syncfusion.SfChart.WPF.20.4.0.42\lib\net46\Syncfusion.SfChart.WPF.dll</HintPath>
+    <Reference Include="Syncfusion.SfChart.WPF, Version=20.4460.0.44, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.SfChart.WPF.20.4.0.44\lib\net46\Syncfusion.SfChart.WPF.dll</HintPath>
     </Reference>
     <Reference Include="Syncfusion.SfGauge.WPF, Version=20.4460.0.44, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
       <HintPath>packages\Syncfusion.SfGauge.WPF.20.4.0.44\lib\net46\Syncfusion.SfGauge.WPF.dll</HintPath>
     </Reference>
-    <Reference Include="Syncfusion.SfInput.WPF, Version=20.2460.0.46, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
-      <HintPath>packages\Syncfusion.SfInput.WPF.20.2.0.46\lib\net46\Syncfusion.SfInput.WPF.dll</HintPath>
+    <Reference Include="Syncfusion.SfInput.WPF, Version=20.4460.0.44, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.SfInput.WPF.20.4.0.44\lib\net46\Syncfusion.SfInput.WPF.dll</HintPath>
     </Reference>
-    <Reference Include="Syncfusion.SfSkinManager.WPF, Version=20.2460.0.46, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
-      <HintPath>packages\Syncfusion.SfSkinManager.WPF.20.2.0.46\lib\net46\Syncfusion.SfSkinManager.WPF.dll</HintPath>
+    <Reference Include="Syncfusion.SfProgressBar.WPF, Version=20.4460.0.44, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.SfProgressBar.WPF.20.4.0.44\lib\net46\Syncfusion.SfProgressBar.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.SfSkinManager.WPF, Version=20.4460.0.44, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.SfSkinManager.WPF.20.4.0.44\lib\net46\Syncfusion.SfSkinManager.WPF.dll</HintPath>
     </Reference>
     <Reference Include="Syncfusion.Shared.WPF, Version=20.4460.0.44, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
       <HintPath>packages\Syncfusion.Shared.WPF.20.4.0.44\lib\net46\Syncfusion.Shared.WPF.dll</HintPath>
     </Reference>
-    <Reference Include="Syncfusion.Themes.MaterialDark.WPF, Version=20.2460.0.46, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
-      <HintPath>packages\Syncfusion.Themes.MaterialDark.WPF.20.2.0.46\lib\net46\Syncfusion.Themes.MaterialDark.WPF.dll</HintPath>
+    <Reference Include="Syncfusion.Themes.MaterialDark.WPF, Version=20.4460.0.44, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.Themes.MaterialDark.WPF.20.4.0.44\lib\net46\Syncfusion.Themes.MaterialDark.WPF.dll</HintPath>
     </Reference>
-    <Reference Include="Syncfusion.Tools.WPF, Version=20.2460.0.48, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
-      <HintPath>packages\Syncfusion.Tools.WPF.20.2.0.48\lib\net46\Syncfusion.Tools.WPF.dll</HintPath>
+    <Reference Include="Syncfusion.Tools.WPF, Version=20.4460.0.44, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>packages\Syncfusion.Tools.WPF.20.4.0.44\lib\net46\Syncfusion.Tools.WPF.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
@@ -97,20 +100,21 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
-    <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>packages\System.Memory.4.5.4\lib\net461\System.Memory.dll</HintPath>
+    <Reference Include="System.Memory, Version=4.0.1.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Memory.4.5.5\lib\net461\System.Memory.dll</HintPath>
     </Reference>
     <Reference Include="System.Numerics" />
     <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
     </Reference>
-    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>packages\System.Runtime.CompilerServices.Unsafe.4.5.3\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Runtime.CompilerServices.Unsafe.6.0.0\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
-    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>packages\System.Threading.Tasks.Extensions.4.5.2\lib\netstandard2.0\System.Threading.Tasks.Extensions.dll</HintPath>
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
     </Reference>
     <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -152,6 +156,11 @@
     <Compile Include="Modelling\Events\Drivers\Telemetry\VelocityDistanceTimeContainer.cs" />
     <Compile Include="Modelling\Events\EventModel.cs" />
     <Compile Include="Modelling\Events\Interfaces\IEventModel.cs" />
+    <Compile Include="Modelling\Events\TrackEventMarking\Interfaces\ITrackMarker.cs" />
+    <Compile Include="Modelling\Events\TrackEventMarking\Interfaces\ITrackMarkerStore.cs" />
+    <Compile Include="Modelling\Events\TrackEventMarking\TrackMarker.cs" />
+    <Compile Include="Modelling\Events\TrackEventMarking\TrackMarkerStore.cs" />
+    <Compile Include="Modelling\Events\TrackEventMarking\MarkerType.cs" />
     <Compile Include="Modelling\Events\TrackPosition.cs" />
     <Compile Include="Modelling\Tires\Interfaces\ITireCompound.cs" />
     <Compile Include="Modelling\Tires\TireCompound.cs" />
@@ -183,6 +192,8 @@
     <Compile Include="UI\Controller\Interfaces\IEventController.cs" />
     <Compile Include="UI\Controller\Interfaces\IPlayable.cs" />
     <Compile Include="UI\Controller\Interfaces\IPlaybackParameterContainer.cs" />
+    <Compile Include="UI\Controller\Markers\Interfaces\IMarkerProvider.cs" />
+    <Compile Include="UI\Controller\Markers\MarkerProvider.cs" />
     <Compile Include="UI\Controller\PlaybackParameterContainer.cs" />
     <Compile Include="UI\Controller\TrackMaps\DriverMapPoint.cs" />
     <Compile Include="UI\Controller\TrackMaps\Interfaces\IDriverMapPoint.cs" />
@@ -197,11 +208,10 @@
     <Compile Include="UI\Converters\InverseBoolToHiddenVisConverter.cs" />
     <Compile Include="UI\Converters\IsNotNullConverter.cs" />
     <Compile Include="UI\Converters\IsNotNullToVisConverter.cs" />
-    <Compile Include="UI\Converters\MsToSConverter.cs" />
+    <Compile Include="UI\Converters\MsToHundredSecConverter.cs" />
     <Compile Include="UI\Converters\ScenarioTypeToStringConverter.cs" />
     <Compile Include="UI\Controller\EventController.cs" />
     <Compile Include="UI\Controller\EventControllerException.cs" />
-    <Compile Include="UI\Converters\SToMsConverter.cs" />
     <Compile Include="UI\Converters\ToFormattedTimeConverter.cs" />
     <Compile Include="UI\Converters\ToIntConverter.cs" />
     <Compile Include="Util\CommandHandler.cs" />
@@ -339,9 +349,349 @@
     <Resource Include="UI\Windows\Icons\Play.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ContentWithTargetPath Include="Resources\**">
+    <ContentWithTargetPath Include="Resources\Constructors\Alfa Romeo.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <TargetPath>Resources\%(RecursiveDir)%(Filename)%(Extension)</TargetPath>
+      <TargetPath>Resources\Constructors\Alfa Romeo.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Constructors\AlphaTauri.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Constructors\AlphaTauri.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Constructors\Alpine F1 Team.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Constructors\Alpine F1 Team.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Constructors\Aston Martin.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Constructors\Aston Martin.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Constructors\default.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Constructors\default.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Constructors\Ferrari.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Constructors\Ferrari.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Constructors\Haas F1 Team.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Constructors\Haas F1 Team.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Constructors\Mclaren.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Constructors\Mclaren.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Constructors\Mercedes.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Constructors\Mercedes.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Constructors\Red Bull.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Constructors\Red Bull.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Constructors\Williams.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Constructors\Williams.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Drivers\ALB.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Drivers\ALB.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Drivers\ALO.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Drivers\ALO.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Drivers\BOT.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Drivers\BOT.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Drivers\default.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Drivers\default.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Drivers\GAS.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Drivers\GAS.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Drivers\HAM.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Drivers\HAM.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Drivers\LAT.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Drivers\LAT.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Drivers\LEC.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Drivers\LEC.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Drivers\MSC.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Drivers\MSC.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Drivers\NOR.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Drivers\NOR.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Drivers\OCO.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Drivers\OCO.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Drivers\PER.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Drivers\PER.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Drivers\RIC.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Drivers\RIC.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Drivers\RUS.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Drivers\RUS.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Drivers\SAI.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Drivers\SAI.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Drivers\STR.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Drivers\STR.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Drivers\TSU.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Drivers\TSU.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Drivers\VER.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Drivers\VER.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Drivers\VET.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Drivers\VET.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Drivers\ZHO.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Drivers\ZHO.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\F1Logo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\F1Logo.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Flags\Australia.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Flags\Australia.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Flags\Austria.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Flags\Austria.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Flags\Azerbaijan.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Flags\Azerbaijan.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Flags\Bahrain.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Flags\Bahrain.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Flags\Belgium.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Flags\Belgium.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Flags\Brazil.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Flags\Brazil.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Flags\Canada.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Flags\Canada.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Flags\Default.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Flags\Default.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Flags\France.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Flags\France.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Flags\Hungary.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Flags\Hungary.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Flags\Italy.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Flags\Italy.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Flags\Japan.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Flags\Japan.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Flags\Mexico.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Flags\Mexico.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Flags\Monaco.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Flags\Monaco.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Flags\Netherlands.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Flags\Netherlands.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Flags\Saudi Arabia.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Flags\Saudi Arabia.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Flags\Singapore.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Flags\Singapore.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Flags\Spain.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Flags\Spain.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Flags\UAE.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Flags\UAE.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Flags\UK.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Flags\UK.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Flags\USA.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Flags\USA.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Fonts\Formula1-Bold.otf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Fonts\Formula1-Bold.otf</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Fonts\Formula1-Regular.otf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Fonts\Formula1-Regular.otf</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Fonts\Formula1-Wide.otf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Fonts\Formula1-Wide.otf</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\SplashScreen.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\SplashScreen.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\TrackMarkers\race_start.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\TrackMarkers\race_start.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\TrackMarkers\red_flag.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\TrackMarkers\red_flag.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\TrackMarkers\safety_car.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\TrackMarkers\safety_car.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\TrackMarkers\virtual_safety_car.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\TrackMarkers\virtual_safety_car.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\TrackMarkers\yellow_flag.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\TrackMarkers\yellow_flag.png</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Tracks\Albert Park Grand Prix Circuit.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Tracks\Albert Park Grand Prix Circuit.txt</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Tracks\Autodromo Enzo e Dino Ferrari.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Tracks\Autodromo Enzo e Dino Ferrari.txt</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Tracks\Autodromo Nazionale di Monza.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Tracks\Autodromo Nazionale di Monza.txt</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Tracks\Autódromo Hermanos Rodríguez.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Tracks\Autódromo Hermanos Rodríguez.txt</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Tracks\Autódromo José Carlos Pace.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Tracks\Autódromo José Carlos Pace.txt</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Tracks\Bahrain International Circuit.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Tracks\Bahrain International Circuit.txt</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Tracks\Baku City Circuit.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Tracks\Baku City Circuit.txt</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Tracks\Circuit de Barcelona-Catalunya.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Tracks\Circuit de Barcelona-Catalunya.txt</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Tracks\Circuit de Monaco.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Tracks\Circuit de Monaco.txt</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Tracks\Circuit de Spa-Francorchamps.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Tracks\Circuit de Spa-Francorchamps.txt</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Tracks\Circuit Gilles Villeneuve.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Tracks\Circuit Gilles Villeneuve.txt</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Tracks\Circuit of the Americas.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Tracks\Circuit of the Americas.txt</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Tracks\Circuit Park Zandvoort.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Tracks\Circuit Park Zandvoort.txt</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Tracks\Circuit Paul Ricard.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Tracks\Circuit Paul Ricard.txt</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Tracks\default.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Tracks\default.txt</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Tracks\Hungaroring.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Tracks\Hungaroring.txt</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Tracks\Jeddah Corniche Circuit.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Tracks\Jeddah Corniche Circuit.txt</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Tracks\Marina Bay Street Circuit.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Tracks\Marina Bay Street Circuit.txt</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Tracks\Miami International Autodrome.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Tracks\Miami International Autodrome.txt</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Tracks\Portimao.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Tracks\Portimao.txt</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Tracks\Red Bull Ring.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Tracks\Red Bull Ring.txt</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Tracks\Silverstone Circuit.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Tracks\Silverstone Circuit.txt</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Tracks\Suzuka Circuit.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Tracks\Suzuka Circuit.txt</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Resources\Tracks\Yas Marina Circuit.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>Resources\Tracks\Yas Marina Circuit.txt</TargetPath>
     </ContentWithTargetPath>
   </ItemGroup>
   <ItemGroup>

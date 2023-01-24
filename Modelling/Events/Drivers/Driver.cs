@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Windows.Input;
+using System.Windows.Media;
 using WhatIfF1.Adapters;
 using WhatIfF1.Modelling.Events.Drivers.Interfaces;
 using WhatIfF1.Util;
@@ -47,6 +48,8 @@ namespace WhatIfF1.Modelling.Events.Drivers
         public string Name { get; }
         public string ImagePath { get; }
         public string WikiLink { get; }
+
+        public Color Color { get; }
 
         public IConstructor Constructor { get; }
 
@@ -94,6 +97,7 @@ namespace WhatIfF1.Modelling.Events.Drivers
 
             Constructor = new Constructor(constructorJson);
 
+            Color = Constructor.Color;
             DriverNumber = driverNumber;
         }
 

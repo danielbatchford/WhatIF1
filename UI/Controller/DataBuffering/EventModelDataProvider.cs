@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using WhatIfF1.Logging;
 using WhatIfF1.Modelling.Events.Interfaces;
@@ -40,7 +39,7 @@ namespace WhatIfF1.UI.Controller.DataBuffering
 
         public async Task<IEventModelDataPacket> GetDataAtTime(int requestedMs)
         {
-            if (Buffer.TryGetValue(requestedMs, out IEventModelDataPacket packet)) 
+            if (Buffer.TryGetValue(requestedMs, out IEventModelDataPacket packet))
             {
                 packet.WasCacheHit = true;
                 return packet;
@@ -63,7 +62,7 @@ namespace WhatIfF1.UI.Controller.DataBuffering
                 return packet;
             }
         }
-        
+
         public void Invalidate()
         {
             lock (Buffer)
@@ -106,7 +105,7 @@ namespace WhatIfF1.UI.Controller.DataBuffering
 
             for (int i = 0; i < _lookaheadAmount; i++)
             {
-                if(currMs > MaxFrame)
+                if (currMs > MaxFrame)
                 {
                     return true;
                 }
@@ -119,7 +118,7 @@ namespace WhatIfF1.UI.Controller.DataBuffering
                 var packet = await LoadPacket(currMs);
 
                 // Cache this packet
-                lock(Buffer)
+                lock (Buffer)
                 {
                     Buffer.Add(currMs, packet);
                 }

@@ -16,6 +16,64 @@ namespace WhatIfF1.Modelling.Events
 {
     public class EventModel : NotifyPropertyChangedWrapper, IEventModel
     {
+        public static EventModel GetModel(string name, double trackLength, JArray driversJson, JArray lapTimesJson, JObject telemetryJson)
+        {
+            var drivers = Driver.GetDriversAndRetirementsListFromJSON(driversJson, out IDictionary<IDriver, bool> isDriverRetiredDict);
+            int noOfDrivers = drivers.Count();
+
+            var lapTimes = new Dictionary<IDriver, ICollection<int>>();
+
+            // Initialise driver times dictionary
+            foreach (IDriver driver in drivers)
+            {
+                lapTimes.Add(driver, new List<int>());
+            }
+
+            const string timeFormat = @"m\:ss\.fff";
+
+            foreach (JObject lapTimeJson in lapTimesJson)
+            {
+                foreach (Driver driver in drivers)
+                {
+                    // If no element is found, this implies the driver has retired from the race
+                    JToken timingObject = lapTimeJson["Timings"].SingleOrDefault(timing => timing["driverId"].ToObject<string>().Equals(driver.DriverID));
+
+                    if (timingObject == default)
+                    {
+                        continue;
+                    }
+
+                    string timingString = timingObject["time"].ToObject<string>();
+
+                    // Convert this timing string from format minute:second.millisecond to milliseconds
+                    TimeSpan timeSpan = TimeSpan.ParseExact(timingString, timeFormat, CultureInfo.InvariantCulture);
+
+                    lapTimes[driver].Add((int)timeSpan.TotalMilliseconds);
+                }
+            }
+
+            var telemetryParser = new TelemetryParser(trackLength);
+
+            var vdtContainers = telemetryParser.ParseTelemetryJson(drivers, lapTimes, telemetryJson);
+
+            // Initialise number of laps as the max of the laps completed by each driver
+            int noOfLaps = lapTimes.Values.Max(lt => lt.Count);
+
+            // Initialise driver models
+
+            var driverModels = new Dictionary<IDriver, IDriverModel>(noOfDrivers);
+
+            foreach (IDriver driver in drivers)
+            {
+                driverModels.Add(driver, new DriverModel(lapTimes[driver], vdtContainers[driver], trackLength, noOfLaps, isDriverRetiredDict[driver]));
+            }
+
+            // Initialse the total time as the maximum time of the total times of each driver
+            int totalTime = driverModels.Values.Max(dMOdel => dMOdel.DriverTotalTime);
+
+            return new EventModel(name, noOfDrivers, noOfLaps, totalTime, driverModels);
+        }
+
         private readonly IDictionary<IDriver, IDriverModel> _driverModels;
 
         public int NoOfDrivers { get; }
@@ -54,62 +112,14 @@ namespace WhatIfF1.Modelling.Events
             }
         }
 
-        public EventModel(string name, double trackLength, JArray driversJson, JArray lapTimesJson, JObject telemetryJson)
+        private EventModel(string name, int noOfDrivers, int noOfLaps, int totalTime, IDictionary<IDriver, IDriverModel> driverModels)
         {
             Name = name;
+            NoOfDrivers = noOfDrivers;
 
-            var drivers = Driver.GetDriversAndRetirementsListFromJSON(driversJson, out IDictionary<IDriver, bool> isDriverRetiredDict);
-            NoOfDrivers = drivers.Count();
-
-            var lapTimes = new Dictionary<IDriver, ICollection<int>>();
-
-            // Initialise driver times dictionary
-            foreach (IDriver driver in drivers)
-            {
-                lapTimes.Add(driver, new List<int>());
-            }
-
-            const string timeFormat = @"m\:ss\.fff";
-
-            foreach (JObject lapTimeJson in lapTimesJson)
-            {
-                foreach (Driver driver in drivers)
-                {
-                    // If no element is found, this implies the driver has retired from the race
-                    JToken timingObject = lapTimeJson["Timings"].SingleOrDefault(timing => timing["driverId"].ToObject<string>().Equals(driver.DriverID));
-
-                    if (timingObject == default)
-                    {
-                        continue;
-                    }
-
-                    string timingString = timingObject["time"].ToObject<string>();
-
-                    // Convert this timing string from format minute:second.millisecond to milliseconds
-                    TimeSpan timeSpan = TimeSpan.ParseExact(timingString, timeFormat, CultureInfo.InvariantCulture);
-
-                    lapTimes[driver].Add((int)timeSpan.TotalMilliseconds);
-                }
-            }
-
-            var telemetryParser = new TelemetryParser(trackLength);
-
-            var vdtContainers = telemetryParser.ParseTelemetryJson(drivers, lapTimes, telemetryJson);
-
-            // Initialise number of laps as the max of the laps completed by each driver
-            NoOfLaps = lapTimes.Values.Max(lt => lt.Count);
-
-            // Initialise driver models
-
-            _driverModels = new Dictionary<IDriver, IDriverModel>(NoOfDrivers);
-
-            foreach (IDriver driver in drivers)
-            {
-                _driverModels.Add(driver, new DriverModel(lapTimes[driver], vdtContainers[driver], trackLength, NoOfLaps, isDriverRetiredDict[driver]));
-            }
-
-            // Initialse the total time as the maximum time of the total times of each driver
-            TotalTime = _driverModels.Values.Max(dMOdel => dMOdel.DriverTotalTime);
+            _noOfLaps = noOfLaps;
+            _totalTime = totalTime;
+            _driverModels = driverModels;
         }
 
         public override string ToString()
