@@ -6,6 +6,10 @@ namespace WhatIfF1.Util.Enumerables
 {
     public class ObservableRangeCollection<T> : ObservableCollection<T>
     {
+        public ObservableRangeCollection()
+        {
+        }
+
         public ObservableRangeCollection(IEnumerable<T> collection) : base(collection)
         {
         }

@@ -77,8 +77,6 @@ namespace WhatIfF1.Modelling.Events.TrackEvents
             {
                 TrackMarkerIconFilePath = Driver.ImagePath;
             }
-
-            Console.WriteLine($"{Color.A},{Color.R},{Color.G},{Color.B}");
         }
 
         public override string ToString()

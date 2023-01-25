@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using WhatIfF1.Modelling.Events.Drivers.Interfaces;
 using WhatIfF1.UI.Controller.Interfaces;
+using WhatIfF1.Util.Events;
 
 namespace WhatIfF1.Modelling.Events.Interfaces
 {
@@ -14,5 +15,9 @@ namespace WhatIfF1.Modelling.Events.Interfaces
         IEnumerable<IDriver> GetDrivers();
         IEnumerable<IDriverStanding> GetStandingsAtTime(int timeMs, out int currentLap);
         bool TryGetCurrentLapForDriver(int currentTime, IDriver targetDriver, out int currentLap);
+
+        event ItemChangedEventHandler<int> TotalTimeChanged;
+
+        event ItemChangedEventHandler<int> NoOfLapsChanged;
     }
 }

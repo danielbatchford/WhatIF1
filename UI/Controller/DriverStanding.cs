@@ -43,8 +43,7 @@ namespace WhatIfF1.UI.Controller
                 }
 
                 _racePosition = value;
-                OnPropertyChanged();
-                _racePosition = value;
+                UpdateTimingScreenTextAndOpacity();
                 OnPropertyChanged();
             }
         }
@@ -61,7 +60,6 @@ namespace WhatIfF1.UI.Controller
                     return;
                 }
                 _gapToLead = value;
-                UpdateTimingScreenTextAndOpacity();
                 OnPropertyChanged();
             }
         }
@@ -143,6 +141,7 @@ namespace WhatIfF1.UI.Controller
                     return;
                 }
                 _state = value;
+                UpdateTimingScreenTextAndOpacity();
                 OnPropertyChanged();
             }
         }

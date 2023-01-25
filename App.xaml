@@ -19,7 +19,8 @@
         <converters:InverseBoolToHiddenVisConverter x:Key="inverseBoolToHiddenVisConverter" />
         <converters:ScenarioTypeToStringConverter x:Key="scenarioTypeToStringConverter" />
         <converters:ToFormattedTimeConverter x:Key="toFormattedTimeConverter" />
-        <converters:MsToHundredSecConverter x:Key="msToHundredSecConverter" />
+        <converters:MsToSecConverter x:Key="msToSecConverter" />
+        <converters:SecToMsConverter x:Key="secToMsConverter" />
         <converters:DriverMapPointToPointsConverter x:Key="driverMapPointToPointsConverter" />
         <converters:ToIntConverter x:Key="toIntConverter" />
         <SolidColorBrush x:Key="mainColor" Color="Firebrick" />
@@ -34,83 +35,63 @@
             <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1*" />
-                    <RowDefinition Height="auto" />
-                    <RowDefinition Height="auto" />
-                    <RowDefinition Height="auto" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*" MinWidth="100" />
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="auto" MinWidth="90" />
+                    <ColumnDefinition Width="auto" />
                 </Grid.ColumnDefinitions>
                 <Rectangle
                     Grid.Row="0"
-                    Grid.RowSpan="4"
                     Grid.Column="0"
-                    Width="2"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Stretch"
+                    Grid.ColumnSpan="3"
+                    Height="2"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Top"
                     Fill="{Binding Color, Converter={StaticResource colorToBrushConverter}}">
                     <Rectangle.OpacityMask>
-                        <LinearGradientBrush StartPoint="0.5, 0" EndPoint="0.5,1">
-                            <GradientStop Offset="0" Color="Transparent" />
-                            <GradientStop Offset="1" Color="Black" />
+                        <LinearGradientBrush StartPoint="0, 0.5" EndPoint="1,0.5">
+                            <GradientStop Offset="0" Color="Black" />
+                            <GradientStop Offset="1" Color="Transparent" />
                         </LinearGradientBrush>
                     </Rectangle.OpacityMask>
                 </Rectangle>
-                <Rectangle
-                    Grid.Row="0"
-                    Grid.RowSpan="4"
-                    Grid.Column="0"
-                    Width="2"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Stretch"
-                    Fill="{Binding Color, Converter={StaticResource colorToBrushConverter}}">
-                    <Rectangle.OpacityMask>
-                        <LinearGradientBrush StartPoint="0.5, 0" EndPoint="0.5,1">
-                            <GradientStop Offset="0" Color="Transparent" />
-                            <GradientStop Offset="1" Color="Black" />
-                        </LinearGradientBrush>
-                    </Rectangle.OpacityMask>
-                </Rectangle>
-
                 <Ellipse
                     Grid.Row="0"
                     Grid.Column="0"
                     Width="30"
                     Height="30"
-                    Margin="15,2,15,2"
-                    HorizontalAlignment="Stretch"
-                    VerticalAlignment="Stretch">
+                    Margin="{StaticResource defaultMargin}"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
                     <Ellipse.Fill>
                         <ImageBrush ImageSource="{Binding TrackMarkerIconFilePath}" Stretch="Fill" />
                     </Ellipse.Fill>
                 </Ellipse>
                 <TextBlock
-                    Grid.Row="1"
-                    Grid.Column="0"
-                    Margin="15,2,15,2"
-                    HorizontalAlignment="Center"
+                    Grid.Row="0"
+                    Grid.Column="1"
+                    Margin="{StaticResource defaultMargin}"
+                    HorizontalAlignment="Left"
                     VerticalAlignment="Center"
                     FontFamily="{StaticResource boldFont}"
                     Foreground="{StaticResource lightColor}"
                     Text="{Binding DisplayName}" />
-                <TextBlock
-                    Grid.Row="2"
-                    Grid.Column="0"
-                    Margin="15,2,15,2"
-                    HorizontalAlignment="Center"
+                <StackPanel
+                    Grid.Row="0"
+                    Grid.Column="2"
+                    HorizontalAlignment="Left"
                     VerticalAlignment="Center"
-                    FontFamily="{StaticResource regularFont}"
-                    Foreground="{StaticResource lightColor}"
-                    Text="{Binding SupportingTextA}" />
-                <TextBlock
-                    Grid.Row="3"
-                    Grid.Column="0"
-                    Margin="15,2,15,2"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    FontFamily="{StaticResource regularFont}"
-                    Foreground="{StaticResource lightColor}"
-                    Text="{Binding SupportingTextB}" />
+                    Orientation="Vertical">
+                    <TextBlock
+                        FontFamily="{StaticResource regularFont}"
+                        Foreground="{StaticResource lightColor}"
+                        Text="{Binding SupportingTextA}" />
+                    <TextBlock
+                        FontFamily="{StaticResource regularFont}"
+                        Foreground="{StaticResource lightColor}"
+                        Text="{Binding SupportingTextB}" />
+                </StackPanel>
 
             </Grid>
         </DataTemplate>
@@ -194,7 +175,7 @@
                     <ColumnDefinition Width="1*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="25" />
+                    <RowDefinition Height="23" />
                 </Grid.RowDefinitions>
                 <Rectangle
                     Grid.Row="0"
@@ -228,7 +209,8 @@
                     HorizontalAlignment="Right"
                     VerticalAlignment="Center"
                     FontFamily="{StaticResource regularFont}"
-                    Text="{Binding GapToLead, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource toFormattedTimeConverter}}" />
+                    Opacity="{Binding TimingScreenTextOpacity}"
+                    Text="{Binding TimingScreenText, UpdateSourceTrigger=PropertyChanged}" />
                 <TextBlock
                     Grid.Row="0"
                     Grid.Column="3"
@@ -249,28 +231,111 @@
                     Text="{Binding}" />
             </StackPanel>
         </DataTemplate>
-        <Style x:Key="inactiveTrackStyle" TargetType="{x:Type Rectangle}">
-            <Setter Property="Fill" Value="{StaticResource lightColor}" />
-            <Setter Property="Height" Value="10" />
-        </Style>
-        <Style x:Key="activeTrackStyle" TargetType="{x:Type Rectangle}">
-            <Setter Property="Fill" Value="{StaticResource mainColor}" />
-            <Setter Property="Height" Value="10" />
-        </Style>
-        <Style x:Key="thumbStyle" TargetType="{x:Type Thumb}">
-            <Setter Property="Background" Value="White" />
-            <Setter Property="Height" Value="13" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Thumb}">
-                        <Border
-                            x:Name="ThumbBorder"
-                            Background="White"
-                            BorderThickness="0" />
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Setter Property="Width" Value="13" />
+        <ControlTemplate x:Key="Slider" TargetType="Slider">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" MinHeight="{TemplateBinding MinHeight}" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Track x:Name="PART_Track" Grid.Row="1">
+                    <Track.DecreaseRepeatButton>
+                        <RepeatButton Command="Slider.DecreaseLarge">
+                            <RepeatButton.Style>
+                                <Style TargetType="{x:Type RepeatButton}">
+                                    <Setter Property="OverridesDefaultStyle" Value="true" />
+                                    <Setter Property="SnapsToDevicePixels" Value="true" />
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="{x:Type RepeatButton}">
+                                                <Border
+                                                    x:Name="decreaseBorder"
+                                                    Height="10"
+                                                    Background="{StaticResource mainColor}"
+                                                    BorderThickness="0"
+                                                    Opacity="0.5"
+                                                    SnapsToDevicePixels="True" />
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="true">
+                                                        <Setter TargetName="decreaseBorder" Property="Opacity" Value="1" />
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </RepeatButton.Style>
+                        </RepeatButton>
+                    </Track.DecreaseRepeatButton>
+                    <Track.Thumb>
+                        <Thumb>
+                            <Thumb.Style>
+                                <Style TargetType="Thumb">
+                                    <Setter Property="OverridesDefaultStyle" Value="true" />
+                                    <Setter Property="SnapsToDevicePixels" Value="true" />
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="{x:Type Thumb}">
+                                                <Rectangle
+                                                    x:Name="rectangle"
+                                                    Width="10"
+                                                    Height="25"
+                                                    Fill="{StaticResource mainColor}" />
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="true">
+                                                        <Setter TargetName="rectangle" Property="Fill" Value="White" />
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Thumb.Style>
+                        </Thumb>
+                    </Track.Thumb>
+                    <Track.IncreaseRepeatButton>
+                        <RepeatButton Command="Slider.IncreaseLarge">
+                            <RepeatButton.Style>
+                                <Style TargetType="{x:Type RepeatButton}">
+                                    <Setter Property="Focusable" Value="false" />
+                                    <Setter Property="IsTabStop" Value="false" />
+                                    <Setter Property="OverridesDefaultStyle" Value="true" />
+                                    <Setter Property="SnapsToDevicePixels" Value="true" />
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="{x:Type RepeatButton}">
+                                                <Border
+                                                    x:Name="increaseBorder"
+                                                    Height="10"
+                                                    Background="{StaticResource lightColor}"
+                                                    BorderThickness="0"
+                                                    Opacity="0.5" />
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="true">
+                                                        <Setter TargetName="increaseBorder" Property="Opacity" Value="1" />
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </RepeatButton.Style>
+                        </RepeatButton>
+                    </Track.IncreaseRepeatButton>
+                </Track>
+            </Grid>
+        </ControlTemplate>
+        <Style x:Key="horizSlider" TargetType="Slider">
+            <Setter Property="Focusable" Value="False" />
+            <Setter Property="OverridesDefaultStyle" Value="true" />
+            <Setter Property="SnapsToDevicePixels" Value="true" />
+            <Style.Triggers>
+                <Trigger Property="Orientation" Value="Horizontal">
+                    <Setter Property="MinHeight" Value="21" />
+                    <Setter Property="MinWidth" Value="104" />
+                    <Setter Property="Template" Value="{StaticResource Slider}" />
+                </Trigger>
+            </Style.Triggers>
         </Style>
     </Application.Resources>
 </Application>

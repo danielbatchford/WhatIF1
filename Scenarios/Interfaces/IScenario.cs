@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows.Media;
 using WhatIfF1.Modelling.Tracks.Interfaces;
+using WhatIfF1.Scenarios.Events;
 using WhatIfF1.UI.Controller.Interfaces;
 
 namespace WhatIfF1.Scenarios.Interfaces
@@ -25,5 +26,7 @@ namespace WhatIfF1.Scenarios.Interfaces
         bool IsModelLoaded { get; set; }
 
         IEventController EventController { get; }
+
+        event EventHandler<ScenarioLoadedEventArgs> ScenarioLoaded;
     }
 }

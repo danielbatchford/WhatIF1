@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WhatIfF1.Adapters;
+using WhatIfF1.Scenarios.Events;
 using WhatIfF1.Scenarios.Exceptions;
 using WhatIfF1.Scenarios.Interfaces;
 using WhatIfF1.Util;
@@ -63,7 +64,27 @@ namespace WhatIfF1.Scenarios
             get => _activeScenario;
             set
             {
+                if (_activeScenario?.Equals(value) == true)
+                {
+                    return;
+                }
                 _activeScenario = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private int _selectedAccordianIndex;
+
+        public int SelectedAccordianIndex
+        {
+            get => _selectedAccordianIndex;
+            set
+            {
+                if (_selectedAccordianIndex == value)
+                {
+                    return;
+                }
+                _selectedAccordianIndex = value;
                 OnPropertyChanged();
             }
         }
@@ -72,11 +93,22 @@ namespace WhatIfF1.Scenarios
         {
             Scenarios = new ObservableRangeCollection<IScenario>(scenarios);
 
+            // Add event listeners for each scenario
+            foreach (var scenario in Scenarios)
+            {
+                scenario.ScenarioLoaded += Scenario_ScenarioLoaded;
+            }
             // Auto select the first scenario
             if (Scenarios.Count > 0)
             {
                 ActiveScenario = Scenarios[0];
             }
+        }
+
+        private void Scenario_ScenarioLoaded(object sender, ScenarioLoadedEventArgs e)
+        {
+            ActiveScenario = Scenarios.Single(scenario => scenario.Equals((IScenario)sender));
+            SelectedAccordianIndex = 1;
         }
 
         public void RemoveScenario(IScenario scenario)

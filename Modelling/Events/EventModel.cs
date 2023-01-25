@@ -11,6 +11,7 @@ using WhatIfF1.Modelling.Tires;
 using WhatIfF1.UI.Controller;
 using WhatIfF1.UI.Controller.Interfaces;
 using WhatIfF1.Util;
+using WhatIfF1.Util.Events;
 
 namespace WhatIfF1.Modelling.Events
 {
@@ -68,8 +69,8 @@ namespace WhatIfF1.Modelling.Events
                 driverModels.Add(driver, new DriverModel(lapTimes[driver], vdtContainers[driver], trackLength, noOfLaps, isDriverRetiredDict[driver]));
             }
 
-            // Initialse the total time as the maximum time of the total times of each driver
-            int totalTime = driverModels.Values.Max(dMOdel => dMOdel.DriverTotalTime);
+            // Initialse the total time as 1ms before the maximum time of the total times of each driver
+            int totalTime = driverModels.Values.Max(dMOdel => dMOdel.DriverTotalTime) - 1;
 
             return new EventModel(name, noOfDrivers, noOfLaps, totalTime, driverModels);
         }
@@ -91,6 +92,7 @@ namespace WhatIfF1.Modelling.Events
                     return;
                 }
 
+                NoOfLapsChanged?.Invoke(this, new ItemChangedEventArgs<int>(_noOfLaps, value));
                 _noOfLaps = value;
                 OnPropertyChanged();
             }
@@ -107,6 +109,7 @@ namespace WhatIfF1.Modelling.Events
                     return;
                 }
 
+                TotalTimeChanged?.Invoke(this, new ItemChangedEventArgs<int>(_totalTime, value));
                 _totalTime = value;
                 OnPropertyChanged();
             }
@@ -117,8 +120,9 @@ namespace WhatIfF1.Modelling.Events
             Name = name;
             NoOfDrivers = noOfDrivers;
 
-            _noOfLaps = noOfLaps;
-            _totalTime = totalTime;
+            NoOfLaps = noOfLaps;
+            TotalTime = totalTime;
+
             _driverModels = driverModels;
         }
 
@@ -223,5 +227,8 @@ namespace WhatIfF1.Modelling.Events
 
             return gap;
         }
+
+        public event ItemChangedEventHandler<int> TotalTimeChanged;
+        public event ItemChangedEventHandler<int> NoOfLapsChanged;
     }
 }

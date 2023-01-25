@@ -11,6 +11,7 @@ using WhatIfF1.Logging;
 using WhatIfF1.Modelling.Events;
 using WhatIfF1.Modelling.Tracks;
 using WhatIfF1.Modelling.Tracks.Interfaces;
+using WhatIfF1.Scenarios.Events;
 using WhatIfF1.Scenarios.Exceptions;
 using WhatIfF1.Scenarios.Interfaces;
 using WhatIfF1.UI.Controller;
@@ -258,6 +259,7 @@ namespace WhatIfF1.Scenarios
                 EventController = new EventController(Track, model);
 
                 IsModelLoaded = true;
+                ScenarioLoaded?.Invoke(this, new ScenarioLoadedEventArgs(this));
 
                 Logger.Instance.Info($"Loaded race data for the {EventName}");
             }
@@ -285,5 +287,7 @@ namespace WhatIfF1.Scenarios
         {
             return EventName;
         }
+
+        public event EventHandler<ScenarioLoadedEventArgs> ScenarioLoaded;
     }
 }

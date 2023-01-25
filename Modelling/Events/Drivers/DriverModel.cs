@@ -81,7 +81,7 @@ namespace WhatIfF1.Modelling.Events.Drivers
                 if (idx == DriverNoOfLaps)
                 {
                     lapMs = default;
-                    lapIndex = default;
+                    lapIndex = idx;
                     return false;
                 }
             }

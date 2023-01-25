@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Collections.ObjectModel;
 using WhatIfF1.UI.Controller.DataBuffering.Interfaces;
 using WhatIfF1.UI.Controller.Graphing.Interfaces;
 using WhatIfF1.UI.Controller.TrackMaps.Interfaces;
+using WhatIfF1.Util.Enumerables;
 
 namespace WhatIfF1.UI.Controller.Interfaces
 {
@@ -18,8 +18,8 @@ namespace WhatIfF1.UI.Controller.Interfaces
 
         int CurrentLap { get; set; }
 
-        int CurrentTime { get; set; }
+        int NoOfLaps { get; set; }
 
-        ObservableCollection<IDriverStanding> Standings { get; }
+        ObservableRangeCollection<IDriverStanding> Standings { get; }
     }
 }

@@ -8,20 +8,14 @@ namespace WhatIfF1.UI.Controller.Graphing
         {
         }
 
-        public override void UpdateGraph()
+        public override async void UpdateGraph()
         {
             if (TargetDriver is null)
             {
                 return;
             }
 
-            // TODO - need to run through data provider here
-            // this driver may not be on the lead lap
-            if (!_parentController.DataProvider.Model.TryGetCurrentLapForDriver(_parentController.CurrentTime, TargetDriver, out int driverLap))
-            {
-                // TODO - this
-                return;
-            }
+            int driverLap = await _parentController.DataProvider.GetCurrentLapForDriver(_parentController.CurrentTime, TargetDriver);
 
             int leaderLap = _parentController.CurrentLap;
 
