@@ -7,6 +7,6 @@
 
         int DriverTotalTime { get; }
 
-        TrackPosition GetPositionAndRunningState(int totalMs, out RunningState runningState);
+        TrackPosition GetPositionAndRunningState(int ms, out RunningState runningState);
     }
 }

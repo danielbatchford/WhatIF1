@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using WhatIfF1.Logging;
 using WhatIfF1.Modelling.Events.TrackEventMarking;
 using WhatIfF1.Modelling.Events.TrackEvents;
 using WhatIfF1.Modelling.Events.TrackEvents.Interfaces;
+using WhatIfF1.Modelling.TrackStates;
+using WhatIfF1.Modelling.TrackStates.Interfaces;
 using WhatIfF1.UI.Controller.Interfaces;
 using WhatIfF1.UI.Controller.Markers.Interfaces;
 using WhatIfF1.Util;
@@ -16,7 +19,7 @@ namespace WhatIfF1.UI.Controller.Markers
     {
         public SortedObservableRangeCollection<ITrackMarker> Markers { get; }
 
-        private readonly TrackMarkerStore _markerStore;
+        private readonly TrackMarkerFactory _markerStore;
 
         private ITrackMarker _selectedMarker;
         public ITrackMarker SelectedMarker
@@ -39,7 +42,7 @@ namespace WhatIfF1.UI.Controller.Markers
         public MarkerProvider(IEventController parentController)
         {
             _parentController = parentController;
-            _markerStore = TrackMarkerStore.Instance;
+            _markerStore = TrackMarkerFactory.Instance;
 
             Markers = new SortedObservableRangeCollection<ITrackMarker>(new MarkerComparer());
 
@@ -73,12 +76,60 @@ namespace WhatIfF1.UI.Controller.Markers
             var lastLap = lastPacket.CurrentLap;
 
             var raceWinMarker = _markerStore.CreateRaceWinMarker(standings[0].Driver, lastMs, lastLap);
+            var raceStartMarker = _markerStore.CreateRaceStartMarker();
 
-            return new List<ITrackMarker>
+            var trackStates = _parentController.DataProvider.GetTrackStates();
+            var trackStateMarkers = CreateTrackStateMarkers(trackStates);
+
+            return new List<ITrackMarker>(trackStateMarkers)
             {
                 raceWinMarker,
-                _markerStore.CreateRaceStartMarker(),
+                raceStartMarker
             };
+        }
+
+        private IEnumerable<ITrackMarker> CreateTrackStateMarkers(IEnumerable<ITrackState> trackStates)
+        {
+            var markers = new List<ITrackMarker>(trackStates.Count());
+
+            foreach (ITrackState trackState in trackStates)
+            {
+                ITrackMarker marker = null;
+
+                if (trackState.Flag == FlagType.GREEN)
+                {
+                    marker = _markerStore.CreateGreenFlagMarker(trackState.StartMs, trackState.StartLap);
+                }
+                else if (trackState.Flag == FlagType.RED)
+                {
+                    marker = _markerStore.CreateRedFlagMarker(trackState.StartMs, trackState.StartLap);
+                }
+                else if (trackState.Flag == FlagType.YELLOW)
+                {
+                    switch (trackState.SafetyCarState)
+                    {
+                        case SafetyCarState.SC:
+                            marker = _markerStore.CreateSafetyCarMarker(trackState.StartMs, trackState.EndMs, trackState.StartLap, trackState.EndLap);
+                            break;
+
+                        case SafetyCarState.VSC:
+                            marker = _markerStore.CreateVirtualSafetyCarMarker(trackState.StartMs, trackState.EndMs, trackState.StartLap, trackState.EndLap);
+                            break;
+
+                        case SafetyCarState.NONE:
+                            marker = _markerStore.CreateYellowFlagMarker(trackState.StartMs, trackState.EndMs, trackState.StartLap, trackState.EndLap);
+                            break;
+                    }
+                }
+                else
+                {
+                    throw new Exception($"Cannot create track state markers: Unrecognised flag type: {trackState.Flag}");
+                }
+
+                markers.Add(marker);
+            }
+
+            return markers;
         }
 
         public void ClearMarkers(int startMs, int endMs)

@@ -1,4 +1,5 @@
 ﻿using System;
+using WhatIfF1.Modelling.TrackStates.Interfaces;
 using WhatIfF1.UI.Controller.DataBuffering.Interfaces;
 using WhatIfF1.UI.Controller.Graphing.Interfaces;
 using WhatIfF1.UI.Controller.TrackMaps.Interfaces;
@@ -15,6 +16,8 @@ namespace WhatIfF1.UI.Controller.Interfaces
         IDriverStanding SelectedStanding { get; }
 
         IEventModelDataProvider DataProvider { get; }
+
+        ITrackState CurrentTrackState { get; set; }
 
         int CurrentLap { get; set; }
 

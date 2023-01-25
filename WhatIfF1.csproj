@@ -160,15 +160,19 @@
     <Compile Include="Modelling\Events\EventModel.cs" />
     <Compile Include="Modelling\Events\Interfaces\IEventModel.cs" />
     <Compile Include="Modelling\Events\TrackEventMarking\Interfaces\ITrackMarker.cs" />
-    <Compile Include="Modelling\Events\TrackEventMarking\Interfaces\ITrackMarkerStore.cs" />
+    <Compile Include="Modelling\Events\TrackEventMarking\Interfaces\ITrackMarkerFactory.cs" />
     <Compile Include="Modelling\Events\TrackEventMarking\MarkerComparer.cs" />
     <Compile Include="Modelling\Events\TrackEventMarking\TrackMarker.cs" />
-    <Compile Include="Modelling\Events\TrackEventMarking\TrackMarkerStore.cs" />
+    <Compile Include="Modelling\Events\TrackEventMarking\TrackMarkerFactory.cs" />
     <Compile Include="Modelling\Events\TrackEventMarking\MarkerType.cs" />
     <Compile Include="Modelling\Events\TrackPosition.cs" />
     <Compile Include="Modelling\Tires\Interfaces\ITireCompound.cs" />
     <Compile Include="Modelling\Tires\TireCompound.cs" />
     <Compile Include="Modelling\Tires\TireCompoundStore.cs" />
+    <Compile Include="Modelling\TrackStates\FlagType.cs" />
+    <Compile Include="Modelling\TrackStates\Interfaces\ITrackState.cs" />
+    <Compile Include="Modelling\TrackStates\Interfaces\TrackState.cs" />
+    <Compile Include="Modelling\TrackStates\SafetyCarState.cs" />
     <Compile Include="Modelling\Tracks\Interfaces\ITrack.cs" />
     <Compile Include="Modelling\Tracks\TrackException.cs" />
     <Compile Include="Scenarios\Events\ScenarioLoadedEventArgs.cs" />
@@ -178,6 +182,7 @@
     <Compile Include="TestClass.cs" />
     <Compile Include="UI\Controller\DataBuffering\EventModelDataProvider.cs" />
     <Compile Include="UI\Controller\DataBuffering\EventModelDataPacket.cs" />
+    <Compile Include="Util\SpecialColorStore.cs" />
     <Compile Include="Util\Enumerables\SortedObservableRangeCollection.cs" />
     <Compile Include="Util\Events\ItemChangedEventArgs.cs" />
     <Compile Include="Util\Events\ItemChangedEventHandler.cs" />
@@ -231,6 +236,7 @@
     <Compile Include="Util\Extensions\ImageExtensions.cs" />
     <Compile Include="Util\Extensions\EnumerableExtensions.cs" />
     <Compile Include="Util\Extensions\StringExtensions.cs" />
+    <Compile Include="Util\Interfaces\IMsRange.cs" />
     <Compile Include="Util\LoadableBindableBase.cs" />
     <Compile Include="Util\NotifyPropertyChangedWrapper.cs" />
     <Page Include="UI\Windows\MainWindow.xaml">

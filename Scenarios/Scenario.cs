@@ -211,16 +211,7 @@ namespace WhatIfF1.Scenarios
                     throw new ScenarioException($"Failed to fetch telemetry data for {this}");
                 }
 
-                JArray driverRaceTable = (JArray)driverTask.Result.Data["MRData"]["RaceTable"]["Races"];
-
-                JArray driversJson = (JArray)driverRaceTable[0]["Results"];
-
-                // Sometimes happens if the race has not yet occured (e.g race is in the future)
-                if (driverRaceTable.Count == 0)
-                {
-                    throw new ScenarioException("No race data was found for the selected race. Has this race occured yet?");
-                }
-
+                JArray driversJson = (JArray)driverTask.Result.Data["MRData"]["RaceTable"]["Races"][0]["Results"];
                 JArray lapTimesJson = (JArray)lapTimesTask.Result.Data["MRData"]["RaceTable"]["Races"][0]["Laps"];
                 JObject telemetryJson = (JObject)telemetryTask.Result.Data;
 

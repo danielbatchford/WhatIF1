@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using WhatIfF1.Modelling.TrackStates.Interfaces;
 using WhatIfF1.UI.Controller.DataBuffering.Interfaces;
 using WhatIfF1.UI.Controller.Interfaces;
 
@@ -12,10 +13,13 @@ namespace WhatIfF1.UI.Controller.DataBuffering
 
         public bool WasCacheHit { get; set; }
 
-        public EventModelDataPacket(IEnumerable<IDriverStanding> standings, int currentLap, bool wasCacheHit)
+        public ITrackState TrackState { get; }
+
+        public EventModelDataPacket(IEnumerable<IDriverStanding> standings, int currentLap, ITrackState trackState, bool wasCacheHit)
         {
             Standings = standings.ToList();
             CurrentLap = currentLap;
+            TrackState = trackState;
             WasCacheHit = wasCacheHit;
         }
 

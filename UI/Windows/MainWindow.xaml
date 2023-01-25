@@ -47,6 +47,7 @@
                 Visibility="{Binding Path=., Converter={StaticResource isNotNullToVisConverter}}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="150" />
+                    <ColumnDefinition Width="auto" />
                     <ColumnDefinition Width="1*" />
                     <ColumnDefinition Width="auto" />
                 </Grid.ColumnDefinitions>
@@ -54,7 +55,7 @@
                     <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
                 <sf:SfLinearProgressBar
-                    Grid.ColumnSpan="3"
+                    Grid.ColumnSpan="4"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
                     IsIndeterminate="True"
@@ -126,9 +127,48 @@
                             Text="{Binding Round}" />
                     </Grid>
                 </Grid>
-                <Grid
+                <StackPanel
                     Grid.Row="0"
                     Grid.Column="2"
+                    Margin="{StaticResource defaultMargin}"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Stretch"
+                    Orientation="Horizontal"
+                    Visibility="{Binding IsLoaded, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolToHiddenVisConverter}}">
+                    <TextBlock
+                        Margin="{StaticResource defaultMargin}"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        FontFamily="{StaticResource boldFont}"
+                        FontSize="20"
+                        Foreground="{Binding EventController.CurrentTrackState.Color, Converter={StaticResource colorToBrushConverter}}"
+                        Text="{Binding EventController.CurrentTrackState.SupportingTextA}" />
+                    <Rectangle
+                        Width="2"
+                        Height="40"
+                        Margin="{StaticResource defaultMargin}"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Fill="{StaticResource lightColor}">
+                        <Rectangle.OpacityMask>
+                            <LinearGradientBrush StartPoint="0.5, 0" EndPoint="0.5,1">
+                                <GradientStop Offset="0.1" Color="Transparent" />
+                                <GradientStop Offset="0.5" Color="Black" />
+                                <GradientStop Offset="0.9" Color="Transparent" />
+                            </LinearGradientBrush>
+                        </Rectangle.OpacityMask>
+                    </Rectangle>
+                    <TextBlock
+                        Margin="{StaticResource defaultMargin}"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        FontFamily="{StaticResource regularFont}"
+                        FontSize="15"
+                        Text="{Binding EventController.CurrentTrackState.SupportingTextB}" />
+                </StackPanel>
+                <Grid
+                    Grid.Row="0"
+                    Grid.Column="3"
                     Height="50"
                     Margin="0,0,10,0"
                     HorizontalAlignment="Center"

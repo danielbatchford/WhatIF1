@@ -7,6 +7,7 @@ using WhatIfF1.Logging;
 using WhatIfF1.Modelling.Events.Drivers.Interfaces;
 using WhatIfF1.Modelling.Events.Interfaces;
 using WhatIfF1.Modelling.Tracks.Interfaces;
+using WhatIfF1.Modelling.TrackStates.Interfaces;
 using WhatIfF1.Scenarios.Exceptions;
 using WhatIfF1.UI.Controller.DataBuffering;
 using WhatIfF1.UI.Controller.DataBuffering.Interfaces;
@@ -145,6 +146,22 @@ namespace WhatIfF1.UI.Controller
             }
         }
 
+        private ITrackState _currentTrackState;
+
+        public ITrackState CurrentTrackState
+        {
+            get => _currentTrackState;
+            set
+            {
+                if (_currentTrackState?.Equals(value) == true)
+                {
+                    return;
+                }
+                _currentTrackState = value;
+                OnPropertyChanged();
+            }
+        }
+
         private bool _playing;
 
         public bool Playing
@@ -215,6 +232,7 @@ namespace WhatIfF1.UI.Controller
             {
                 CurrentLap = task.Result.CurrentLap;
                 Standings.AddRange(task.Result.Standings);
+                CurrentTrackState = task.Result.TrackState;
             }, TaskScheduler.FromCurrentSynchronizationContext());
 
             _timer = new DispatcherTimer(TimeSpan.FromMilliseconds(_playbackParams.TimerUpdateMsIncrement), DispatcherPriority.ApplicationIdle, TimerTick, Dispatcher.CurrentDispatcher);

@@ -7,7 +7,15 @@ namespace WhatIfF1.Modelling.Events.TrackEventMarking
     {
         public int Compare(ITrackMarker markerA, ITrackMarker markerB)
         {
-            return markerA.StartMs.CompareTo(markerB.StartMs);
+            int sign = markerA.StartMs.CompareTo(markerB.StartMs);
+
+            if (sign == 0)
+            {
+                // Return shorter duration markers first
+                return markerA.EndMs.CompareTo(markerB.EndMs);
+            }
+
+            return sign;
         }
     }
 }

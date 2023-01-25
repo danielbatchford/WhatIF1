@@ -2,9 +2,7 @@
 {
     public class LoadableBindableBase : NotifyPropertyChangedWrapper
     {
-
         private bool _isLoading;
-
         public bool IsLoading
         {
             get => _isLoading;
@@ -16,7 +14,6 @@
         }
 
         private bool _isLoaded;
-
         public bool IsLoaded
         {
             get => _isLoaded;

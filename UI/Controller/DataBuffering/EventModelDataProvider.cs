@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using WhatIfF1.Logging;
 using WhatIfF1.Modelling.Events.Drivers.Interfaces;
 using WhatIfF1.Modelling.Events.Interfaces;
+using WhatIfF1.Modelling.TrackStates.Interfaces;
 using WhatIfF1.UI.Controller.DataBuffering.Interfaces;
 using WhatIfF1.UI.Controller.Interfaces;
 using WhatIfF1.Util.Events;
@@ -103,8 +104,8 @@ namespace WhatIfF1.UI.Controller.DataBuffering
         {
             return Task.Run(() =>
             {
-                var standings = _model.GetStandingsAtTime(ms, out int currentLap);
-                return (IEventModelDataPacket)new EventModelDataPacket(standings, currentLap, false);
+                var standings = _model.GetStandingsAtTime(ms, out int currentLap, out ITrackState trackState);
+                return (IEventModelDataPacket)new EventModelDataPacket(standings, currentLap, trackState, false);
             });
         }
 
@@ -140,10 +141,10 @@ namespace WhatIfF1.UI.Controller.DataBuffering
             return true;
         }
 
-        public async Task<int> GetCurrentLapForDriver(int currentTime, IDriver targetDriver)
+        public async Task<int> GetCurrentLapForDriver(int ms, IDriver targetDriver)
         {
             int driverLap = default;
-            var result = await Task.Run(() => _model.TryGetCurrentLapForDriver(currentTime, targetDriver, out driverLap));
+            var result = await Task.Run(() => _model.TryGetCurrentLapForDriver(ms, targetDriver, out driverLap));
             return driverLap;
         }
 
@@ -156,6 +157,12 @@ namespace WhatIfF1.UI.Controller.DataBuffering
         {
             NoOfLapsChanged?.Invoke(sender, e);
         }
+
+        public IEnumerable<ITrackState> GetTrackStates()
+        {
+            return _model.GetTrackStates();
+        }
+
         public event ItemChangedEventHandler<int> TotalTimeChanged;
 
         public event ItemChangedEventHandler<int> NoOfLapsChanged;

@@ -8,6 +8,7 @@ using WhatIfF1.Modelling.Events.Drivers.Interfaces;
 using WhatIfF1.Modelling.Events.Drivers.Telemetry;
 using WhatIfF1.Modelling.Events.Interfaces;
 using WhatIfF1.Modelling.Tires;
+using WhatIfF1.Modelling.TrackStates.Interfaces;
 using WhatIfF1.UI.Controller;
 using WhatIfF1.UI.Controller.Interfaces;
 using WhatIfF1.Util;
@@ -17,11 +18,41 @@ namespace WhatIfF1.Modelling.Events
 {
     public class EventModel : NotifyPropertyChangedWrapper, IEventModel
     {
+        #region Static
+
         public static EventModel GetModel(string name, double trackLength, JArray driversJson, JArray lapTimesJson, JObject telemetryJson)
         {
             var drivers = Driver.GetDriversAndRetirementsListFromJSON(driversJson, out IDictionary<IDriver, bool> isDriverRetiredDict);
             int noOfDrivers = drivers.Count();
 
+            var lapTimes = ParseLapTimes(drivers, lapTimesJson);
+
+            var telemetryParser = new TelemetryParser(trackLength);
+
+            var vdtContainers = telemetryParser.ParseTelemetryJson(drivers, lapTimes, telemetryJson);
+
+            // Initialise number of laps as the max of the laps completed by each driver
+            int noOfLaps = lapTimes.Values.Max(lt => lt.Count);
+
+            // Initialise driver models
+
+            var driverModels = new Dictionary<IDriver, IDriverModel>(noOfDrivers);
+
+            foreach (IDriver driver in drivers)
+            {
+                driverModels.Add(driver, new DriverModel(lapTimes[driver], vdtContainers[driver], trackLength, noOfLaps, isDriverRetiredDict[driver]));
+            }
+
+            // Initialse the total time as 1ms before the maximum time of the total times of each driver
+            int totalTime = driverModels.Values.Max(dMOdel => dMOdel.DriverTotalTime) - 1;
+
+            var trackStates = CalculateTrackStates(driverModels);
+
+            return new EventModel(name, noOfDrivers, noOfLaps, totalTime, driverModels, trackStates);
+        }
+
+        private static IDictionary<IDriver, ICollection<int>> ParseLapTimes(IEnumerable<IDriver> drivers, JArray lapTimesJson)
+        {
             var lapTimes = new Dictionary<IDriver, ICollection<int>>();
 
             // Initialise driver times dictionary
@@ -53,29 +84,22 @@ namespace WhatIfF1.Modelling.Events
                 }
             }
 
-            var telemetryParser = new TelemetryParser(trackLength);
-
-            var vdtContainers = telemetryParser.ParseTelemetryJson(drivers, lapTimes, telemetryJson);
-
-            // Initialise number of laps as the max of the laps completed by each driver
-            int noOfLaps = lapTimes.Values.Max(lt => lt.Count);
-
-            // Initialise driver models
-
-            var driverModels = new Dictionary<IDriver, IDriverModel>(noOfDrivers);
-
-            foreach (IDriver driver in drivers)
-            {
-                driverModels.Add(driver, new DriverModel(lapTimes[driver], vdtContainers[driver], trackLength, noOfLaps, isDriverRetiredDict[driver]));
-            }
-
-            // Initialse the total time as 1ms before the maximum time of the total times of each driver
-            int totalTime = driverModels.Values.Max(dMOdel => dMOdel.DriverTotalTime) - 1;
-
-            return new EventModel(name, noOfDrivers, noOfLaps, totalTime, driverModels);
+            return lapTimes;
         }
 
+        private static IEnumerable<ITrackState> CalculateTrackStates(IDictionary<IDriver, IDriverModel> driverModels)
+        {
+            // TODO - this
+            return new List<ITrackState>
+            {
+                new TrackState(0, 1000000000, 1, 10, TrackStates.FlagType.GREEN, TrackStates.SafetyCarState.NONE)
+            };
+        }
+
+        #endregion Static
+
         private readonly IDictionary<IDriver, IDriverModel> _driverModels;
+        private readonly IList<ITrackState> _trackStates;
 
         public int NoOfDrivers { get; }
 
@@ -115,7 +139,7 @@ namespace WhatIfF1.Modelling.Events
             }
         }
 
-        private EventModel(string name, int noOfDrivers, int noOfLaps, int totalTime, IDictionary<IDriver, IDriverModel> driverModels)
+        private EventModel(string name, int noOfDrivers, int noOfLaps, int totalTime, IDictionary<IDriver, IDriverModel> driverModels, IEnumerable<ITrackState> trackStates)
         {
             Name = name;
             NoOfDrivers = noOfDrivers;
@@ -124,6 +148,7 @@ namespace WhatIfF1.Modelling.Events
             TotalTime = totalTime;
 
             _driverModels = driverModels;
+            _trackStates = trackStates.ToList();
         }
 
         public override string ToString()
@@ -136,17 +161,24 @@ namespace WhatIfF1.Modelling.Events
             return new List<IDriver>(_driverModels.Keys);
         }
 
-        public IEnumerable<IDriverStanding> GetStandingsAtTime(int timeMs, out int currentLap)
+        public IEnumerable<ITrackState> GetTrackStates()
+        {
+            return _trackStates;
+        }
+
+        public IEnumerable<IDriverStanding> GetStandingsAtTime(int ms, out int currentLap, out ITrackState trackState)
         {
             var driverPositions = new List<(IDriver driver, TrackPosition position, RunningState runningState)>(NoOfDrivers);
 
             foreach (Driver driver in _driverModels.Keys)
             {
-                TrackPosition trackPosition = _driverModels[driver].GetPositionAndRunningState(timeMs, out RunningState runningState);
+                TrackPosition trackPosition = _driverModels[driver].GetPositionAndRunningState(ms, out RunningState runningState);
                 driverPositions.Add((driver, trackPosition, runningState));
             }
 
             currentLap = driverPositions.Where(tup => tup.runningState == RunningState.RUNNING).Max(tup => tup.position.Lap);
+
+            trackState = GetTrackState(ms);
 
             // Sort positions into current race order
             driverPositions.Sort((tupa, tupb) => tupa.position.CompareTo(tupb.position));
@@ -187,9 +219,9 @@ namespace WhatIfF1.Modelling.Events
             return standings;
         }
 
-        public bool TryGetCurrentLapForDriver(int currentTime, IDriver targetDriver, out int currentLap)
+        public bool TryGetCurrentLapForDriver(int ms, IDriver targetDriver, out int currentLap)
         {
-            TrackPosition position = _driverModels[targetDriver].GetPositionAndRunningState(currentTime, out RunningState runningState);
+            TrackPosition position = _driverModels[targetDriver].GetPositionAndRunningState(ms, out RunningState runningState);
 
             if (runningState == RunningState.RUNNING)
             {
@@ -226,6 +258,19 @@ namespace WhatIfF1.Modelling.Events
             }
 
             return gap;
+        }
+
+        private ITrackState GetTrackState(int ms)
+        {
+            foreach (var trackState in _trackStates)
+            {
+                if (trackState.StartMs <= ms && ms <= trackState.EndMs)
+                {
+                    return trackState;
+                }
+            }
+
+            throw new Exception($"No track state found at millisecond {ms}");
         }
 
         public event ItemChangedEventHandler<int> TotalTimeChanged;

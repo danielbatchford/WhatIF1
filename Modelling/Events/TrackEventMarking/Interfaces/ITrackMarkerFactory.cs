@@ -2,7 +2,7 @@
 
 namespace WhatIfF1.Modelling.Events.TrackEvents.Interfaces
 {
-    public interface ITrackMarkerStore
+    public interface ITrackMarkerFactory
     {
         ITrackMarker CreatePitStopMarker(IDriver driver, int startMs, int endMs, int inLap);
 
