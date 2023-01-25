@@ -21,7 +21,7 @@ using WhatIfF1.Util.Extensions;
 
 namespace WhatIfF1.Scenarios
 {
-    public class Scenario : NotifyPropertyChangedWrapper, IScenario
+    public class Scenario : LoadableBindableBase, IScenario
     {
         /// <summary>
         /// Used for equality checks
@@ -60,30 +60,6 @@ namespace WhatIfF1.Scenarios
             }
         }
 
-        private bool _isModelLoading;
-
-        public bool IsModelLoading
-        {
-            get => _isModelLoading;
-            set
-            {
-                _isModelLoading = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private bool _isModelLoaded;
-
-        public bool IsModelLoaded
-        {
-            get => _isModelLoaded;
-            set
-            {
-                _isModelLoaded = value;
-                OnPropertyChanged();
-            }
-        }
-
         private ICommand _loadRaceCommand;
 
         public ICommand LoadRaceCommand
@@ -92,7 +68,7 @@ namespace WhatIfF1.Scenarios
             {
                 return _loadRaceCommand ?? (_loadRaceCommand = new CommandHandler(
                         () => LoadRace(),
-                        () => !IsModelLoading && !IsModelLoaded));
+                        () => !IsLoading && !IsLoaded));
             }
             set
             {
@@ -202,7 +178,7 @@ namespace WhatIfF1.Scenarios
         private async void LoadRace()
         {
             Logger.Instance.Info($"Loading race data for the {EventName}");
-            IsModelLoading = true;
+            IsLoading = true;
 
             try
             {
@@ -258,7 +234,7 @@ namespace WhatIfF1.Scenarios
                 // Create a new EventController using the event model
                 EventController = new EventController(Track, model);
 
-                IsModelLoaded = true;
+                IsLoaded = true;
                 ScenarioLoaded?.Invoke(this, new ScenarioLoadedEventArgs(this));
 
                 Logger.Instance.Info($"Loaded race data for the {EventName}");
@@ -269,7 +245,7 @@ namespace WhatIfF1.Scenarios
             }
             finally
             {
-                IsModelLoading = false;
+                IsLoading = false;
             }
         }
 

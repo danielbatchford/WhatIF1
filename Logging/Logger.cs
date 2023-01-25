@@ -136,7 +136,6 @@ namespace WhatIfF1.Logging
             Console.WriteLine(message);
         }
 
-
         private void ResetTimerCountdown()
         {
             _timeoutTimer.Stop();

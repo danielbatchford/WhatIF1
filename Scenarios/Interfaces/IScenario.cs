@@ -21,9 +21,9 @@ namespace WhatIfF1.Scenarios.Interfaces
         Color PrimaryColor { get; set; }
 
         Color SecondaryColor { get; set; }
-        bool IsModelLoading { get; set; }
+        bool IsLoading { get; set; }
 
-        bool IsModelLoaded { get; set; }
+        bool IsLoaded { get; set; }
 
         IEventController EventController { get; }
 

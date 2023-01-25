@@ -61,7 +61,7 @@
                     Opacity="0.5"
                     ProgressColor="{StaticResource mainColor}"
                     TrackColor="Transparent"
-                    Visibility="{Binding Path=IsModelLoading, Converter={StaticResource boolToHiddenVisConverter}}" />
+                    Visibility="{Binding Path=IsLoading, Converter={StaticResource boolToHiddenVisConverter}}" />
                 <Image
                     Grid.Row="0"
                     Grid.Column="0"
@@ -150,7 +150,7 @@
                         Background="Transparent"
                         Command="{Binding EventController.PlayPauseCommand}"
                         Foreground="Transparent"
-                        Visibility="{Binding IsModelLoaded, Converter={StaticResource boolToHiddenVisConverter}}">
+                        Visibility="{Binding IsLoaded, Converter={StaticResource boolToHiddenVisConverter}}">
                         <Button.Content>
                             <Grid>
                                 <Ellipse
@@ -196,7 +196,7 @@
                         Margin="{StaticResource defaultMargin}"
                         Background="{StaticResource mainColor}"
                         Command="{Binding LoadRaceCommand}"
-                        IsEnabled="{Binding IsModelLoading, Converter={StaticResource inverseBoolConverter}}">
+                        IsEnabled="{Binding IsLoading, Converter={StaticResource inverseBoolConverter}}">
                         <Button.Content>
                             <TextBlock
                                 FontFamily="{StaticResource boldFont}"

@@ -4,5 +4,6 @@
     {
         bool Playing { get; set; }
         int CurrentTime { get; set; }
+        int TotalTime { get; set; }
     }
 }

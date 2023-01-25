@@ -108,8 +108,6 @@ namespace WhatIfF1.Adapters
                     return new JsonFetchResult(loaded);
                 }
             }
-
-
         }
     }
 }

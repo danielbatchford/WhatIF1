@@ -115,7 +115,7 @@
                         VerticalAlignment="Center"
                         Fill="{StaticResource mainColor}"
                         StrokeThickness="0"
-                        Visibility="{Binding IsModelLoaded, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolToCollapsedVisConverter}}" />
+                        Visibility="{Binding IsLoaded, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolToCollapsedVisConverter}}" />
                     <TextBlock
                         Margin="5"
                         HorizontalAlignment="Left"

@@ -89,7 +89,6 @@ namespace WhatIfF1.Modelling.Events.Drivers
             lapMs = msCounter;
             lapIndex = idx;
             return true;
-
         }
     }
 }

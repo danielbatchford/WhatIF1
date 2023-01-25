@@ -155,6 +155,5 @@ namespace WhatIfF1.Modelling.Events.TrackEvents
 
             throw new NotImplementedException($"No supporting text B implementation for marker type {MarkerType}");
         }
-
     }
 }
