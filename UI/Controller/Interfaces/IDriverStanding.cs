@@ -1,7 +1,7 @@
 ﻿using System;
 using WhatIfF1.Modelling.Events.Drivers;
 using WhatIfF1.Modelling.Events.Drivers.Interfaces;
-using WhatIfF1.Modelling.Tires.Interfaces;
+using WhatIfF1.Modelling.PitStops.Interfaces;
 
 namespace WhatIfF1.UI.Controller.Interfaces
 {
@@ -11,6 +11,7 @@ namespace WhatIfF1.UI.Controller.Interfaces
         int RacePosition { get; set; }
         int GapToLead { get; set; }
         int GapToNextCar { get; set; }
+        double LapDistance { get; set; }
         double ProportionOfLap { get; set; }
         double Velocity { get; set; }
         ITireCompound TireCompound { get; set; }

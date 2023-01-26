@@ -29,6 +29,8 @@ namespace WhatIfF1.Adapters
 
         public string TrackMarkerIconsRoot { get; }
 
+        public string TiresRoot { get; }
+
         public string CacheRoot { get; }
 
         public bool UseCaching { get; }
@@ -47,6 +49,7 @@ namespace WhatIfF1.Adapters
             DriverPicsRoot = GetAndDebugResourcePath("Drivers", "drivers");
             ConstructorPicsRoot = GetAndDebugResourcePath("Constructors", "constructors");
             TrackMarkerIconsRoot = GetAndDebugResourcePath("TrackMarkers", "track markers");
+            TiresRoot = GetAndDebugResourcePath("Tires", "tires");
 
             string roamingPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             CacheRoot = Path.Combine(roamingPath, ((App)System.Windows.Application.Current).AppName);

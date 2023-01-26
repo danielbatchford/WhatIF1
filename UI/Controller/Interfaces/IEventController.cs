@@ -1,8 +1,10 @@
 ﻿using System;
-using System.Collections.ObjectModel;
+using WhatIfF1.Modelling.TrackStates.Interfaces;
 using WhatIfF1.UI.Controller.DataBuffering.Interfaces;
 using WhatIfF1.UI.Controller.Graphing.Interfaces;
+using WhatIfF1.UI.Controller.Tires.Interfaces;
 using WhatIfF1.UI.Controller.TrackMaps.Interfaces;
+using WhatIfF1.Util.Enumerables;
 
 namespace WhatIfF1.UI.Controller.Interfaces
 {
@@ -16,10 +18,14 @@ namespace WhatIfF1.UI.Controller.Interfaces
 
         IEventModelDataProvider DataProvider { get; }
 
+        IPitStopDataProvider PitStopDataProvider { get; }
+
+        ITrackState CurrentTrackState { get; set; }
+
         int CurrentLap { get; set; }
 
-        int CurrentTime { get; set; }
+        int NoOfLaps { get; set; }
 
-        ObservableCollection<IDriverStanding> Standings { get; }
+        ObservableRangeCollection<IDriverStanding> Standings { get; }
     }
 }

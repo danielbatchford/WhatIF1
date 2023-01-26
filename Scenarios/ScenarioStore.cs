@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WhatIfF1.Adapters;
+using WhatIfF1.Scenarios.Events;
 using WhatIfF1.Scenarios.Exceptions;
 using WhatIfF1.Scenarios.Interfaces;
 using WhatIfF1.Util;
@@ -25,7 +26,7 @@ namespace WhatIfF1.Scenarios
                 throw new ScenarioException($"{nameof(ScenarioStore)} singleton has already been initialised");
             }
 
-            var apiFetchTask = APIAdapter.GetFromErgastAPI($"{_year}.json");
+            var apiFetchTask = new Task<JsonFetchResult>(() => APIAdapter.GetFromErgastAPI($"{_year}.json").Result);
             var scenarioWorker = new APIEventCacheWorker(apiFetchTask, "Events", "Events", $"{_year}.json");
 
             JsonFetchResult result = await scenarioWorker.GetDataTask();
@@ -63,6 +64,10 @@ namespace WhatIfF1.Scenarios
             get => _activeScenario;
             set
             {
+                if (_activeScenario?.Equals(value) == true)
+                {
+                    return;
+                }
                 _activeScenario = value;
                 OnPropertyChanged();
             }
@@ -72,11 +77,21 @@ namespace WhatIfF1.Scenarios
         {
             Scenarios = new ObservableRangeCollection<IScenario>(scenarios);
 
+            // Add event listeners for each scenario
+            foreach (var scenario in Scenarios)
+            {
+                scenario.ScenarioLoaded += Scenario_ScenarioLoaded;
+            }
             // Auto select the first scenario
             if (Scenarios.Count > 0)
             {
                 ActiveScenario = Scenarios[0];
             }
+        }
+
+        private void Scenario_ScenarioLoaded(object sender, ScenarioLoadedEventArgs e)
+        {
+            ActiveScenario = Scenarios.Single(scenario => scenario.Equals((IScenario)sender));
         }
 
         public void RemoveScenario(IScenario scenario)

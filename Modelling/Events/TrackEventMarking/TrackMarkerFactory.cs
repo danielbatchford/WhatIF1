@@ -3,16 +3,17 @@ using System.Collections.Generic;
 using System.Windows.Media;
 using WhatIfF1.Modelling.Events.Drivers.Interfaces;
 using WhatIfF1.Modelling.Events.TrackEvents.Interfaces;
+using WhatIfF1.Util;
 
 namespace WhatIfF1.Modelling.Events.TrackEvents
 {
-    public sealed class TrackMarkerStore : ITrackMarkerStore
+    public sealed class TrackMarkerFactory : ITrackMarkerFactory
     {
         #region LazyInitialization
 
-        public static TrackMarkerStore Instance => _lazy.Value;
+        public static TrackMarkerFactory Instance => _lazy.Value;
 
-        private readonly static Lazy<TrackMarkerStore> _lazy = new Lazy<TrackMarkerStore>(() => new TrackMarkerStore());
+        private readonly static Lazy<TrackMarkerFactory> _lazy = new Lazy<TrackMarkerFactory>(() => new TrackMarkerFactory());
 
         #endregion LazyInitialization
 
@@ -22,7 +23,7 @@ namespace WhatIfF1.Modelling.Events.TrackEvents
         private readonly Color _yellowColor;
         private readonly Color _greenColor;
 
-        private TrackMarkerStore()
+        private TrackMarkerFactory()
         {
             _markerDisplayNameDict = new Dictionary<MarkerType, string>
             {
@@ -38,9 +39,9 @@ namespace WhatIfF1.Modelling.Events.TrackEvents
                 { MarkerType.GREEN_FLAG, "Green Flag" }
             };
 
-            _redColor = Color.FromRgb(238, 33, 9);
-            _yellowColor = Color.FromRgb(240, 193, 9);
-            _greenColor = Color.FromRgb(0, 208, 6);
+            _redColor = SpecialColorStore.Instance.RedColor;
+            _yellowColor = SpecialColorStore.Instance.YellowColor;
+            _greenColor = SpecialColorStore.Instance.GreenColor;
         }
 
         public ITrackMarker CreatePitStopMarker(IDriver driver, int startMs, int endMs, int inLap)

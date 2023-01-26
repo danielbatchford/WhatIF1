@@ -4,12 +4,13 @@ using WhatIfF1.UI.Controller.Graphing.Interfaces;
 using WhatIfF1.UI.Controller.Graphing.SeriesData.Interfaces;
 using WhatIfF1.UI.Controller.Interfaces;
 using WhatIfF1.Util;
+using WhatIfF1.Util.Enumerables;
 
 namespace WhatIfF1.UI.Controller.Graphing
 {
     public abstract class XYGraph : NotifyPropertyChangedWrapper, IXYGraph
     {
-        public IList<IXYDataPoint<double>> Data { get; }
+        public ObservableRangeCollection<IXYDataPoint<double>> Data { get; }
 
         protected IEventController _parentController;
 
@@ -63,13 +64,45 @@ namespace WhatIfF1.UI.Controller.Graphing
             }
         }
 
+        private double _maxY;
+
+        public double MaxY
+        {
+            get => _maxY;
+            set 
+            {
+                if(_maxY == value)
+                {
+                    return;
+                }
+                _maxY = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private double _minY;
+
+        public double MinY
+        {
+            get => _minY;
+            set
+            {
+                if (_minY == value)
+                {
+                    return;
+                }
+                _minY = value;
+                OnPropertyChanged();
+            }
+        }
+
         protected XYGraph(IEventController parentController, string xTitle, string yTitle)
         {
             _parentController = parentController;
             XTitle = xTitle;
             YTitle = yTitle;
 
-            Data = new List<IXYDataPoint<double>>();
+            Data = new ObservableRangeCollection<IXYDataPoint<double>>();
         }
 
         public void Clear()

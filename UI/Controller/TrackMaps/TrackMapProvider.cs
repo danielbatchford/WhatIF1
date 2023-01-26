@@ -131,17 +131,20 @@ namespace WhatIfF1.UI.Controller.TrackMaps
             int driverIndex = _driverToIndexMapping[standing.Driver];
 
             // If the driver has finished, set the position to the start position
-            if (standing.State == RunningState.FINISHED)
-            {
-                DriverPoints[driverIndex].Point = StartPoint;
-                DriverPoints[driverIndex].IsNotRunning = true;
-            }
-            else if (standing.State == RunningState.RETIRED)
+            if (standing.State != RunningState.RUNNING)
             {
                 DriverPoints[driverIndex].IsNotRunning = true;
+                DriverPoints[driverIndex].Opacity = _notFocusedOpacity;
+
+                if (standing.State == RunningState.FINISHED)
+                {
+                    DriverPoints[driverIndex].Point = StartPoint;
+                }
             }
             else
             {
+                DriverPoints[driverIndex].IsNotRunning = false;
+
                 double distanceAlongCollection = standing.ProportionOfLap * (TrackPoints.Count - 1);
 
                 // Find the closest lower index in the track points list based on the distance around the lap
@@ -160,17 +163,6 @@ namespace WhatIfF1.UI.Controller.TrackMaps
             }
         }
 
-        public void UpdateNotRunning(IEnumerable<IDriverStanding> standings)
-        {
-            foreach (var standing in standings)
-            {
-                if (standing.State != RunningState.RUNNING)
-                {
-                    DriverPoints[_driverToIndexMapping[standing.Driver]].IsNotRunning = true;
-                }
-            }
-        }
-
         public void ToSelectedDriverMode(IDriver driver)
         {
             foreach (var driverMapPoint in DriverPoints)
@@ -183,7 +175,7 @@ namespace WhatIfF1.UI.Controller.TrackMaps
         {
             foreach (var driverMapPoint in DriverPoints)
             {
-                driverMapPoint.Opacity = 1;
+                driverMapPoint.Opacity = driverMapPoint.IsNotRunning ? _notFocusedOpacity : 1;
             }
         }
 

@@ -6,11 +6,15 @@ namespace WhatIfF1.Util.Enumerables
 {
     public class ObservableRangeCollection<T> : ObservableCollection<T>
     {
+        public ObservableRangeCollection()
+        {
+        }
+
         public ObservableRangeCollection(IEnumerable<T> collection) : base(collection)
         {
         }
 
-        public void AddRange(IEnumerable<T> items)
+        public virtual void AddRange(IEnumerable<T> items)
         {
             foreach (T item in items)
             {
@@ -20,10 +24,20 @@ namespace WhatIfF1.Util.Enumerables
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
 
-        public void ReplaceRange(IEnumerable<T> items)
+        public virtual void ReplaceRange(IEnumerable<T> items)
         {
             Items.Clear();
             AddRange(items);
+        }
+
+        public virtual void RemoveRange(IEnumerable<T> items)
+        {
+            foreach (T item in items)
+            {
+                Items.Remove(item);
+            }
+
+            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
     }
 }

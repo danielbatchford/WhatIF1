@@ -26,6 +26,35 @@ namespace WhatIfF1.UI.Controller.Graphing
             }
         }
 
+        private IDriver _targetDriver;
+
+        public IDriver TargetDriver
+        {
+            get => _targetDriver;
+            set
+            {
+                if (_targetDriver?.Equals(value) == true)
+                {
+                    return;
+                }
+
+                _targetDriver = value;
+
+                if (value is null)
+                {
+                    Graph.Clear();
+                }
+                else
+                {
+                    Graph.TargetDriver = value;
+                }
+
+                OnPropertyChanged();
+            }
+        }
+
+        // TODO - could migrate graph logic to this class
+
         public GraphProvider(IEventController parentController, GraphType graphType)
         {
             _parentController = parentController;
@@ -35,32 +64,14 @@ namespace WhatIfF1.UI.Controller.Graphing
             Graph = GetGraphFromType(parentController, graphType);
         }
 
-        public void UpdateGraph()
+        public void UpdateProvider()
         {
-            int leaderLap = _parentController.CurrentLap;
-
-            if (leaderLap < 1)
+            if (TargetDriver == null)
             {
-                throw new GraphException("Cannot set lap to lap < 1");
-            }
-
-            int numLaps = _parentController.DataProvider.Model.NoOfLaps;
-            if (leaderLap > numLaps)
-            {
-                throw new GraphException($"Cannot set lap as it exceeded the number of laps in the parent model (Got {leaderLap} laps, model has {numLaps} laps)");
+                return;
             }
 
             Graph.UpdateGraph();
-        }
-
-        public void UpdateCurrentDriver(IDriver driver)
-        {
-            Graph.TargetDriver = driver;
-        }
-
-        public void RemoveCurrentDriver()
-        {
-            Graph.Clear();
         }
 
         private IXYGraph GetGraphFromType(IEventController parentController, GraphType graphType)

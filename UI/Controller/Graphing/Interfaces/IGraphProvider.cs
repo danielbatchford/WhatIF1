@@ -1,16 +1,10 @@
 ﻿using System.Collections.Generic;
-using WhatIfF1.Modelling.Events.Drivers.Interfaces;
+using WhatIfF1.UI.Controller.Interfaces;
 
 namespace WhatIfF1.UI.Controller.Graphing.Interfaces
 {
-    public interface IGraphProvider
+    public interface IGraphProvider : ITargetDriverDataProvider
     {
         IEnumerable<GraphType> GraphTypes { get; }
-
-        void UpdateGraph();
-
-        void UpdateCurrentDriver(IDriver driver);
-
-        void RemoveCurrentDriver();
     }
 }

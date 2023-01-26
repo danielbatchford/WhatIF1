@@ -110,6 +110,9 @@
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>packages\System.Runtime.CompilerServices.Unsafe.6.0.0\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
+    <Reference Include="System.Threading.Tasks.Dataflow, Version=7.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Threading.Tasks.Dataflow.7.0.0\lib\net462\System.Threading.Tasks.Dataflow.dll</HintPath>
+    </Reference>
     <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
     </Reference>
@@ -157,22 +160,39 @@
     <Compile Include="Modelling\Events\EventModel.cs" />
     <Compile Include="Modelling\Events\Interfaces\IEventModel.cs" />
     <Compile Include="Modelling\Events\TrackEventMarking\Interfaces\ITrackMarker.cs" />
-    <Compile Include="Modelling\Events\TrackEventMarking\Interfaces\ITrackMarkerStore.cs" />
+    <Compile Include="Modelling\Events\TrackEventMarking\Interfaces\ITrackMarkerFactory.cs" />
+    <Compile Include="Modelling\Events\TrackEventMarking\MarkerComparer.cs" />
     <Compile Include="Modelling\Events\TrackEventMarking\TrackMarker.cs" />
-    <Compile Include="Modelling\Events\TrackEventMarking\TrackMarkerStore.cs" />
+    <Compile Include="Modelling\Events\TrackEventMarking\TrackMarkerFactory.cs" />
     <Compile Include="Modelling\Events\TrackEventMarking\MarkerType.cs" />
     <Compile Include="Modelling\Events\TrackPosition.cs" />
-    <Compile Include="Modelling\Tires\Interfaces\ITireCompound.cs" />
-    <Compile Include="Modelling\Tires\TireCompound.cs" />
-    <Compile Include="Modelling\Tires\TireCompoundStore.cs" />
+    <Compile Include="Modelling\PitStops\Interfaces\IPitStop.cs" />
+    <Compile Include="Modelling\PitStops\Interfaces\ITireCompound.cs" />
+    <Compile Include="Modelling\PitStops\PitStop.cs" />
+    <Compile Include="Modelling\PitStops\TireCompound.cs" />
+    <Compile Include="Modelling\PitStops\TireCompoundStore.cs" />
+    <Compile Include="Modelling\TrackStates\FlagType.cs" />
+    <Compile Include="Modelling\TrackStates\Interfaces\ITrackState.cs" />
+    <Compile Include="Modelling\TrackStates\Interfaces\TrackState.cs" />
+    <Compile Include="Modelling\TrackStates\SafetyCarState.cs" />
     <Compile Include="Modelling\Tracks\Interfaces\ITrack.cs" />
     <Compile Include="Modelling\Tracks\TrackException.cs" />
+    <Compile Include="Scenarios\Events\ScenarioLoadedEventArgs.cs" />
     <Compile Include="Scenarios\Exceptions\ScenarioException.cs" />
     <Compile Include="Scenarios\Interfaces\IScenario.cs" />
     <Compile Include="Scenarios\ScenarioType.cs" />
     <Compile Include="TestClass.cs" />
     <Compile Include="UI\Controller\DataBuffering\EventModelDataProvider.cs" />
     <Compile Include="UI\Controller\DataBuffering\EventModelDataPacket.cs" />
+    <Compile Include="UI\Controller\Interfaces\ITargetDriverDataProvider.cs" />
+    <Compile Include="UI\Controller\Tires\Interfaces\ITireRun.cs" />
+    <Compile Include="UI\Controller\Tires\Interfaces\IPitStopDataProvider.cs" />
+    <Compile Include="UI\Controller\Tires\PitStopDataProvider.cs" />
+    <Compile Include="UI\Controller\Tires\TireRun.cs" />
+    <Compile Include="Util\SpecialColorStore.cs" />
+    <Compile Include="Util\Enumerables\SortedObservableRangeCollection.cs" />
+    <Compile Include="Util\Events\ItemChangedEventArgs.cs" />
+    <Compile Include="Util\Events\ItemChangedEventHandler.cs" />
     <Compile Include="UI\Controller\DataBuffering\Interfaces\IBufferableDataProvider.cs" />
     <Compile Include="UI\Controller\DataBuffering\Interfaces\IBufferedDataPacket.cs" />
     <Compile Include="UI\Controller\DataBuffering\Interfaces\IEventModelDataPacket.cs" />
@@ -208,10 +228,11 @@
     <Compile Include="UI\Converters\InverseBoolToHiddenVisConverter.cs" />
     <Compile Include="UI\Converters\IsNotNullConverter.cs" />
     <Compile Include="UI\Converters\IsNotNullToVisConverter.cs" />
-    <Compile Include="UI\Converters\MsToHundredSecConverter.cs" />
+    <Compile Include="UI\Converters\MsToSecConverter.cs" />
     <Compile Include="UI\Converters\ScenarioTypeToStringConverter.cs" />
     <Compile Include="UI\Controller\EventController.cs" />
     <Compile Include="UI\Controller\EventControllerException.cs" />
+    <Compile Include="UI\Converters\SecToMsConverter.cs" />
     <Compile Include="UI\Converters\ToFormattedTimeConverter.cs" />
     <Compile Include="UI\Converters\ToIntConverter.cs" />
     <Compile Include="Util\CommandHandler.cs" />
@@ -222,6 +243,8 @@
     <Compile Include="Util\Extensions\ImageExtensions.cs" />
     <Compile Include="Util\Extensions\EnumerableExtensions.cs" />
     <Compile Include="Util\Extensions\StringExtensions.cs" />
+    <Compile Include="Util\Interfaces\IMsRange.cs" />
+    <Compile Include="Util\LoadableBindableBase.cs" />
     <Compile Include="Util\NotifyPropertyChangedWrapper.cs" />
     <Page Include="UI\Windows\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -289,9 +312,6 @@
     <Resource Include="UI\Windows\Icons\favicon.png" />
   </ItemGroup>
   <ItemGroup>
-    <SplashScreen Include="Resources\SplashScreen.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\Flags\Australia.png" />
     <Resource Include="Resources\Flags\Austria.png" />
     <Resource Include="Resources\Flags\Azerbaijan.png" />
@@ -316,9 +336,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="UI\Windows\Icons\WhiteCross.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\F1Logo.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Drivers\ALO.png" />
@@ -473,10 +490,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <TargetPath>Resources\Drivers\ZHO.png</TargetPath>
     </ContentWithTargetPath>
-    <ContentWithTargetPath Include="Resources\F1Logo.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <TargetPath>Resources\F1Logo.png</TargetPath>
-    </ContentWithTargetPath>
     <ContentWithTargetPath Include="Resources\Flags\Australia.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <TargetPath>Resources\Flags\Australia.png</TargetPath>
@@ -572,10 +585,6 @@
     <ContentWithTargetPath Include="Resources\Fonts\Formula1-Wide.otf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <TargetPath>Resources\Fonts\Formula1-Wide.otf</TargetPath>
-    </ContentWithTargetPath>
-    <ContentWithTargetPath Include="Resources\SplashScreen.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <TargetPath>Resources\SplashScreen.png</TargetPath>
     </ContentWithTargetPath>
     <ContentWithTargetPath Include="Resources\TrackMarkers\race_start.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -697,7 +706,18 @@
   <ItemGroup>
     <Resource Include="UI\Windows\Icons\BlackCross.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\F1Logo.png" />
+    <Resource Include="Resources\SplashScreen.png" />
+  </ItemGroup>
   <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Resources\Tires\hard.png" />
+    <Resource Include="Resources\Tires\intermediate.png" />
+    <Resource Include="Resources\Tires\medium.png" />
+    <Resource Include="Resources\Tires\soft.png" />
+    <Resource Include="Resources\Tires\wet.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>

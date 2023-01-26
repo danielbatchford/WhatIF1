@@ -1,12 +1,13 @@
 ﻿using System;
-using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Threading;
 using WhatIfF1.Logging;
 using WhatIfF1.Modelling.Events.Drivers.Interfaces;
 using WhatIfF1.Modelling.Events.Interfaces;
 using WhatIfF1.Modelling.Tracks.Interfaces;
+using WhatIfF1.Modelling.TrackStates.Interfaces;
 using WhatIfF1.Scenarios.Exceptions;
 using WhatIfF1.UI.Controller.DataBuffering;
 using WhatIfF1.UI.Controller.DataBuffering.Interfaces;
@@ -15,9 +16,13 @@ using WhatIfF1.UI.Controller.Graphing.Interfaces;
 using WhatIfF1.UI.Controller.Interfaces;
 using WhatIfF1.UI.Controller.Markers;
 using WhatIfF1.UI.Controller.Markers.Interfaces;
+using WhatIfF1.UI.Controller.Tires;
+using WhatIfF1.UI.Controller.Tires.Interfaces;
 using WhatIfF1.UI.Controller.TrackMaps;
 using WhatIfF1.UI.Controller.TrackMaps.Interfaces;
 using WhatIfF1.Util;
+using WhatIfF1.Util.Enumerables;
+using WhatIfF1.Util.Events;
 
 namespace WhatIfF1.UI.Controller
 {
@@ -27,17 +32,19 @@ namespace WhatIfF1.UI.Controller
 
         private readonly IPlaybackParameterContainer _playbackParams;
 
-        public IEventModelDataProvider DataProvider { get; }
-
         private int _currentTime;
 
-        public ObservableCollection<IDriverStanding> Standings { get; }
+        public ObservableRangeCollection<IDriverStanding> Standings { get; }
+
+        public IEventModelDataProvider DataProvider { get; }
 
         public ITrackMapProvider MapProvider { get; }
 
         public IGraphProvider GraphProvider { get; }
 
         public IMarkerProvider MarkerProvider { get; }
+
+        public IPitStopDataProvider PitStopDataProvider { get; }
 
         public int CurrentTime
         {
@@ -48,6 +55,10 @@ namespace WhatIfF1.UI.Controller
                 {
                     throw new EventControllerException($"Requested time was less than 0. (Got {value})");
                 }
+                if (value > TotalTime)
+                {
+                    throw new EventControllerException($"Requested time exceeded the total time. (Got {value}, total time is {TotalTime})");
+                }
 
                 // No need to update if the value equals the current time
                 if (value == _currentTime)
@@ -55,16 +66,30 @@ namespace WhatIfF1.UI.Controller
                     return;
                 }
 
-                // If the current time exceeds the maximum time in the model, throw an exception
-                if (value > DataProvider.Model.TotalTime)
-                {
-                    throw new EventControllerException($"Requested current time exceeds the maximum model time (Requested {value}, Max time is {DataProvider.Model.TotalTime}");
-                }
-
                 _currentTime = value;
 
                 OnCurrentTimeChanged();
                 OnPropertyChanged();
+            }
+        }
+
+        private int _totalTime;
+        public int TotalTime
+        {
+            get => _totalTime;
+            set
+            {
+                if (value < 0)
+                {
+                    throw new EventControllerException($"Set total time value was less than 0. (Got {value})");
+                }
+
+                if (value == _totalTime)
+                {
+                    return;
+                }
+
+                _totalTime = value;
             }
         }
 
@@ -75,10 +100,6 @@ namespace WhatIfF1.UI.Controller
             get => _currentLap;
             set
             {
-                if (value > DataProvider.Model.NoOfLaps)
-                {
-                    throw new EventControllerException($"Attempted to set max lap to {value} while only {DataProvider.Model.NoOfLaps} existed");
-                }
                 if (value == _currentLap)
                 {
                     return;
@@ -86,6 +107,27 @@ namespace WhatIfF1.UI.Controller
 
                 _currentLap = value;
                 OnCurrentLapChanged();
+                OnPropertyChanged();
+            }
+        }
+
+        private int _noOfLaps;
+        public int NoOfLaps
+        {
+            get => _noOfLaps;
+            set
+            {
+                if (value <= 0)
+                {
+                    throw new EventControllerException($"Attempted to set no of laps to value <= 0. Got {value}");
+                }
+
+                if (value == _noOfLaps)
+                {
+                    return;
+                }
+
+                _noOfLaps = value;
                 OnPropertyChanged();
             }
         }
@@ -104,6 +146,22 @@ namespace WhatIfF1.UI.Controller
 
                 _selectedStanding = value;
                 OnSelectedStandingChanged();
+                OnPropertyChanged();
+            }
+        }
+
+        private ITrackState _currentTrackState;
+
+        public ITrackState CurrentTrackState
+        {
+            get => _currentTrackState;
+            set
+            {
+                if (_currentTrackState?.Equals(value) == true)
+                {
+                    return;
+                }
+                _currentTrackState = value;
                 OnPropertyChanged();
             }
         }
@@ -159,16 +217,30 @@ namespace WhatIfF1.UI.Controller
             _playbackParams = PlaybackParameterContainer.GetDefault();
 
             DataProvider = new EventModelDataProvider(model, _playbackParams);
+
+            TotalTime = model.TotalTime;
+            NoOfLaps = model.NoOfLaps;
+
+            DataProvider.TotalTimeChanged += DataProvider_TotalTimeChanged;
+            DataProvider.NoOfLapsChanged += DataProvider_NoOfLapsChanged;
+
             MapProvider = new TrackMapProvider(track, model.GetDrivers());
             GraphProvider = new GraphProvider(this, GraphType.VELOCITY_TIME);
-            MarkerProvider = new MarkerProvider(DataProvider);
+            MarkerProvider = new MarkerProvider(this);
+            PitStopDataProvider = new PitStopDataProvider(this);
 
             CurrentTime = 0;
 
-            var standings = DataProvider.Model.GetStandingsAtTime(CurrentTime, out int currentLap);
-            CurrentLap = currentLap;
+            Standings = new ObservableRangeCollection<IDriverStanding>();
 
-            Standings = new ObservableCollection<IDriverStanding>(standings);
+            _ = DataProvider.GetDataAtTime(CurrentTime).ContinueWith(task =>
+            {
+                CurrentLap = task.Result.CurrentLap;
+                Standings.AddRange(task.Result.Standings);
+                CurrentTrackState = task.Result.TrackState;
+                // Auto select the first standing
+                SelectedStanding = Standings[0];
+            }, TaskScheduler.FromCurrentSynchronizationContext());
 
             _timer = new DispatcherTimer(TimeSpan.FromMilliseconds(_playbackParams.TimerUpdateMsIncrement), DispatcherPriority.ApplicationIdle, TimerTick, Dispatcher.CurrentDispatcher);
             // Don't start timer by default
@@ -178,6 +250,8 @@ namespace WhatIfF1.UI.Controller
         public void Dispose()
         {
             Playing = false;
+            DataProvider.TotalTimeChanged -= DataProvider_TotalTimeChanged;
+            DataProvider.NoOfLapsChanged -= DataProvider_NoOfLapsChanged;
         }
 
         private async void OnCurrentTimeChanged()
@@ -199,8 +273,6 @@ namespace WhatIfF1.UI.Controller
                 SelectedStanding = Standings.Single(standing => standing.Driver.Equals(oldSelectedDriver));
             }
 
-            MapProvider.UpdateNotRunning(Standings);
-
             // Update driver positions on the map
             foreach (DriverStanding standing in Standings)
             {
@@ -210,20 +282,28 @@ namespace WhatIfF1.UI.Controller
 
         private void OnCurrentLapChanged()
         {
-            GraphProvider.UpdateGraph();
+            GraphProvider.UpdateProvider();
+
+        }
+
+        private void DataProvider_TotalTimeChanged(object sender, ItemChangedEventArgs<int> e)
+        {
+            TotalTime = e.NewValue;
+        }
+
+        private void DataProvider_NoOfLapsChanged(object sender, ItemChangedEventArgs<int> e)
+        {
+            NoOfLaps = e.NewValue;
         }
 
         private void OnSelectedStandingChanged()
         {
+            GraphProvider.TargetDriver = (SelectedStanding?.Driver);
+            PitStopDataProvider.TargetDriver = (SelectedStanding?.Driver);
+
             if (SelectedStanding != null)
             {
                 MapProvider.ToSelectedDriverMode(SelectedStanding.Driver);
-                GraphProvider.UpdateCurrentDriver(SelectedStanding.Driver);
-            }
-            else
-            {
-                MapProvider.ClearSelectedDriverMode();
-                GraphProvider.RemoveCurrentDriver();
             }
         }
 

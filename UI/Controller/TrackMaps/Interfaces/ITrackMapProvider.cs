@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Media;
 using WhatIfF1.Modelling.Events.Drivers.Interfaces;
@@ -14,7 +13,6 @@ namespace WhatIfF1.UI.Controller.TrackMaps.Interfaces
         Point StartPoint { get; }
 
         void UpdateDriverMapPosition(IDriverStanding standing);
-        void UpdateNotRunning(IEnumerable<IDriverStanding> standings);
         void ToSelectedDriverMode(IDriver driver);
         void ClearSelectedDriverMode();
     }

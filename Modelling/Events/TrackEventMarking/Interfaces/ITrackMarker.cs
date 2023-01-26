@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Windows.Media;
 using WhatIfF1.Modelling.Events.Drivers.Interfaces;
+using WhatIfF1.Util.Interfaces;
 
 namespace WhatIfF1.Modelling.Events.TrackEvents.Interfaces
 {
-    public interface ITrackMarker : IEquatable<ITrackMarker>
+    public interface ITrackMarker : IMsRange, IEquatable<ITrackMarker>
     {
         string DisplayName { get; }
         MarkerType MarkerType { get; }
-        int StartMs { get; }
-        int EndMs { get; }
         int StartLap { get; }
         int EndLap { get; }
         string SupportingTextA { get; }

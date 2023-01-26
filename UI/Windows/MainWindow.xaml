@@ -47,6 +47,7 @@
                 Visibility="{Binding Path=., Converter={StaticResource isNotNullToVisConverter}}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="150" />
+                    <ColumnDefinition Width="auto" />
                     <ColumnDefinition Width="1*" />
                     <ColumnDefinition Width="auto" />
                 </Grid.ColumnDefinitions>
@@ -54,14 +55,14 @@
                     <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
                 <sf:SfLinearProgressBar
-                    Grid.ColumnSpan="3"
+                    Grid.ColumnSpan="4"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
                     IsIndeterminate="True"
                     Opacity="0.5"
                     ProgressColor="{StaticResource mainColor}"
                     TrackColor="Transparent"
-                    Visibility="{Binding Path=IsModelLoading, Converter={StaticResource boolToHiddenVisConverter}}" />
+                    Visibility="{Binding Path=IsLoading, Converter={StaticResource boolToHiddenVisConverter}}" />
                 <Image
                     Grid.Row="0"
                     Grid.Column="0"
@@ -126,9 +127,48 @@
                             Text="{Binding Round}" />
                     </Grid>
                 </Grid>
-                <Grid
+                <StackPanel
                     Grid.Row="0"
                     Grid.Column="2"
+                    Margin="{StaticResource defaultMargin}"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Stretch"
+                    Orientation="Horizontal"
+                    Visibility="{Binding IsLoaded, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolToHiddenVisConverter}}">
+                    <TextBlock
+                        Margin="{StaticResource defaultMargin}"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        FontFamily="{StaticResource boldFont}"
+                        FontSize="20"
+                        Foreground="{Binding EventController.CurrentTrackState.Color, Converter={StaticResource colorToBrushConverter}}"
+                        Text="{Binding EventController.CurrentTrackState.SupportingTextA}" />
+                    <Rectangle
+                        Width="2"
+                        Height="40"
+                        Margin="{StaticResource defaultMargin}"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Fill="{StaticResource lightColor}">
+                        <Rectangle.OpacityMask>
+                            <LinearGradientBrush StartPoint="0.5, 0" EndPoint="0.5,1">
+                                <GradientStop Offset="0.1" Color="Transparent" />
+                                <GradientStop Offset="0.5" Color="Black" />
+                                <GradientStop Offset="0.9" Color="Transparent" />
+                            </LinearGradientBrush>
+                        </Rectangle.OpacityMask>
+                    </Rectangle>
+                    <TextBlock
+                        Margin="{StaticResource defaultMargin}"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        FontFamily="{StaticResource regularFont}"
+                        FontSize="15"
+                        Text="{Binding EventController.CurrentTrackState.SupportingTextB}" />
+                </StackPanel>
+                <Grid
+                    Grid.Row="0"
+                    Grid.Column="3"
                     Height="50"
                     Margin="0,0,10,0"
                     HorizontalAlignment="Center"
@@ -143,7 +183,6 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="50" />
                     </Grid.RowDefinitions>
-
                     <Button
                         Grid.Row="0"
                         Grid.Column="0"
@@ -151,7 +190,7 @@
                         Background="Transparent"
                         Command="{Binding EventController.PlayPauseCommand}"
                         Foreground="Transparent"
-                        Visibility="{Binding IsModelLoaded, Converter={StaticResource boolToHiddenVisConverter}}">
+                        Visibility="{Binding IsLoaded, Converter={StaticResource boolToHiddenVisConverter}}">
                         <Button.Content>
                             <Grid>
                                 <Ellipse
@@ -197,7 +236,7 @@
                         Margin="{StaticResource defaultMargin}"
                         Background="{StaticResource mainColor}"
                         Command="{Binding LoadRaceCommand}"
-                        IsEnabled="{Binding IsModelLoading, Converter={StaticResource inverseBoolConverter}}">
+                        IsEnabled="{Binding IsLoading, Converter={StaticResource inverseBoolConverter}}">
                         <Button.Content>
                             <TextBlock
                                 FontFamily="{StaticResource boldFont}"
@@ -257,11 +296,11 @@
                 <ColumnDefinition Width="1*" />
             </Grid.ColumnDefinitions>
             <sf:SfAccordion
+                x:Name="leftAccordian"
                 Grid.Row="0"
                 Grid.Column="0"
                 HorizontalAlignment="Stretch"
-                SelectedIndex="0"
-                SelectionMode="ZeroOrMore">
+                SelectionMode="One">
                 <sf:SfAccordion.HeaderTemplate>
                     <DataTemplate>
                         <TextBlock
@@ -280,11 +319,36 @@
                             ItemTemplate="{StaticResource scenarioItemTemplate}"
                             ItemsSource="{Binding Scenarios, UpdateSourceTrigger=PropertyChanged}"
                             ScrollViewer.VerticalScrollBarVisibility="Hidden"
-                            SelectedItem="{Binding ActiveScenario, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                            SelectedItem="{Binding ActiveScenario, UpdateSourceTrigger=PropertyChanged}"
                             SelectionMode="Single" />
                     </Grid>
                 </sf:SfAccordionItem>
-                <sf:SfAccordionItem Header="Manage Scenario" />
+                <sf:SfAccordionItem DataContext="{Binding ActiveScenario, UpdateSourceTrigger=PropertyChanged}" Header="Track Events">
+                    <StackPanel Orientation="Vertical">
+                        <TextBlock
+                            Margin="{StaticResource defaultMargin}"
+                            HorizontalAlignment="Center"
+                            FontFamily="{StaticResource regularFont}"
+                            Text="Markers Are Loading"
+                            Visibility="{Binding EventController.MarkerProvider.IsLoading, Converter={StaticResource boolToCollapsedVisConverter}, FallbackValue=Collapsed}" />
+                        <ListBox
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
+                            VerticalContentAlignment="Stretch"
+                            ItemTemplate="{StaticResource markerItemTemplate}"
+                            ItemsSource="{Binding EventController.MarkerProvider.Markers}"
+                            ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                            SelectedItem="{Binding EventController.MarkerProvider.SelectedMarker, UpdateSourceTrigger=PropertyChanged}"
+                            Visibility="{Binding EventController.MarkerProvider.IsLoading, Converter={StaticResource inverseBoolToHiddenVisConverter}}">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel Orientation="Vertical" ScrollViewer.VerticalScrollBarVisibility="Disabled" />
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                        </ListBox>
+                    </StackPanel>
+                </sf:SfAccordionItem>
             </sf:SfAccordion>
             <sf:SfGridSplitter
                 Grid.Row="0"
@@ -338,7 +402,7 @@
                         Grid.Row="0"
                         Grid.Column="0"
                         Width="220"
-                        Height="600"
+                        Height="560"
                         Margin="40,40,0,0"
                         HorizontalAlignment="Left"
                         VerticalAlignment="Top"
@@ -490,6 +554,7 @@
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Ellipse
+                                                x:Name="driverEllipse"
                                                 Width="30"
                                                 Height="30"
                                                 Fill="{Binding Path=Color, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource colorToBrushConverter}}"
@@ -542,7 +607,7 @@
                                         <TextBlock
                                             FontFamily="{StaticResource boldFont}"
                                             FontSize="20"
-                                            Text="{Binding EventController.DataProvider.Model.NoOfLaps}" />
+                                            Text="{Binding EventController.NoOfLaps}" />
                                     </StackPanel>
                                     <StackPanel
                                         Grid.Row="1"
@@ -559,25 +624,23 @@
                                 </StackPanel>
                             </Border>
                         </Grid>
-                        <ListBox
+                        <Slider
                             Grid.Row="1"
                             Grid.Column="0"
                             Grid.ColumnSpan="2"
-                            Margin="5,0,70,0"
+                            Margin="0,0,50,10"
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Bottom"
-                            HorizontalContentAlignment="Stretch"
-                            VerticalContentAlignment="Stretch"
-                            ItemTemplate="{StaticResource markerItemTemplate}"
-                            ItemsSource="{Binding EventController.MarkerProvider.Markers}"
-                            ScrollViewer.VerticalScrollBarVisibility="Hidden"
-                            SelectedItem="{Binding EventController.MarkerProvider.SelectedMarker, UpdateSourceTrigger=PropertyChanged}">
-                            <ListBox.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <WrapPanel Orientation="Horizontal" ScrollViewer.VerticalScrollBarVisibility="Disabled" />
-                                </ItemsPanelTemplate>
-                            </ListBox.ItemsPanel>
-                        </ListBox>
+                            Background="Transparent"
+                            BorderThickness="0"
+                            IsSnapToTickEnabled="False"
+                            LargeChange="60000"
+                            Maximum="{Binding EventController.TotalTime, UpdateSourceTrigger=PropertyChanged}"
+                            Minimum="0"
+                            Orientation="Horizontal"
+                            SmallChange="1"
+                            Style="{StaticResource horizSlider}"
+                            Value="{Binding EventController.CurrentTime, UpdateSourceTrigger=PropertyChanged}" />
                     </Grid>
                 </Grid>
                 <Grid
@@ -595,8 +658,9 @@
                         Margin="0,0,20,0"
                         HorizontalAlignment="Right"
                         VerticalAlignment="Center"
+                        Panel.ZIndex="1"
                         Background="{StaticResource mainColor}"
-                        Command="{Binding EventController.DeselectStandingCommand}">
+                        Command="{Binding EventController.DeselectStandingCommand, UpdateSourceTrigger=PropertyChanged}">
                         <Button.Content>
                             <Image
                                 Width="15"
@@ -611,6 +675,7 @@
                         Margin="{StaticResource defaultMargin}"
                         HorizontalAlignment="Right"
                         VerticalAlignment="Center"
+                        Panel.ZIndex="0"
                         DataContext="{Binding EventController.SelectedStanding, UpdateSourceTrigger=PropertyChanged}"
                         Source="{Binding Driver.Constructor.ImagePath}"
                         Stretch="UniformToFill"
@@ -688,15 +753,15 @@
                                     <ColumnDefinition Width="auto" />
                                     <ColumnDefinition Width="auto" />
                                     <ColumnDefinition Width="auto" />
+                                    <ColumnDefinition Width="auto" />
+                                    <ColumnDefinition Width="auto" />
                                 </Grid.ColumnDefinitions>
-
                                 <Grid Grid.Column="2">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="auto" />
                                         <RowDefinition Height="auto" />
                                         <RowDefinition Height="auto" />
                                     </Grid.RowDefinitions>
-
                                     <TextBlock
                                         Grid.Row="0"
                                         Grid.Column="2"
@@ -711,7 +776,6 @@
                                         FontFamily="{StaticResource boldFont}"
                                         FontSize="20"
                                         Text="{Binding Driver.Constructor.Name, UpdateSourceTrigger=PropertyChanged}" />
-
                                     <TextBlock
                                         Grid.Row="2"
                                         Grid.Column="2"
@@ -721,7 +785,6 @@
                                         FontStyle="Italic"
                                         Text="{Binding RacePosition, UpdateSourceTrigger=PropertyChanged, StringFormat=P{0}}" />
                                 </Grid>
-
                                 <Rectangle
                                     Grid.Row="0"
                                     Grid.Column="0"
@@ -754,7 +817,6 @@
                                         </LinearGradientBrush>
                                     </Rectangle.OpacityMask>
                                 </Rectangle>
-
                                 <Border
                                     Grid.Row="0"
                                     Grid.RowSpan="4"
@@ -763,13 +825,11 @@
                                     BorderBrush="{Binding Driver.Constructor.Color, Converter={StaticResource colorToBrushConverter}}"
                                     BorderThickness="3">
 
-
                                     <Button BorderThickness="0" Command="{Binding Driver.AboutDriverCommand}">
                                         <Button.Content>
                                             <Image Source="{Binding Driver.ImagePath}" Stretch="Fill" />
                                         </Button.Content>
                                     </Button>
-
                                 </Border>
                                 <Border
                                     Grid.Row="0"
@@ -778,7 +838,6 @@
                                     Margin="0,10,20,10"
                                     BorderBrush="{Binding Driver.Constructor.Color, Converter={StaticResource colorToBrushConverter}}"
                                     BorderThickness="3">
-
                                     <Button BorderThickness="0" Command="{Binding Driver.AboutDriverCommand}">
                                         <Button.Content>
                                             <Image Source="{Binding Driver.ImagePath}" Stretch="Fill" />
@@ -804,7 +863,7 @@
                                 <Grid
                                     Grid.Row="0"
                                     Grid.Column="4"
-                                    Width="340"
+                                    Width="275"
                                     Margin="{StaticResource defaultMargin}"
                                     VerticalAlignment="Center">
                                     <Grid.RowDefinitions>
@@ -820,7 +879,7 @@
                                         Grid.Row="0"
                                         Grid.Column="0"
                                         Margin="{StaticResource defaultMargin}"
-                                        HorizontalAlignment="Right"
+                                        HorizontalAlignment="Left"
                                         VerticalAlignment="Center"
                                         FontFamily="{StaticResource regularFont}"
                                         FontSize="20"
@@ -838,11 +897,11 @@
                                         Grid.Row="1"
                                         Grid.Column="0"
                                         Margin="{StaticResource defaultMargin}"
-                                        HorizontalAlignment="Right"
+                                        HorizontalAlignment="Left"
                                         VerticalAlignment="Center"
                                         FontFamily="{StaticResource regularFont}"
                                         FontSize="20"
-                                        Text="Gap To Next Car:" />
+                                        Text="Gap To Next:" />
                                     <TextBlock
                                         Grid.Row="1"
                                         Grid.Column="1"
@@ -856,11 +915,11 @@
                                         Grid.Row="2"
                                         Grid.Column="0"
                                         Margin="{StaticResource defaultMargin}"
-                                        HorizontalAlignment="Right"
+                                        HorizontalAlignment="Left"
                                         VerticalAlignment="Center"
                                         FontFamily="{StaticResource regularFont}"
                                         FontSize="20"
-                                        Text="Tyre Compound:" />
+                                        Text="Lap Distance:" />
                                     <TextBlock
                                         Grid.Row="2"
                                         Grid.Column="1"
@@ -869,8 +928,7 @@
                                         VerticalAlignment="Center"
                                         FontFamily="{StaticResource regularFont}"
                                         FontSize="20"
-                                        Foreground="{Binding TireCompound.ScreenColor, Converter={StaticResource colorToBrushConverter}}"
-                                        Text="{Binding TireCompound.ScreenName}" />
+                                        Text="{Binding LapDistance, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource toIntConverter}, StringFormat={}{0}m}" />
                                 </Grid>
                                 <Rectangle
                                     Grid.Row="0"
@@ -955,17 +1013,59 @@
                                     <TextBlock
                                         Grid.Row="1"
                                         Grid.Column="0"
-                                        Margin="{StaticResource defaultMargin}"
+                                        Margin="0,9,0,0"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
                                         FontFamily="{StaticResource regularFont}"
                                         FontSize="20"
                                         Text="Kph" />
-
                                 </Grid>
                                 <Rectangle
                                     Grid.Row="0"
                                     Grid.Column="7"
+                                    Width="2"
+                                    Margin="20,5,20,5"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Stretch"
+                                    Fill="{StaticResource lightColor}">
+                                    <Rectangle.OpacityMask>
+                                        <LinearGradientBrush StartPoint="0.5, 0" EndPoint="0.5,1">
+                                            <GradientStop Offset="0.1" Color="Transparent" />
+                                            <GradientStop Offset="0.5" Color="Black" />
+                                            <GradientStop Offset="0.9" Color="Transparent" />
+                                        </LinearGradientBrush>
+                                    </Rectangle.OpacityMask>
+                                </Rectangle>
+                                <Grid
+                                    Grid.Row="0"
+                                    Grid.Column="8"
+                                    VerticalAlignment="Center">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="auto" />
+                                        <RowDefinition Height="35" />
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Image
+                                        Grid.Row="0"
+                                        Width="100"
+                                        Height="100"
+                                        Margin="0,10,0,0"
+                                        HorizontalAlignment="Center"
+                                        Source="{Binding TireCompound.ImagePath}" />
+                                    <TextBlock
+                                        Grid.Row="1"
+                                        Margin="{StaticResource defaultMargin}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontFamily="{StaticResource regularFont}"
+                                        FontSize="20"
+                                        Text="{Binding TireCompound.ScreenName}" />
+                                </Grid>
+                                <Rectangle
+                                    Grid.Row="0"
+                                    Grid.Column="9"
                                     Width="2"
                                     Margin="20,5,20,5"
                                     HorizontalAlignment="Center"
@@ -994,21 +1094,91 @@
                                     Grid.Column="0"
                                     Margin="{StaticResource defaultMargin}">
                                     <sf:SfChart.PrimaryAxis>
-                                        <sf:NumericalAxis Header="{Binding EventController.VelocityLapGraphProvider.Graph.XTitle, UpdateSourceTrigger=PropertyChanged}" />
+                                        <sf:NumericalAxis Header="{Binding EventController.GraphProvider.Graph.XTitle, UpdateSourceTrigger=PropertyChanged}" />
                                     </sf:SfChart.PrimaryAxis>
                                     <sf:SfChart.SecondaryAxis>
-                                        <sf:NumericalAxis Header="{Binding EventController.VelocityLapGraphProvider.Graph.YTitle, UpdateSourceTrigger=PropertyChanged}" />
+                                        <sf:NumericalAxis
+                                            Header="{Binding EventController.GraphProvider.Graph.YTitle, UpdateSourceTrigger=PropertyChanged}"
+                                            Maximum="{Binding EventController.GraphProvider.Graph.MaxY, UpdateSourceTrigger=PropertyChanged}"
+                                            Minimum="{Binding EventController.GraphProvider.Graph.MinY, UpdateSourceTrigger=PropertyChanged}" />
                                     </sf:SfChart.SecondaryAxis>
                                     <sf:FastLineSeries
-                                        Interior="{StaticResource mainColor}"
-                                        ItemsSource="{Binding EventController.VelocityLapGraphProvider.Graph.Data, UpdateSourceTrigger=PropertyChanged}"
+                                        Interior="{Binding EventController.GraphProvider.TargetDriver.Color, Converter={StaticResource colorToBrushConverter}}"
+                                        ItemsSource="{Binding EventController.GraphProvider.Graph.Data, UpdateSourceTrigger=PropertyChanged}"
                                         Stroke="{StaticResource mainColor}"
                                         XBindingPath="XValue"
                                         YBindingPath="YValue" />
                                 </sf:SfChart>
                             </Grid>
                         </TabItem>
-                        <TabItem Header="Tyres" HeaderTemplate="{StaticResource tabItemTemplate}" />
+                        <TabItem Header="Pit Stops" HeaderTemplate="{StaticResource tabItemTemplate}">
+                            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="1*" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto" />
+                                    <ColumnDefinition Width="auto" />
+                                    <ColumnDefinition Width="auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock
+                                    Grid.Row="0"
+                                    Grid.Column="0"
+                                    Margin="10"
+                                    FontFamily="{StaticResource boldFont}"
+                                    FontSize="15"
+                                    Text="Stints" />
+                                <Rectangle
+                                    Grid.Row="0"
+                                    Grid.RowSpan="2"
+                                    Grid.Column="1"
+                                    Width="2"
+                                    Margin="20,0,20,0"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Stretch"
+                                    Fill="{StaticResource lightColor}">
+                                    <Rectangle.OpacityMask>
+                                        <LinearGradientBrush StartPoint="0.5, 0" EndPoint="0.5,1">
+                                            <GradientStop Offset="0.1" Color="Transparent" />
+                                            <GradientStop Offset="0.5" Color="Black" />
+                                            <GradientStop Offset="0.9" Color="Transparent" />
+                                        </LinearGradientBrush>
+                                    </Rectangle.OpacityMask>
+                                </Rectangle>
+                                <TextBlock
+                                    Grid.Row="0"
+                                    Grid.Column="2"
+                                    Margin="10"
+                                    FontFamily="{StaticResource boldFont}"
+                                    FontSize="15"
+                                    Text="Pit Stops" />
+                                <ListBox
+                                    Grid.Row="1"
+                                    Grid.Column="0"
+                                    ItemTemplate="{StaticResource tireRunTemplate}"
+                                    ItemsSource="{Binding EventController.PitStopDataProvider.TireRuns}"
+                                    ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                                    <ListBox.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel IsItemsHost="True" Orientation="Horizontal" />
+                                        </ItemsPanelTemplate>
+                                    </ListBox.ItemsPanel>
+                                </ListBox>
+                                <ListBox
+                                    Grid.Row="1"
+                                    Grid.Column="2"
+                                    ItemTemplate="{StaticResource pitStopTemplate}"
+                                    ItemsSource="{Binding EventController.PitStopDataProvider.PitStops}"
+                                    ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                                    <ListBox.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel IsItemsHost="True" Orientation="Horizontal" />
+                                        </ItemsPanelTemplate>
+                                    </ListBox.ItemsPanel>
+                                </ListBox>
+                            </Grid>
+                        </TabItem>
                         <TabItem Header="Traffic" HeaderTemplate="{StaticResource tabItemTemplate}" />
                     </TabControl>
                 </Grid>
@@ -1035,5 +1205,4 @@
                 Fill="{StaticResource mainColor}" />
         </Grid>
     </Grid>
-
 </sf:ChromelessWindow>
