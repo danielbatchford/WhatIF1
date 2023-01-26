@@ -16,24 +16,22 @@ namespace WhatIfF1.Modelling.Events.Drivers.Telemetry
 
         private readonly double _trackLength;
 
-        private readonly int[] _ms;
-
-        private readonly double[] _velocity;
-
         private double[] _distance;
 
-        private readonly int _n;
-
         private bool _isIntegrated;
+
+        public int[] Ms { get; }
+        public double[] Velocity { get; }
+        public int NumSamples { get; }
 
         public VelocityDistanceTimeContainer(int lap, double trackLength, IEnumerable<TelemetryTimeStamp> timeStamps)
         {
             _lap = lap;
             _trackLength = trackLength;
 
-            _ms = timeStamps.Select(ts => ts.Ms).ToArray();
-            _velocity = timeStamps.Select(ts => ts.Velocity).ToArray();
-            _n = _ms.Length;
+            Ms = timeStamps.Select(ts => ts.Ms).ToArray();
+            Velocity = timeStamps.Select(ts => ts.Velocity).ToArray();
+            NumSamples = Ms.Length;
         }
 
         public void GetLapDistanceAndVelocity(int lapMs, out double lapDistance, out double velocity)
@@ -43,13 +41,13 @@ namespace WhatIfF1.Modelling.Events.Drivers.Telemetry
                 IntegrateVelocity();
             }
 
-            int closestIndex = _ms.FindClosestIndex(lapMs);
-            int definedMs = _ms[closestIndex];
+            int closestIndex = Ms.FindClosestIndex(lapMs);
+            int definedMs = Ms[closestIndex];
 
             if (definedMs == lapMs)
             {
                 lapDistance = _distance[closestIndex];
-                velocity = _velocity[closestIndex];
+                velocity = Velocity[closestIndex];
                 return;
             }
 
@@ -61,10 +59,10 @@ namespace WhatIfF1.Modelling.Events.Drivers.Telemetry
                 upperIdx = 1;
                 lowerIdx = 0;
             }
-            else if (closestIndex == _n - 1)
+            else if (closestIndex == NumSamples - 1)
             {
-                upperIdx = _n - 1;
-                lowerIdx = _n - 2;
+                upperIdx = NumSamples - 1;
+                lowerIdx = NumSamples - 2;
             }
             else if (definedMs > lapMs)
             {
@@ -78,27 +76,27 @@ namespace WhatIfF1.Modelling.Events.Drivers.Telemetry
             }
 
             // Linear interpolate distance based on requested ms and bordering ms
-            double propAlongRange = (double)(lapMs - _ms[lowerIdx]) / (_ms[upperIdx] - _ms[lowerIdx]);
+            double propAlongRange = (double)(lapMs - Ms[lowerIdx]) / (Ms[upperIdx] - Ms[lowerIdx]);
             lapDistance = _distance[lowerIdx] + (propAlongRange * (_distance[upperIdx] - _distance[lowerIdx]));
-            velocity = _velocity[lowerIdx] + (propAlongRange * (_velocity[upperIdx] - _velocity[lowerIdx]));
+            velocity = Velocity[lowerIdx] + (propAlongRange * (Velocity[upperIdx] - Velocity[lowerIdx]));
         }
 
         private void IntegrateVelocity()
         {
-            _distance = new double[_n];
+            _distance = new double[NumSamples];
 
             _distance[0] = 0;
 
-            for (int i = 1; i < _n; i++)
+            for (int i = 1; i < NumSamples; i++)
             {
-                double dt = (_ms[i] - _ms[i - 1]);
-                _distance[i] = _distance[i - 1] + (0.5 * dt * ((_velocity[i - 1] + _velocity[i]) * _kphToMperMsFactor));
+                double dt = (Ms[i] - Ms[i - 1]);
+                _distance[i] = _distance[i - 1] + (0.5 * dt * ((Velocity[i - 1] + Velocity[i]) * _kphToMperMsFactor));
             }
 
             // Distance here needs to be scaled to the track length (as racing lines differ from track length)
-            double scaleFactor = _trackLength / _distance[_n - 1];
+            double scaleFactor = _trackLength / _distance[NumSamples - 1];
 
-            for (int i = 0; i < _n; i++)
+            for (int i = 0; i < NumSamples; i++)
             {
                 _distance[i] *= scaleFactor;
             }
@@ -108,7 +106,7 @@ namespace WhatIfF1.Modelling.Events.Drivers.Telemetry
 
         public override string ToString()
         {
-            return $"Lap {_lap}, {_n} samples";
+            return $"Lap {_lap}, {NumSamples} samples";
         }
     }
 }

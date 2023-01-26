@@ -10,11 +10,11 @@ namespace WhatIfF1.UI.Converters
         {
             if (value is int i)
             {
-                return i * 1000;
+                return i / 1000;
             }
             else if (value is double d)
             {
-                return d * 1000;
+                return d / 1000;
             }
 
             return null;
@@ -24,11 +24,11 @@ namespace WhatIfF1.UI.Converters
         {
             if (value is int i)
             {
-                return ((double)i) / 1000;
+                return ((double)i) * 1000;
             }
             else if (value is double d)
             {
-                return d / 1000;
+                return d * 1000;
             }
 
             return null;

@@ -31,6 +31,106 @@
             Left="5"
             Right="5"
             Top="5" />
+        <DataTemplate x:Key="pitStopTemplate">
+            <Button Background="Transparent">
+                <Button.Content>
+                    <StackPanel Orientation="Vertical">
+                        <TextBlock
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            FontFamily="{StaticResource boldFont}"
+                            FontSize="15"
+                            Text="{Binding StopNumber, StringFormat={}Stop {0}}" />
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Margin="{StaticResource defaultMargin}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                FontFamily="{StaticResource regularFont}"
+                                Text="Old Tyre" />
+                            <TextBlock
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Margin="{StaticResource defaultMargin}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                FontFamily="{StaticResource regularFont}"
+                                Text="New Tyre" />
+                            <Image
+                                Grid.Row="1"
+                                Grid.Column="0"
+                                Width="30"
+                                Height="30"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Source="{Binding OldCompound.ImagePath}" />
+                            <Image
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                Width="30"
+                                Height="30"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Source="{Binding NewCompound.ImagePath}" />
+                        </Grid>
+                        <TextBlock
+                            Margin="{StaticResource defaultMargin}"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            FontFamily="{StaticResource regularFont}"
+                            Text="{Binding InLap, StringFormat={}On\&#x20;Lap {0}}" />
+                        <TextBlock
+                            Margin="{StaticResource defaultMargin}"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            FontFamily="{StaticResource regularFont}"
+                            Text="{Binding PitTime, Converter={StaticResource msToSecConverter}, StringFormat={}{0} Seconds}" />
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+        </DataTemplate>
+        <DataTemplate x:Key="tireRunTemplate">
+            <Button Background="Transparent">
+                <Button.Content>
+                    <StackPanel Orientation="Vertical">
+                        <TextBlock
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            FontFamily="{StaticResource boldFont}"
+                            FontSize="15"
+                            Text="{Binding Tire.ScreenName}" />
+                        <Image
+                            Width="60"
+                            Height="60"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Source="{Binding Tire.ImagePath}" />
+                        <TextBlock
+                            Margin="{StaticResource defaultMargin}"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            FontFamily="{StaticResource regularFont}"
+                            Text="{Binding StartLap, StringFormat={}From\&#x20;Lap {0}}" />
+                        <TextBlock
+                            Margin="{StaticResource defaultMargin}"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            FontFamily="{StaticResource regularFont}"
+                            Text="{Binding NoOfLaps, StringFormat={}{0} Laps}" />
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+        </DataTemplate>
         <DataTemplate x:Key="markerItemTemplate">
             <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <Grid.RowDefinitions>
@@ -215,7 +315,7 @@
                     Grid.Row="0"
                     Grid.Column="3"
                     Margin="{StaticResource defaultMargin}"
-                    HorizontalAlignment="Right"
+                    HorizontalAlignment="Center"
                     VerticalAlignment="Center"
                     FontFamily="{StaticResource boldFont}"
                     Foreground="{Binding TireCompound.ScreenColor, Converter={StaticResource colorToBrushConverter}}"

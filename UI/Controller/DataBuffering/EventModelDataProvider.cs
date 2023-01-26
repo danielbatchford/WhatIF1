@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using WhatIfF1.Logging;
 using WhatIfF1.Modelling.Events.Drivers.Interfaces;
 using WhatIfF1.Modelling.Events.Interfaces;
+using WhatIfF1.Modelling.PitStops.Interfaces;
 using WhatIfF1.Modelling.TrackStates.Interfaces;
 using WhatIfF1.UI.Controller.DataBuffering.Interfaces;
 using WhatIfF1.UI.Controller.Interfaces;
@@ -65,6 +66,34 @@ namespace WhatIfF1.UI.Controller.DataBuffering
 
                 return packet;
             }
+        }
+
+        public async Task<int> GetCurrentLapForDriver(int ms, IDriver targetDriver)
+        {
+            int driverLap = default;
+            var result = await Task.Run(() => _model.TryGetCurrentLapForDriver(ms, targetDriver, out driverLap));
+            return driverLap;
+        }
+
+        public Task<(ITireCompound startCompound, IEnumerable<IPitStop> stops)> GetPitStopsForDriver(IDriver driver)
+        {
+            var stops = _model.GetPitStopsForDriver(driver, out ITireCompound startCompound);
+            return Task.Run(() => (startCompound, stops));
+        }
+
+        public Task<int> GetTotalLapsForDriver(IDriver driver)
+        {
+            return Task.Run(() => _model.GetTotalLapsForDriver(driver));
+        }
+
+        public IEnumerable<ITrackState> GetTrackStates()
+        {
+            return _model.GetTrackStates();
+        }
+
+        public Task<IVelocityDistanceTimeContainer> GetVDTContainer(IDriver driver, int lap)
+        {
+            return Task.Run(() => _model.GetVDTContainer(driver, lap));
         }
 
         public void Invalidate()
@@ -141,13 +170,6 @@ namespace WhatIfF1.UI.Controller.DataBuffering
             return true;
         }
 
-        public async Task<int> GetCurrentLapForDriver(int ms, IDriver targetDriver)
-        {
-            int driverLap = default;
-            var result = await Task.Run(() => _model.TryGetCurrentLapForDriver(ms, targetDriver, out driverLap));
-            return driverLap;
-        }
-
         private void Model_TotalTimeChanged(object sender, ItemChangedEventArgs<int> e)
         {
             TotalTimeChanged?.Invoke(sender, e);
@@ -156,11 +178,6 @@ namespace WhatIfF1.UI.Controller.DataBuffering
         private void Model_NoOfLapsChanged(object sender, ItemChangedEventArgs<int> e)
         {
             NoOfLapsChanged?.Invoke(sender, e);
-        }
-
-        public IEnumerable<ITrackState> GetTrackStates()
-        {
-            return _model.GetTrackStates();
         }
 
         public event ItemChangedEventHandler<int> TotalTimeChanged;

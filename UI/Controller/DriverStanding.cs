@@ -1,6 +1,6 @@
 ﻿using WhatIfF1.Modelling.Events.Drivers;
 using WhatIfF1.Modelling.Events.Drivers.Interfaces;
-using WhatIfF1.Modelling.Tires.Interfaces;
+using WhatIfF1.Modelling.PitStops.Interfaces;
 using WhatIfF1.UI.Controller.Interfaces;
 using WhatIfF1.Util;
 using WhatIfF1.Util.Extensions;
@@ -96,6 +96,23 @@ namespace WhatIfF1.UI.Controller
             }
         }
 
+        private double _lapDistance;
+
+        public double LapDistance
+        {
+            get => _lapDistance;
+            set
+            {
+                if (_lapDistance == value)
+                {
+                    return;
+                }
+                _lapDistance = value;
+                OnPropertyChanged();
+            }
+        }
+
+
         private double _proportionOfLap;
 
         public double ProportionOfLap
@@ -184,12 +201,13 @@ namespace WhatIfF1.UI.Controller
             State = state;
         }
 
-        public DriverStanding(IDriver driver, int racePosition, int gapToLead, int gapToNextCar, double proportionOfLap, double velocity, ITireCompound tireCompound, RunningState state)
+        public DriverStanding(IDriver driver, int racePosition, int gapToLead, int gapToNextCar, double lapDistance, double proportionOfLap, double velocity, ITireCompound tireCompound, RunningState state)
         {
             _driver = driver;
             _racePosition = racePosition;
             _gapToLead = gapToLead;
             _gapToNextCar = gapToNextCar;
+            _lapDistance = lapDistance;
             _proportionOfLap = proportionOfLap;
             _velocity = velocity;
             _tireCompound = tireCompound;
@@ -206,6 +224,7 @@ namespace WhatIfF1.UI.Controller
             GapToLead = other.GapToLead;
             GapToNextCar = other.GapToNextCar;
             TireCompound = other.TireCompound;
+            LapDistance = other.LapDistance;
             ProportionOfLap = other.ProportionOfLap;
             Velocity = other.Velocity;
             TimingScreenText = other.TimingScreenText;
@@ -224,6 +243,7 @@ namespace WhatIfF1.UI.Controller
                 && RacePosition.Equals(other.RacePosition)
                 && GapToLead.Equals(other.GapToLead)
                 && GapToNextCar.Equals(other.GapToNextCar)
+                && LapDistance.Equals(other.LapDistance)
                 && TireCompound.Equals(other.TireCompound)
                 && ProportionOfLap.Equals(other.ProportionOfLap)
                 && Velocity.Equals(other.Velocity)

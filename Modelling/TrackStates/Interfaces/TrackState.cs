@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using System.Windows.Media;
+﻿using System.Windows.Media;
 using WhatIfF1.Util;
 
 namespace WhatIfF1.Modelling.TrackStates.Interfaces
@@ -33,11 +32,13 @@ namespace WhatIfF1.Modelling.TrackStates.Interfaces
             Flag = flag;
             SafetyCarState = safetyCarState;
 
-            string flagString = new CultureInfo("en-US").TextInfo.ToTitleCase(flag.ToString());
+            // Get flag string in title case: e.g RED -> Red
+            string flagString = Flag.ToString();
+            flagString = $"{flagString.Substring(0, 1).ToUpper()}{flagString.Substring(1, flagString.Length - 1).ToLower()}";
 
             if (safetyCarState == SafetyCarState.NONE)
             {
-                SupportingTextA = $"{flagString} flag";
+                SupportingTextA = $"{flagString} Flag";
                 Color = SpecialColorStore.Instance.GreenColor;
             }
             else
@@ -59,7 +60,7 @@ namespace WhatIfF1.Modelling.TrackStates.Interfaces
                 Color = SpecialColorStore.Instance.RedColor;
             }
 
-            SupportingTextB = $"Laps {StartLap} to {EndLap}";
+            SupportingTextB = $"Laps {StartLap} To {EndLap}";
         }
 
         public override string ToString()

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using WhatIfF1.Logging;
 using WhatIfF1.Modelling.Events.TrackEventMarking;
@@ -51,23 +50,62 @@ namespace WhatIfF1.UI.Controller.Markers
             IsLoading = true;
             try
             {
-                Task.Run(() => CreateMarkers()).ContinueWith(task =>
+                var staticTask = Task
+                    .Run(() => CreateStaticMarkers())
+                    .ContinueWith(task => Markers.AddRange(task.Result),
+                    TaskScheduler.FromCurrentSynchronizationContext());
+
+                var nonStaticTask = Task
+                    .Run(() => CreateDriverMarkers())
+                    .ContinueWith(task => Markers.AddRange(task.Result),
+                    TaskScheduler.FromCurrentSynchronizationContext());
+
+                Task.WhenAll(staticTask, nonStaticTask).ContinueWith(_ =>
                 {
-                    Markers.AddRange(task.Result);
-                    IsLoaded = false;
+                    IsLoading = false;
+                    IsLoaded = Markers.Count > 0;
+                    Logger.Instance.Info("Track markers successfully created");
                 }, TaskScheduler.FromCurrentSynchronizationContext());
             }
             catch (Exception e)
             {
-                Logger.Instance.Exception(e);
-            }
-            finally
-            {
+                IsLoaded = false;
                 IsLoading = false;
+                Logger.Instance.Exception(e);
             }
         }
 
-        private async Task<IEnumerable<ITrackMarker>> CreateMarkers()
+        public void ClearMarkers(int startMs, int endMs)
+        {
+            var toRemove = new List<ITrackMarker>();
+
+            foreach (var marker in Markers)
+            {
+                if (marker.StartMs < startMs)
+                {
+                    continue;
+                }
+
+                if (marker.EndMs > endMs)
+                {
+                    break;
+                }
+
+                toRemove.Add(marker);
+            }
+
+            if (toRemove.Count > 0)
+            {
+                Markers.RemoveRange(toRemove);
+            }
+        }
+
+        public void ClearMarkers()
+        {
+            Markers.Clear();
+        }
+
+        private async Task<IEnumerable<ITrackMarker>> CreateStaticMarkers()
         {
             int lastMs = _parentController.TotalTime - 1;
             var lastPacket = await _parentController.DataProvider.GetDataAtTime(lastMs);
@@ -75,24 +113,13 @@ namespace WhatIfF1.UI.Controller.Markers
             var standings = lastPacket.Standings;
             var lastLap = lastPacket.CurrentLap;
 
-            var raceWinMarker = _markerStore.CreateRaceWinMarker(standings[0].Driver, lastMs, lastLap);
-            var raceStartMarker = _markerStore.CreateRaceStartMarker();
-
-            var trackStates = _parentController.DataProvider.GetTrackStates();
-            var trackStateMarkers = CreateTrackStateMarkers(trackStates);
-
-            return new List<ITrackMarker>(trackStateMarkers)
+            var markers = new List<ITrackMarker>
             {
-                raceWinMarker,
-                raceStartMarker
+                _markerStore.CreateRaceWinMarker(standings[0].Driver, lastMs, lastLap),
+                _markerStore.CreateRaceStartMarker()
             };
-        }
 
-        private IEnumerable<ITrackMarker> CreateTrackStateMarkers(IEnumerable<ITrackState> trackStates)
-        {
-            var markers = new List<ITrackMarker>(trackStates.Count());
-
-            foreach (ITrackState trackState in trackStates)
+            foreach (ITrackState trackState in _parentController.DataProvider.GetTrackStates())
             {
                 ITrackMarker marker = null;
 
@@ -132,34 +159,14 @@ namespace WhatIfF1.UI.Controller.Markers
             return markers;
         }
 
-        public void ClearMarkers(int startMs, int endMs)
+        private async Task<IEnumerable<ITrackMarker>> CreateDriverMarkers()
         {
-            var toRemove = new List<ITrackMarker>();
+            // Overtake markers
+            // retirement markers
+            // pit stop markers
+            //TODO
 
-            foreach (var marker in Markers)
-            {
-                if (marker.StartMs < startMs)
-                {
-                    continue;
-                }
-
-                if (marker.EndMs > endMs)
-                {
-                    break;
-                }
-
-                toRemove.Add(marker);
-            }
-
-            if (toRemove.Count > 0)
-            {
-                Markers.RemoveRange(toRemove);
-            }
-        }
-
-        public void ClearMarkers()
-        {
-            Markers.Clear();
+            return new List<ITrackMarker>();
         }
 
         private void OnSelectedMarkerChanged()

@@ -182,37 +182,26 @@ namespace WhatIfF1.Scenarios
 
             try
             {
-                var driverApiTask = APIAdapter.GetFromErgastAPI($"{EventDate.Year}/{Round}/results.json");
-                var lapTimesApiTask = APIAdapter.GetFromErgastAPI($"{EventDate.Year}/{Round}/laps.json?limit=10000");
-                var telemetryApiTask = APIAdapter.GetTelemetryJsonFromLiveTimingAPI(EventName, EventDate);
+                var driverApiTask = new Task<JsonFetchResult>(() => APIAdapter.GetFromErgastAPI($"{EventDate.Year}/{Round}/results.json").Result);
+                var lapTimesApiTask = new Task<JsonFetchResult>(() => APIAdapter.GetFromErgastAPI($"{EventDate.Year}/{Round}/laps.json?limit=10000").Result);
+                var pitStopsApiTask = new Task<JsonFetchResult>(() => APIAdapter.GetFromErgastAPI($"{EventDate.Year}/{Round}/pitstops.json?").Result);
+                var telemetryApiTask = new Task<JsonFetchResult>(() => APIAdapter.GetTelemetryJsonFromLiveTimingAPI(EventName, EventDate).Result);
 
                 var driverWorker = new APIEventCacheWorker(driverApiTask, "Drivers", "Drivers", $"{EventDate.Year}-{Round:D2}.json");
                 var lapTimesWorker = new APIEventCacheWorker(lapTimesApiTask, "LapTimes", "Lap Times", $"{EventDate.Year}-{Round:D2}.json");
+                var pitStopsWorker = new APIEventCacheWorker(pitStopsApiTask, "PitStops", "Pit Stops", $"{EventDate.Year}-{Round:D2}.json");
                 var telemetryWorker = new APIEventCacheWorker(telemetryApiTask, "Telemetry", "Telemetry", $"{EventName}-{EventDate:dd-MM-yy}.json");
 
-                var driverTask = driverWorker.GetDataTask();
-                var lapTimesTask = lapTimesWorker.GetDataTask();
-                var telemetryTask = telemetryWorker.GetDataTask();
+                var driverTask = Task.Run(() => driverWorker.GetDataTask().Result);
+                var lapTimesTask = Task.Run(() => lapTimesWorker.GetDataTask().Result);
+                var pitStopsTask = Task.Run(() => pitStopsWorker.GetDataTask().Result);
+                var telemetryTask = Task.Run(() => telemetryWorker.GetDataTask().Result);
 
-                await Task.WhenAll(driverTask, lapTimesTask, telemetryApiTask);
-
-                if (driverTask.IsFaulted || driverTask.Result.Equals(JsonFetchResult.Fail))
-                {
-                    throw new ScenarioException($"Failed to fetch driver data for {this}");
-                }
-
-                if (lapTimesTask.IsFaulted || lapTimesTask.Result.Equals(JsonFetchResult.Fail))
-                {
-                    throw new ScenarioException($"Failed to fetch lap time data for {this}");
-                }
-
-                if (telemetryTask.IsFaulted || telemetryTask.Result.Equals(JsonFetchResult.Fail))
-                {
-                    throw new ScenarioException($"Failed to fetch telemetry data for {this}");
-                }
+                await Task.WhenAll(driverTask, lapTimesTask, pitStopsTask, telemetryTask);
 
                 JArray driversJson = (JArray)driverTask.Result.Data["MRData"]["RaceTable"]["Races"][0]["Results"];
                 JArray lapTimesJson = (JArray)lapTimesTask.Result.Data["MRData"]["RaceTable"]["Races"][0]["Laps"];
+                JArray pitStopsJson = (JArray)pitStopsTask.Result.Data["MRData"]["RaceTable"]["Races"][0]["PitStops"];
                 JObject telemetryJson = (JObject)telemetryTask.Result.Data;
 
                 string modelName = $"{EventDate.Year} - {EventName}";
@@ -220,7 +209,7 @@ namespace WhatIfF1.Scenarios
                 int numLaps = driversJson.Max((driver) => driver["laps"].ToObject<int>());
 
                 // Create a new event model from the raw json
-                EventModel model = await Task.Run(() => EventModel.GetModel(modelName, Track.TrackLength, driversJson, lapTimesJson, telemetryJson));
+                EventModel model = await Task.Run(() => EventModel.GetModel(modelName, Track.TrackLength, driversJson, lapTimesJson, pitStopsJson, telemetryJson));
 
                 // Create a new EventController using the event model
                 EventController = new EventController(Track, model);

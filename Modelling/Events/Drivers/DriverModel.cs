@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using WhatIfF1.Modelling.Events.Drivers.Interfaces;
+using WhatIfF1.Modelling.PitStops.Interfaces;
 
 namespace WhatIfF1.Modelling.Events.Drivers
 {
@@ -23,13 +25,24 @@ namespace WhatIfF1.Modelling.Events.Drivers
 
         public int DriverTotalTime { get; }
 
-        public DriverModel(IEnumerable<int> lapTimes, IEnumerable<IVelocityDistanceTimeContainer> vdtContainers, double trackLength, int totalNoOfLaps, bool isDriverRetired)
+        public IEnumerable<IPitStop> PitStops { get; }
+
+        public ITireCompound StartCompound { get; }
+
+        public DriverModel(IEnumerable<int> lapTimes,
+                           IEnumerable<IVelocityDistanceTimeContainer> vdtContainers,
+                           IEnumerable<IPitStop> pitStops,
+                           ITireCompound startCompound,
+                           double trackLength,
+                           int totalNoOfLaps,
+                           bool isDriverRetired)
         {
             _lapTimes = lapTimes.ToList();
-
             _vdtContainers = vdtContainers.ToList();
-
             _trackLength = trackLength;
+            StartCompound = startCompound;
+
+            PitStops = pitStops;
 
             DriverNoOfLaps = _lapTimes.Count;
             TotalNoOfLaps = totalNoOfLaps;
@@ -64,6 +77,24 @@ namespace WhatIfF1.Modelling.Events.Drivers
             runningState = RunningState.RUNNING;
             int lap = lapIndex + 1;
             return new TrackPosition(totalMs, lapMs, lap, forecastLapTime, velocity, totalDistance, lapDistance, _trackLength);
+        }
+
+        public ITireCompound GetCurrentTyreCompound(int lap)
+        {
+            var stop = PitStops.FirstOrDefault(ps => lap >= ps.InLap);
+
+            // Implies the driver has not stopped yet and is still on the starting compound
+            return stop != default ? stop.NewCompound : StartCompound;
+        }
+
+        public IVelocityDistanceTimeContainer GetVDTContainer(int lap)
+        {
+            int index = lap - 1;
+            if(lap > DriverNoOfLaps) 
+            {
+                throw new IndexOutOfRangeException($"Requested a vdt container that exceeded the number of laps driven by {this}. Got lap {lap}, only {DriverNoOfLaps} existed");
+            }
+            return _vdtContainers[lap];
         }
 
         private bool TryGetLapInfo(int totalMs, out int lapMs, out int lapIndex)

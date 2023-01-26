@@ -26,7 +26,7 @@ namespace WhatIfF1.Scenarios
                 throw new ScenarioException($"{nameof(ScenarioStore)} singleton has already been initialised");
             }
 
-            var apiFetchTask = APIAdapter.GetFromErgastAPI($"{_year}.json");
+            var apiFetchTask = new Task<JsonFetchResult>(() => APIAdapter.GetFromErgastAPI($"{_year}.json").Result);
             var scenarioWorker = new APIEventCacheWorker(apiFetchTask, "Events", "Events", $"{_year}.json");
 
             JsonFetchResult result = await scenarioWorker.GetDataTask();
@@ -73,22 +73,6 @@ namespace WhatIfF1.Scenarios
             }
         }
 
-        private int _selectedAccordianIndex;
-
-        public int SelectedAccordianIndex
-        {
-            get => _selectedAccordianIndex;
-            set
-            {
-                if (_selectedAccordianIndex == value)
-                {
-                    return;
-                }
-                _selectedAccordianIndex = value;
-                OnPropertyChanged();
-            }
-        }
-
         private ScenarioStore(IEnumerable<IScenario> scenarios)
         {
             Scenarios = new ObservableRangeCollection<IScenario>(scenarios);
@@ -108,7 +92,6 @@ namespace WhatIfF1.Scenarios
         private void Scenario_ScenarioLoaded(object sender, ScenarioLoadedEventArgs e)
         {
             ActiveScenario = Scenarios.Single(scenario => scenario.Equals((IScenario)sender));
-            SelectedAccordianIndex = 1;
         }
 
         public void RemoveScenario(IScenario scenario)

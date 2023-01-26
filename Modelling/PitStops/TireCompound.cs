@@ -1,22 +1,26 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Windows.Media;
-using WhatIfF1.Modelling.Tires.Interfaces;
+using WhatIfF1.Adapters;
+using WhatIfF1.Modelling.PitStops.Interfaces;
 
-namespace WhatIfF1.Modelling.Tires
+namespace WhatIfF1.Modelling.PitStops
 {
     public class TireCompound : ITireCompound
     {
         public string ScreenName { get; }
         public Color ScreenColor { get; }
-
         public char ScreenCharacter { get; }
+        public string ImagePath { get; }
 
         public TireCompound(string screenName, Color screenColor)
         {
             ScreenName = screenName;
             ScreenColor = screenColor;
-
             ScreenCharacter = screenName[0];
+
+            string tireFolder = FileAdapter.Instance.TiresRoot;
+            ImagePath = Path.Combine(tireFolder, $"{screenName}.png");
         }
 
         public override string ToString()

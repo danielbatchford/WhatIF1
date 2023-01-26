@@ -166,9 +166,11 @@
     <Compile Include="Modelling\Events\TrackEventMarking\TrackMarkerFactory.cs" />
     <Compile Include="Modelling\Events\TrackEventMarking\MarkerType.cs" />
     <Compile Include="Modelling\Events\TrackPosition.cs" />
-    <Compile Include="Modelling\Tires\Interfaces\ITireCompound.cs" />
-    <Compile Include="Modelling\Tires\TireCompound.cs" />
-    <Compile Include="Modelling\Tires\TireCompoundStore.cs" />
+    <Compile Include="Modelling\PitStops\Interfaces\IPitStop.cs" />
+    <Compile Include="Modelling\PitStops\Interfaces\ITireCompound.cs" />
+    <Compile Include="Modelling\PitStops\PitStop.cs" />
+    <Compile Include="Modelling\PitStops\TireCompound.cs" />
+    <Compile Include="Modelling\PitStops\TireCompoundStore.cs" />
     <Compile Include="Modelling\TrackStates\FlagType.cs" />
     <Compile Include="Modelling\TrackStates\Interfaces\ITrackState.cs" />
     <Compile Include="Modelling\TrackStates\Interfaces\TrackState.cs" />
@@ -182,6 +184,11 @@
     <Compile Include="TestClass.cs" />
     <Compile Include="UI\Controller\DataBuffering\EventModelDataProvider.cs" />
     <Compile Include="UI\Controller\DataBuffering\EventModelDataPacket.cs" />
+    <Compile Include="UI\Controller\Interfaces\ITargetDriverDataProvider.cs" />
+    <Compile Include="UI\Controller\Tires\Interfaces\ITireRun.cs" />
+    <Compile Include="UI\Controller\Tires\Interfaces\IPitStopDataProvider.cs" />
+    <Compile Include="UI\Controller\Tires\PitStopDataProvider.cs" />
+    <Compile Include="UI\Controller\Tires\TireRun.cs" />
     <Compile Include="Util\SpecialColorStore.cs" />
     <Compile Include="Util\Enumerables\SortedObservableRangeCollection.cs" />
     <Compile Include="Util\Events\ItemChangedEventArgs.cs" />
@@ -305,9 +312,6 @@
     <Resource Include="UI\Windows\Icons\favicon.png" />
   </ItemGroup>
   <ItemGroup>
-    <SplashScreen Include="Resources\SplashScreen.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\Flags\Australia.png" />
     <Resource Include="Resources\Flags\Austria.png" />
     <Resource Include="Resources\Flags\Azerbaijan.png" />
@@ -332,9 +336,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="UI\Windows\Icons\WhiteCross.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\F1Logo.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Drivers\ALO.png" />
@@ -489,10 +490,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <TargetPath>Resources\Drivers\ZHO.png</TargetPath>
     </ContentWithTargetPath>
-    <ContentWithTargetPath Include="Resources\F1Logo.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <TargetPath>Resources\F1Logo.png</TargetPath>
-    </ContentWithTargetPath>
     <ContentWithTargetPath Include="Resources\Flags\Australia.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <TargetPath>Resources\Flags\Australia.png</TargetPath>
@@ -588,10 +585,6 @@
     <ContentWithTargetPath Include="Resources\Fonts\Formula1-Wide.otf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <TargetPath>Resources\Fonts\Formula1-Wide.otf</TargetPath>
-    </ContentWithTargetPath>
-    <ContentWithTargetPath Include="Resources\SplashScreen.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <TargetPath>Resources\SplashScreen.png</TargetPath>
     </ContentWithTargetPath>
     <ContentWithTargetPath Include="Resources\TrackMarkers\race_start.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -713,7 +706,18 @@
   <ItemGroup>
     <Resource Include="UI\Windows\Icons\BlackCross.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\F1Logo.png" />
+    <Resource Include="Resources\SplashScreen.png" />
+  </ItemGroup>
   <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Resources\Tires\hard.png" />
+    <Resource Include="Resources\Tires\intermediate.png" />
+    <Resource Include="Resources\Tires\medium.png" />
+    <Resource Include="Resources\Tires\soft.png" />
+    <Resource Include="Resources\Tires\wet.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>

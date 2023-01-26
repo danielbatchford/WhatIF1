@@ -16,6 +16,8 @@ using WhatIfF1.UI.Controller.Graphing.Interfaces;
 using WhatIfF1.UI.Controller.Interfaces;
 using WhatIfF1.UI.Controller.Markers;
 using WhatIfF1.UI.Controller.Markers.Interfaces;
+using WhatIfF1.UI.Controller.Tires;
+using WhatIfF1.UI.Controller.Tires.Interfaces;
 using WhatIfF1.UI.Controller.TrackMaps;
 using WhatIfF1.UI.Controller.TrackMaps.Interfaces;
 using WhatIfF1.Util;
@@ -30,17 +32,19 @@ namespace WhatIfF1.UI.Controller
 
         private readonly IPlaybackParameterContainer _playbackParams;
 
-        public IEventModelDataProvider DataProvider { get; }
-
         private int _currentTime;
 
         public ObservableRangeCollection<IDriverStanding> Standings { get; }
+
+        public IEventModelDataProvider DataProvider { get; }
 
         public ITrackMapProvider MapProvider { get; }
 
         public IGraphProvider GraphProvider { get; }
 
         public IMarkerProvider MarkerProvider { get; }
+
+        public IPitStopDataProvider PitStopDataProvider { get; }
 
         public int CurrentTime
         {
@@ -223,6 +227,7 @@ namespace WhatIfF1.UI.Controller
             MapProvider = new TrackMapProvider(track, model.GetDrivers());
             GraphProvider = new GraphProvider(this, GraphType.VELOCITY_TIME);
             MarkerProvider = new MarkerProvider(this);
+            PitStopDataProvider = new PitStopDataProvider(this);
 
             CurrentTime = 0;
 
@@ -233,6 +238,8 @@ namespace WhatIfF1.UI.Controller
                 CurrentLap = task.Result.CurrentLap;
                 Standings.AddRange(task.Result.Standings);
                 CurrentTrackState = task.Result.TrackState;
+                // Auto select the first standing
+                SelectedStanding = Standings[0];
             }, TaskScheduler.FromCurrentSynchronizationContext());
 
             _timer = new DispatcherTimer(TimeSpan.FromMilliseconds(_playbackParams.TimerUpdateMsIncrement), DispatcherPriority.ApplicationIdle, TimerTick, Dispatcher.CurrentDispatcher);
@@ -275,7 +282,8 @@ namespace WhatIfF1.UI.Controller
 
         private void OnCurrentLapChanged()
         {
-            GraphProvider.UpdateGraph();
+            GraphProvider.UpdateProvider();
+
         }
 
         private void DataProvider_TotalTimeChanged(object sender, ItemChangedEventArgs<int> e)
@@ -290,15 +298,12 @@ namespace WhatIfF1.UI.Controller
 
         private void OnSelectedStandingChanged()
         {
+            GraphProvider.TargetDriver = (SelectedStanding?.Driver);
+            PitStopDataProvider.TargetDriver = (SelectedStanding?.Driver);
+
             if (SelectedStanding != null)
             {
                 MapProvider.ToSelectedDriverMode(SelectedStanding.Driver);
-                GraphProvider.UpdateCurrentDriver(SelectedStanding.Driver);
-            }
-            else
-            {
-                MapProvider.ClearSelectedDriverMode();
-                GraphProvider.RemoveCurrentDriver();
             }
         }
 

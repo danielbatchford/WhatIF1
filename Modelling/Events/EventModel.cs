@@ -7,7 +7,8 @@ using WhatIfF1.Modelling.Events.Drivers;
 using WhatIfF1.Modelling.Events.Drivers.Interfaces;
 using WhatIfF1.Modelling.Events.Drivers.Telemetry;
 using WhatIfF1.Modelling.Events.Interfaces;
-using WhatIfF1.Modelling.Tires;
+using WhatIfF1.Modelling.PitStops;
+using WhatIfF1.Modelling.PitStops.Interfaces;
 using WhatIfF1.Modelling.TrackStates.Interfaces;
 using WhatIfF1.UI.Controller;
 using WhatIfF1.UI.Controller.Interfaces;
@@ -20,7 +21,7 @@ namespace WhatIfF1.Modelling.Events
     {
         #region Static
 
-        public static EventModel GetModel(string name, double trackLength, JArray driversJson, JArray lapTimesJson, JObject telemetryJson)
+        public static EventModel GetModel(string name, double trackLength, JArray driversJson, JArray lapTimesJson, JArray pitStopsJson, JObject telemetryJson)
         {
             var drivers = Driver.GetDriversAndRetirementsListFromJSON(driversJson, out IDictionary<IDriver, bool> isDriverRetiredDict);
             int noOfDrivers = drivers.Count();
@@ -31,6 +32,8 @@ namespace WhatIfF1.Modelling.Events
 
             var vdtContainers = telemetryParser.ParseTelemetryJson(drivers, lapTimes, telemetryJson);
 
+            var tireCompounds = ParsePitStops(drivers, pitStopsJson, out IDictionary<IDriver, ITireCompound> startingCompounds);
+
             // Initialise number of laps as the max of the laps completed by each driver
             int noOfLaps = lapTimes.Values.Max(lt => lt.Count);
 
@@ -40,7 +43,14 @@ namespace WhatIfF1.Modelling.Events
 
             foreach (IDriver driver in drivers)
             {
-                driverModels.Add(driver, new DriverModel(lapTimes[driver], vdtContainers[driver], trackLength, noOfLaps, isDriverRetiredDict[driver]));
+                driverModels.Add(driver, new DriverModel(
+                    lapTimes[driver],
+                    vdtContainers[driver],
+                    tireCompounds[driver],
+                    startingCompounds[driver],
+                    trackLength,
+                    noOfLaps,
+                    isDriverRetiredDict[driver]));
             }
 
             // Initialse the total time as 1ms before the maximum time of the total times of each driver
@@ -51,7 +61,52 @@ namespace WhatIfF1.Modelling.Events
             return new EventModel(name, noOfDrivers, noOfLaps, totalTime, driverModels, trackStates);
         }
 
-        private static IDictionary<IDriver, ICollection<int>> ParseLapTimes(IEnumerable<IDriver> drivers, JArray lapTimesJson)
+        private static IDictionary<IDriver, ICollection<IPitStop>> ParsePitStops(IEnumerable<IDriver> drivers, JArray json, out IDictionary<IDriver, ITireCompound> startingCompounds)
+        {
+            var pitStops = new Dictionary<IDriver, ICollection<IPitStop>>();
+            startingCompounds = new Dictionary<IDriver, ITireCompound>();
+
+            // Initialise driver pit stops dictionary and starting compounds dictionary
+            foreach (IDriver driver in drivers)
+            {
+                pitStops.Add(driver, new List<IPitStop>());
+            }
+
+            string[] timeFormats = new string[]
+            {
+                @"s\.fff",
+                @"ss\.fff",
+                @"sss\.fff",
+            };
+
+            foreach (IDriver driver in drivers)
+            {
+                foreach (var pitJson in json.Where(ps => ((string)ps["driverId"]).Equals(driver.DriverID)))
+                {
+                    int stopNumber = (int)pitJson["stop"];
+                    int inLap = (int)pitJson["lap"];
+                    int outLap = inLap + 1;
+
+                    string timingString = pitJson["duration"].ToObject<string>();
+
+                    // TODO - this
+                    var oldCompound = TireCompoundStore.GetRandomCompound();
+                    var newCompound = TireCompoundStore.GetRandomCompound();
+
+                    // Convert this timing string from format second.millisecond to milliseconds
+                    TimeSpan pitTime = TimeSpan.ParseExact(timingString, timeFormats, CultureInfo.InvariantCulture);
+
+                    pitStops[driver].Add(new PitStop(stopNumber, (int)pitTime.TotalMilliseconds, inLap, outLap, oldCompound, newCompound));
+                }
+
+                // TODO - this
+                startingCompounds.Add(driver, TireCompoundStore.GetRandomCompound());
+            }
+
+            return pitStops;
+        }
+
+        private static IDictionary<IDriver, ICollection<int>> ParseLapTimes(IEnumerable<IDriver> drivers, JArray json)
         {
             var lapTimes = new Dictionary<IDriver, ICollection<int>>();
 
@@ -63,12 +118,12 @@ namespace WhatIfF1.Modelling.Events
 
             const string timeFormat = @"m\:ss\.fff";
 
-            foreach (JObject lapTimeJson in lapTimesJson)
+            foreach (JObject lapTimeJson in json)
             {
                 foreach (Driver driver in drivers)
                 {
                     // If no element is found, this implies the driver has retired from the race
-                    JToken timingObject = lapTimeJson["Timings"].SingleOrDefault(timing => timing["driverId"].ToObject<string>().Equals(driver.DriverID));
+                    JToken timingObject = lapTimeJson["Timings"].SingleOrDefault(timing => ((string)timing["driverId"]).Equals(driver.DriverID));
 
                     if (timingObject == default)
                     {
@@ -166,6 +221,16 @@ namespace WhatIfF1.Modelling.Events
             return _trackStates;
         }
 
+        public IVelocityDistanceTimeContainer GetVDTContainer(IDriver driver, int lap)
+        {
+            return _driverModels[driver].GetVDTContainer(lap);
+        }
+
+        public int GetTotalLapsForDriver(IDriver driver)
+        {
+            return _driverModels[driver].DriverNoOfLaps;
+        }
+
         public IEnumerable<IDriverStanding> GetStandingsAtTime(int ms, out int currentLap, out ITrackState trackState)
         {
             var driverPositions = new List<(IDriver driver, TrackPosition position, RunningState runningState)>(NoOfDrivers);
@@ -197,6 +262,8 @@ namespace WhatIfF1.Modelling.Events
                 TrackPosition carPos = driverPositions[i].position;
                 RunningState runningState = driverPositions[i].runningState;
 
+                ITireCompound tireCompound = _driverModels[driver].GetCurrentTyreCompound(carPos.Lap);
+
                 int gapToNextCar;
 
                 // Lead car case
@@ -213,7 +280,7 @@ namespace WhatIfF1.Modelling.Events
                 }
 
                 int racePos = i + 1;
-                standings.Add(new DriverStanding(driver, racePos, cumulativeGap, gapToNextCar, carPos.LapDistanceFraction, carPos.Velocity, TireCompoundStore.SoftTyre, runningState));
+                standings.Add(new DriverStanding(driver, racePos, cumulativeGap, gapToNextCar, carPos.LapDistance, carPos.LapDistanceFraction, carPos.Velocity, tireCompound, runningState));
             }
 
             return standings;
@@ -230,6 +297,12 @@ namespace WhatIfF1.Modelling.Events
             }
             currentLap = -1;
             return false;
+        }
+
+        public IEnumerable<IPitStop> GetPitStopsForDriver(IDriver driver, out ITireCompound startCompound)
+        {
+            startCompound = _driverModels[driver].StartCompound;
+            return _driverModels[driver].PitStops;
         }
 
         private int CalculateGap(TrackPosition car, TrackPosition reference)
